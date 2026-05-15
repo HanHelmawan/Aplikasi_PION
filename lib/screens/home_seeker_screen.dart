@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'create_task_screen.dart';
 
 class HomeSeekerScreen extends StatelessWidget {
-  const HomeSeekerScreen({super.key});
+  final bool isWorkerMode;
+  const HomeSeekerScreen({super.key, this.isWorkerMode = false});
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +48,13 @@ class HomeSeekerScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    'Find help,\ninstantly.',
+                    'Temukan bantuan,\nsekarang juga.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1B233A), height: 1.1),
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Connect with verified local providers for\nany task you need doing today.',
+                    'Terhubung dengan penyedia jasa lokal terverifikasi untuk\nberbagai tugas yang Anda butuhkan hari ini.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
@@ -72,7 +74,7 @@ class HomeSeekerScreen extends StatelessWidget {
                         const Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'What do you need?',
+                              hintText: 'Apa yang Anda butuhkan?',
                               border: InputBorder.none,
                               hintStyle: TextStyle(color: Colors.black38),
                             ),
@@ -85,7 +87,7 @@ class HomeSeekerScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Find Now'),
+                          child: const Text('Cari Sekarang'),
                         )
                       ],
                     ),
@@ -100,8 +102,8 @@ class HomeSeekerScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Explore Categories', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextButton(onPressed: () {}, child: const Text('See all')),
+                  const Text('Jelajahi Kategori', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextButton(onPressed: () {}, child: const Text('Lihat semua')),
                 ],
               ),
             ),
@@ -127,8 +129,8 @@ class HomeSeekerScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Nearby Providers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextButton(onPressed: () {}, child: const Text('View map')),
+                  const Text('Penyedia Terdekat', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextButton(onPressed: () {}, child: const Text('Lihat peta')),
                 ],
               ),
             ),
@@ -138,21 +140,21 @@ class HomeSeekerScreen extends StatelessWidget {
                 children: [
                   _buildProviderCard(
                     name: 'Budi Santoso',
-                    distance: '1.2 km away',
+                    distance: '1.2 km',
                     rating: '4.9',
                     imageUrl: 'https://i.pravatar.cc/150?img=12',
                     tags: ['#Perbaikan', '#BantuAngkat'],
                   ),
                   _buildProviderCard(
                     name: 'Siti Aminah',
-                    distance: '2.5 km away',
+                    distance: '2.5 km',
                     rating: '4.8',
                     imageUrl: 'https://i.pravatar.cc/150?img=5',
                     tags: ['#BersihRumah', '#TemanJalan'],
                   ),
                   _buildProviderCard(
                     name: 'Andi Pratama',
-                    distance: '3.1 km away',
+                    distance: '3.1 km',
                     rating: '5.0',
                     imageUrl: 'https://i.pravatar.cc/150?img=13',
                     tags: ['#Pindahan', '#BantuAngkat'],
@@ -164,12 +166,15 @@ class HomeSeekerScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateTaskScreen()));
-        },
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: isWorkerMode == true
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateTaskScreen()));
+              },
+              backgroundColor: const Color(0xFF0525BB),
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 
@@ -272,7 +277,7 @@ class HomeSeekerScreen extends StatelessWidget {
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('View Profile'),
+                child: const Text('Lihat Profil'),
               ),
             )
           ],

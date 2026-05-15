@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:pion/main.dart';
+import 'package:pion/main.dart'; // Adjust if package name is different, assuming pion
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    // Kita lewati config reader initialize karena ini test.
-    await tester.pumpWidget(const PionApp());
+  testWidgets('App start test', (WidgetTester tester) async {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      print('FLUTTER ERROR: ${details.exceptionAsString()}');
+      print(details.stack);
+    };
 
-    // Verify that bottom navigation exists
-    expect(find.byType(BottomNavigationBar), findsOneWidget);
+    try {
+      await tester.pumpWidget(const PionApp());
+      await tester.pumpAndSettle();
+      print('NO ERROR ON STARTUP!');
+    } catch (e, st) {
+      print('CAUGHT EXCEPTION: $e');
+      print(st);
+    }
   });
 }

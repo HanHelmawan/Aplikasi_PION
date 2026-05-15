@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chat_screen.dart';
+import 'rating_screen.dart';
 
 class ActiveTaskScreen extends StatelessWidget {
   const ActiveTaskScreen({super.key});
@@ -12,7 +13,7 @@ class ActiveTaskScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Active Task', style: TextStyle(color: Color(0xFF0052CC), fontWeight: FontWeight.bold)),
+        title: const Text('Tugas Aktif', style: TextStyle(color: Color(0xFF0052CC), fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -84,13 +85,13 @@ class ActiveTaskScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Expanded(
-                        child: Text('Emergency Plumbing Repair', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B233A))),
+                        child: Text('Perbaikan Pipa Bocor', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B233A))),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: const [
                           Text('ETA', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                          Text('10 Mins', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0052CC))),
+                          Text('10 Menit', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0052CC))),
                         ],
                       )
                     ],
@@ -139,14 +140,16 @@ class ActiveTaskScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingScreen()));
+                      },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: const Color(0xFF0052CC),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('Mark as Completed (Release Escrow)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      label: const Text('Pekerjaan Selesai', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -155,7 +158,7 @@ class ActiveTaskScreen extends StatelessWidget {
                     child: TextButton(
                       onPressed: () {},
                       style: TextButton.styleFrom(foregroundColor: const Color(0xFFD32F2F)),
-                      child: const Text('Report an Issue'),
+                      child: const Text('Laporkan Masalah'),
                     ),
                   )
                 ],

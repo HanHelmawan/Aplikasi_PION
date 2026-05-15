@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'core/theme.dart';
 import 'core/config_reader.dart';
 import 'screens/home_seeker_screen.dart';
-import 'screens/create_task_screen.dart';
-import 'screens/provider_dashboard_screen.dart';
-import 'screens/sos_screen.dart';
+import 'screens/select_provider_screen.dart';
+
+import 'screens/onboarding_screen.dart';
+
+import 'screens/login_screen.dart';
+import 'screens/chat_list_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,13 +27,14 @@ class PionApp extends StatelessWidget {
       theme: PionTheme.lightTheme,
       // Force light theme mode to match the UI mockup perfectly
       themeMode: ThemeMode.light,
-      home: const MainNavigation(),
+      home: const OnboardingScreen(),
     );
   }
 }
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final bool isWorkerMode;
+  const MainNavigation({super.key, this.isWorkerMode = false});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -38,11 +43,12 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeSeekerScreen(), // Explore
-    const ProviderDashboardScreen(), // Tasks / Overview
-    const CreateTaskScreen(), // Activity (temporary placing create task here)
-    const SOSScreen(), // Profile (temporary placing SOS here)
+  List<Widget> get _pages => [
+    HomeSeekerScreen(isWorkerMode: widget.isWorkerMode == true), // Explore
+    const SelectProviderScreen(), // Tasks (Bids)
+
+    const ChatListScreen(), // Chats
+    ProfileScreen(isWorkerMode: widget.isWorkerMode == true), // Profile
   ];
 
   @override
@@ -57,29 +63,30 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: PionTheme.primaryColor,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color(0xFF0525BB),
+        unselectedItemColor: const Color(0xFF757686),
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view_outlined),
-            activeIcon: Icon(Icons.grid_view),
-            label: 'Tasks',
+            icon: Icon(Icons.assignment_outlined),
+            activeIcon: Icon(Icons.assignment),
+            label: 'Tugas',
           ),
+
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            activeIcon: Icon(Icons.receipt_long),
-            label: 'Activity', // using create task placeholder
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Pesan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile', // using SOS placeholder
+            label: 'Profil',
           ),
         ],
       ),

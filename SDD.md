@@ -19,6 +19,10 @@ Dokumen ini menguraikan arsitektur dan spesifikasi desain untuk aplikasi **Pion*
 ### C. Pilar Reputasi
 *   **Rating & Ulasan Spesifik:** Penilaian berbasis parameter spesifik dan tag keahlian bukan sekadar bintang (misal: "Sangat Tepat Waktu", "Sopan", "Bekerja Cepat", "Sangat Membantu").
 
+### D. Konsep Multi-Peran (Dual Role)
+*   **Default State (Pencari Jasa):** Setelah otentikasi awal, pengguna memasuki antarmuka utama untuk membuat tugas, mencari penyedia jasa lokal, dan melakukan konfirmasi pesanan.
+*   **Upgraded State (Pencari & Penyedia Jasa):** Setelah melewati proses verifikasi identitas (KYC), profil pengguna akan dilengkapi dengan fitur *Toggle Switch* (Ganti Mode). Pengguna dapat beralih antara "Mode Cari Jasa" dan "Mode Kerja" dalam satu ketukan tanpa perlu melakukan login ulang.
+
 ---
 
 ## 3. Flow Process (Alur Kerja Pengguna)

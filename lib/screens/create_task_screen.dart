@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'select_provider_screen.dart';
 import 'checkout_screen.dart';
 
 class CreateTaskScreen extends StatefulWidget {
@@ -89,10 +88,11 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => CheckoutScreen(
-          taskTitle: _issueController.text.trim(),
+          taskTitle: _tags.isNotEmpty ? _tags.first.label : 'Tugas Umum',
           providerName: 'Belum dipilih',
           category: _tags.isNotEmpty ? _tags.first.label : 'Umum',
-          serviceFeeCents: 150000,
+          initialDescription: _issueController.text.trim(),
+          initialPhotos: _photoUrls,
         ),
       ),
     );
@@ -435,7 +435,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               color: const Color(0xFFF4F2FE),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: ),
                   blurRadius: 12,
                   offset: const Offset(0, -4),
                 ),
@@ -520,7 +520,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: tag.color.withOpacity(0.12),
+        color: tag.color.withValues(alpha: ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

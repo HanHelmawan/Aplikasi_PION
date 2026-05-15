@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'active_task_screen.dart';
-import 'checkout_screen.dart';
 import 'provider_detail_screen.dart';
 class SelectProviderScreen extends StatelessWidget {
   const SelectProviderScreen({super.key});

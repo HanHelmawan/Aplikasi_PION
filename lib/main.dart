@@ -6,7 +6,6 @@ import 'screens/select_provider_screen.dart';
 
 import 'screens/onboarding_screen.dart';
 
-import 'screens/login_screen.dart';
 import 'screens/chat_list_screen.dart';
 import 'screens/profile_screen.dart';
 

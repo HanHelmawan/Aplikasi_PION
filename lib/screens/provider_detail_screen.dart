@@ -30,7 +30,7 @@ class ProviderData {
   final List<String> skills;
   final List<ProviderReview> reviews;
   final String category;
-  final String price; // e.g. "Rp 250k"
+  final String? price;
 
   const ProviderData({
     required this.name,
@@ -43,7 +43,7 @@ class ProviderData {
     required this.skills,
     required this.reviews,
     required this.category,
-    required this.price,
+    this.price,
   });
 }
 
@@ -70,7 +70,6 @@ class ProviderDetailScreen extends StatelessWidget {
             'Profesional berpengalaman di bidang instalasi pipa dan sistem air dengan lebih dari 8 tahun pengalaman. Berkomitmen memberikan solusi cepat, andal, dan aman untuk hunian maupun usaha kecil. Sudah terverifikasi dan diasuransikan demi ketenangan pikiran Anda.',
         skills: ['#AhliAir', '#TepatWaktu', '#Perbaikan', '#Instalasi'],
         category: 'Plumbing',
-        price: 'Rp 250.000',
         reviews: [
           ProviderReview(
             reviewerName: 'Sarah J.',
@@ -310,7 +309,7 @@ class ProviderDetailScreen extends StatelessWidget {
               color: const Color(0xFFF4F2FE),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: ),
                   blurRadius: 12,
                   offset: const Offset(0, -4),
                 ),
@@ -326,11 +325,8 @@ class ProviderDetailScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => CheckoutScreen(
                         providerName: provider.name,
-                        taskTitle: 'Perbaikan Pipa Bocor',
+                        taskTitle: 'Perbaikan / Layanan', // Default generic title
                         category: provider.category,
-                        serviceFeeCents: int.tryParse(
-                                provider.price.replaceAll(RegExp(r'[^0-9]'), '')) ??
-                            150000,
                       ),
                     ),
                   );

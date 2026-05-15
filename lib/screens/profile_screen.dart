@@ -163,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Switch(
                   value: _isWorkerMode,
-                  activeColor: const Color(0xFF0525BB),
+                  activeTrackColor: const Color(0xFF0525BB),
                   onChanged: (value) {
                     Navigator.pushAndRemoveUntil(
                       context,

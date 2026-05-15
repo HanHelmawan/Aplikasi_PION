@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'active_task_screen.dart';
 
 /// Checkout screen – shown after selecting a provider or posting a task.
 ///
-/// Displays a booking breakdown. Payment is done on-site.
+/// Now serves as an interactive form where users can describe their issue,
+/// attach photos, and offer a custom price.
 class CheckoutScreen extends StatefulWidget {
   final String taskTitle;
   final String providerName;
   final String category;
-  final int serviceFeeCents; // in IDR
+  
+  // Optional initial data passed from CreateTaskScreen
+  final String? initialDescription;
+  final List<String>? initialPhotos;
 
   const CheckoutScreen({
     super.key,
     this.taskTitle = 'Perbaikan Pipa Bocor',
-    this.providerName = 'Budi Santoso',
-    this.category = 'Plumbing',
-    this.serviceFeeCents = 150000,
+    this.providerName = 'Belum dipilih',
+    this.category = 'Umum',
+    this.initialDescription,
+    this.initialPhotos,
   });
 
   @override
@@ -23,23 +29,80 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  static const int _platformFee = 5000;
+  static const int _transportFee = 15000;
   bool _isProcessing = false;
 
-  int get _total => widget.serviceFeeCents + _platformFee;
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _priceController;
+  late final List<String> _photos;
+
+  int _offerPrice = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController = TextEditingController(text: widget.initialDescription ?? '');
+    _priceController = TextEditingController();
+    _photos = widget.initialPhotos != null ? List.from(widget.initialPhotos!) : [];
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  int get _total => _offerPrice + _transportFee;
 
   String _formatRupiah(int amount) {
-    // Format: Rp 150.000
+    if (amount == 0) return 'Rp 0';
     final s = amount.toString();
     final buffer = StringBuffer();
     for (int i = 0; i < s.length; i++) {
       if (i > 0 && (s.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(s[i]);
+      buffer.write(s[s.length - 1 - i]);
     }
-    return 'Rp ${buffer.toString()}';
+    return 'Rp ${buffer.toString().split('').reversed.join()}';
+  }
+
+  void _onPriceChanged(String value) {
+    // Remove non-numeric characters
+    final numericString = value.replaceAll(RegExp(r'[^0-9]'), '');
+    int newPrice = 0;
+    if (numericString.isNotEmpty) {
+      newPrice = int.parse(numericString);
+    }
+
+    setState(() {
+      _offerPrice = newPrice;
+    });
+
+    // Format and maintain cursor position
+    if (numericString.isNotEmpty) {
+      final formatted = _formatRupiah(newPrice).replaceAll('Rp ', '');
+      _priceController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
 
   Future<void> _bookService() async {
+    if (_descriptionController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tolong jelaskan masalah Anda.')),
+      );
+      return;
+    }
+
+    if (_offerPrice <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Masukkan estimasi harga penawaran Anda.')),
+      );
+      return;
+    }
+
     setState(() => _isProcessing = true);
     await Future.delayed(const Duration(milliseconds: 1500));
     if (!mounted) return;
@@ -64,7 +127,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Konfirmasi Pesanan',
+          'Detail & Penawaran',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -134,48 +197,169 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ── Payment Note Card ─────────────────────────────────
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEECF8),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFC5C5D7)),
-                    ),
-                    child: Row(
+                  // ── Deskripsi Kerusakan ──────────────────────────────
+                  _buildCard(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.payments_outlined,
-                          color: Color(0xFF0525BB),
-                          size: 22,
+                        const Text(
+                          'Deskripsi Kerusakan',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF1A1B23),
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _descriptionController,
+                          maxLines: 4,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF1A1B23),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Mis., Pipa wastafel bocor dan lantai menggenang...',
+                            hintStyle: const TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Inter',
+                              color: Color(0xFFA0A0B0),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF0EEFF),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.all(14),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Foto Masalah (Opsional)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF1A1B23),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_photos.isEmpty)
+                          GestureDetector(
+                            onTap: () => setState(() => _photos.add('https://picsum.photos/200')),
+                            child: Container(
+                              width: double.infinity,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFC5C5D7),
+                                  width: 1.5,
+                                ),
+                                color: const Color(0xFFF4F2FE),
+                              ),
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_a_photo_outlined, color: Color(0xFF444655), size: 24),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Unggah Foto',
+                                    style: TextStyle(fontSize: 12, fontFamily: 'Inter', color: Color(0xFF444655)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
                             children: [
-                              Text(
-                                'Pembayaran di Tempat',
+                              for (final url in _photos)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(url, width: 70, height: 70, fit: BoxFit.cover),
+                                ),
+                              GestureDetector(
+                                onTap: () => setState(() => _photos.add('https://picsum.photos/200')),
+                                child: Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE9E7F3),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: const Color(0xFFC5C5D7)),
+                                  ),
+                                  child: const Icon(Icons.add, color: Color(0xFF444655)),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Penawaran Harga ──────────────────────────────────
+                  _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Harga Estimasi Anda',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF1A1B23),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Masukkan harga penawaran awal untuk jasa ini.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF757686),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _priceController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          onChanged: _onPriceChanged,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF0525BB),
+                          ),
+                          decoration: InputDecoration(
+                            prefixIcon: const Padding(
+                              padding: EdgeInsets.only(left: 14, right: 8, top: 14),
+                              child: Text(
+                                'Rp',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Inter',
                                   color: Color(0xFF1A1B23),
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                'Tidak ada pembayaran di awal. Pembayaran dilakukan secara langsung kepada penyedia jasa di lokasi Anda setelah pekerjaan selesai.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Inter',
-                                  color: Color(0xFF444655),
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
+                            ),
+                            hintText: '0',
+                            filled: true,
+                            fillColor: const Color(0xFFF0EEFF),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                         ),
                       ],
@@ -189,7 +373,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Estimasi Biaya',
+                          'Rincian Biaya',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -198,9 +382,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildFeeRow('Biaya Jasa (Estimasi)', _formatRupiah(widget.serviceFeeCents)),
+                        _buildFeeRow('Harga Penawaran Anda', _formatRupiah(_offerPrice)),
                         const SizedBox(height: 10),
-                        _buildFeeRow('Biaya Transport / Platform', _formatRupiah(_platformFee)),
+                        _buildFeeRow('Biaya Transport / Platform', _formatRupiah(_transportFee)),
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
                           child: Divider(color: Color(0xFFE3E1ED), height: 1),
@@ -209,7 +393,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'Total Estimasi',
+                              'Total Tagihan',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -244,7 +428,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               color: const Color(0xFFF4F2FE),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: ),
                   blurRadius: 12,
                   offset: const Offset(0, -4),
                 ),
@@ -264,9 +448,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Icon(Icons.check_circle_outline, size: 20),
+                    : const Icon(Icons.send_rounded, size: 20),
                 label: Text(
-                  _isProcessing ? 'Memproses...' : 'Pesan Layanan',
+                  _isProcessing ? 'Memproses...' : 'Kirim Penawaran',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

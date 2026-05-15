@@ -217,7 +217,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         color: const Color(0xFFE9E7F3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: ),
             blurRadius: 20.0,
             offset: const Offset(0, 10),
           )
@@ -227,7 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         alignment: Alignment.center,
         children: [
           // Background Map Pattern
-          Icon(Icons.map_outlined, size: 200.0, color: Colors.white.withOpacity(0.5)),
+          Icon(Icons.map_outlined, size: 200.0, color: Colors.white.withValues(alpha: )),
           // Pins
           const Positioned(
             top: 60.0,
@@ -258,7 +258,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 3.0),
               boxShadow: [
-                BoxShadow(color: const Color(0xFFD32F2F).withOpacity(0.4), blurRadius: 8.0),
+                BoxShadow(color: const Color(0xFFD32F2F).withValues(alpha: ), blurRadius: 8.0),
               ]
             ),
           )
@@ -284,7 +284,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             borderRadius: BorderRadius.circular(16.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: ),
                 blurRadius: 15.0,
                 offset: const Offset(0, 8),
               )
@@ -383,7 +383,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF0525BB),
                     borderRadius: BorderRadius.circular(16.0).copyWith(bottomRight: Radius.zero),
-                    boxShadow: [BoxShadow(color: const Color(0xFF0525BB).withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: const Color(0xFF0525BB).withValues(alpha: ), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
                   child: const Text(
                     'Bisa perbaiki pipa bocor hari ini?',
@@ -408,7 +408,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16.0).copyWith(bottomLeft: Radius.zero),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: ), blurRadius: 10, offset: const Offset(0, 4))],
                         ),
                         child: const Text(
                           'Tentu, saya bisa datang jam 2 siang. Biayanya Rp 150.000 ya.',
@@ -443,7 +443,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             borderRadius: BorderRadius.circular(24.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: ),
                 blurRadius: 15.0,
                 offset: const Offset(0, 8),
               )
@@ -455,7 +455,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Container(
                 padding: const EdgeInsets.all(20.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2E7D32).withOpacity(0.1),
+                  color: const Color(0xFF2E7D32).withValues(alpha: ),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.payments_outlined, color: Color(0xFF2E7D32), size: 48.0),
@@ -500,7 +500,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             borderRadius: BorderRadius.circular(24.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: ),
                 blurRadius: 15.0,
                 offset: const Offset(0, 8),
               )

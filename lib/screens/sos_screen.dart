@@ -52,7 +52,7 @@ class _SosScreenState extends State<SosScreen> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
+                  color: Colors.white.withValues(alpha: ),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

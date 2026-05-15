@@ -9,18 +9,30 @@ class ChatListScreen extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text('Pesan'),
         actions: [
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1), 
           child: Container(height: 1, color: theme.dividerColor),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFC6D8FF)],
+            stops: [0.3, 1.0],
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
           _chatItem(
             context,
@@ -29,7 +41,7 @@ class ChatListScreen extends StatelessWidget {
             time: '10:42',
             unreadCount: 2,
             isOnline: true,
-            avatarUrl: 'https://i.pravatar.cc/150?img=12',
+            avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
           ),
           _chatItem(
             context,
@@ -38,7 +50,7 @@ class ChatListScreen extends StatelessWidget {
             time: 'Kemarin',
             unreadCount: 0,
             isOnline: false,
-            avatarUrl: 'https://i.pravatar.cc/150?img=5',
+            avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop',
           ),
           _chatItem(
             context,
@@ -47,9 +59,10 @@ class ChatListScreen extends StatelessWidget {
             time: 'Senin',
             unreadCount: 0,
             isOnline: true,
-            avatarUrl: 'https://i.pravatar.cc/150?img=13',
+            avatarUrl: 'https://images.unsplash.com/photo-1600868620786-641e737119b4?q=80&w=200&auto=format&fit=crop',
           ),
         ],
+      ),
       ),
     );
   }

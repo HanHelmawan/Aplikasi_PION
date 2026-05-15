@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Pion Design System – Modern Tech (Plus Jakarta Sans)
+/// Pion Design System – Modern Tech (Inter)
 class PionTheme {
   // ── Color Tokens ────────────────────────────────────────────────────────────
   static const Color primary        = Color(0xFF0525BB);
@@ -39,7 +39,7 @@ class PionTheme {
 
   // ── ThemeData ────────────────────────────────────────────────────────────────
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme();
+    final baseTextTheme = GoogleFonts.interTextTheme();
 
     return ThemeData(
       brightness: Brightness.light,
@@ -61,7 +61,7 @@ class PionTheme {
         scrolledUnderElevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: primary),
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: GoogleFonts.inter(
           color: primary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -81,10 +81,10 @@ class PionTheme {
           backgroundColor: primary,
           foregroundColor: white,
           elevation: 0,
-          shadowColor: primary.withValues(alpha: 0.3),
+          shadowColor: primary.withOpacity(0.3),
           shape: const StadiumBorder(), // Pill shape
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -101,7 +101,7 @@ class PionTheme {
           side: const BorderSide(color: primary, width: 1.5),
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -111,7 +111,7 @@ class PionTheme {
         style: TextButton.styleFrom(
           foregroundColor: primary,
           shape: const StadiumBorder(),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -137,7 +137,7 @@ class PionTheme {
           borderSide: const BorderSide(color: error, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        hintStyle: GoogleFonts.plusJakartaSans(color: textLight, fontSize: 15),
+        hintStyle: GoogleFonts.inter(color: textLight, fontSize: 15),
       ),
       dividerColor: divider,
       dividerTheme: const DividerThemeData(color: divider, space: 1),
@@ -148,11 +148,11 @@ class PionTheme {
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.plusJakartaSans(
+        selectedLabelStyle: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
-        unselectedLabelStyle: GoogleFonts.plusJakartaSans(
+        unselectedLabelStyle: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -168,7 +168,7 @@ class PionTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: primaryLight,
-        labelStyle: GoogleFonts.plusJakartaSans(
+        labelStyle: GoogleFonts.inter(
           color: primary,
           fontSize: 13,
           fontWeight: FontWeight.w700,

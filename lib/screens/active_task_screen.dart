@@ -156,7 +156,7 @@ class ActiveTaskScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFFE2E8F0)),
                             foregroundColor: const Color(0xFF0F172A),
@@ -167,7 +167,7 @@ class ActiveTaskScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                           child: const Text('Telepon'),
                         ),
                       ),

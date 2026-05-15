@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                         ),
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                           child: Text(
                             'Daftar Sekarang',
                             style: TextStyle(

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
 class RatingScreen extends StatefulWidget {
-  const RatingScreen({super.key});
+  final String workerName;
+  final String workerAvatar;
+  final String taskTitle;
+  const RatingScreen({
+    super.key,
+    this.workerName = 'Mitra Pion',
+    this.workerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+    this.taskTitle = 'Tugas Selesai',
+  });
 
   @override
   State<RatingScreen> createState() => _RatingScreenState();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'create_task_screen.dart';
 import 'select_provider_screen.dart';
+import 'task_request_list_screen.dart';
+import '../models/task_request.dart';
 
 class HomeSeekerScreen extends StatelessWidget {
   final bool isWorkerMode;
@@ -10,233 +12,332 @@ class HomeSeekerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isWorkerMode = this.isWorkerMode;
     
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // ── AppBar ──────────────────────────────────────────────────────────
-          SliverAppBar(
-            backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFC6D8FF)],
+            stops: [0.3, 1.0],
+          ),
+        ),
+        child: CustomScrollView(
+          slivers: [
+            // ── AppBar ──────────────────────────────────────────────────────────
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
             elevation: 0,
             pinned: true,
             automaticallyImplyLeading: false,
-            title: Text('Pion', style: TextStyle(color: colorScheme.primary, fontSize: 24, fontWeight: FontWeight.w800)),
+            title: Row(
+              children: [
+                Icon(Icons.widgets_rounded, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text('Pion', style: TextStyle(color: colorScheme.primary, fontSize: 24, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
+              ],
+            ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.notifications_none_rounded),
-                onPressed: () {},
+                icon: const Icon(Icons.notifications_outlined),
+                color: const Color(0xFF0F172A),
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: CircleAvatar(
-                  radius: 20,
+                  radius: 18,
                   backgroundColor: const Color(0xFFEEF0FF),
-                  backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                  backgroundImage: const NetworkImage('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop'), // User avatar
                 ),
               ),
             ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1),
-              child: Container(height: 1, color: theme.dividerColor),
-            ),
           ),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Greeting ───────────────────────────────────────────────
-                  Text(
-                    'Halo, Andi! 👋',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Butuh bantuan hari ini?',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                    ),
+                  // ── Greeting & Location ────────────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Lokasi Saat Ini',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), fontFamily: 'Inter'),
+                          ),
+                          Row(
+                            children: const [
+                              Icon(Icons.location_on, size: 16, color: Color(0xFF0525BB)),
+                              SizedBox(width: 4),
+                              Text(
+                                'Kebayoran Baru, Jakarta',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), fontFamily: 'Inter'),
+                              ),
+                              Icon(Icons.keyboard_arrow_down, size: 18, color: Color(0xFF0F172A)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
+                  
+                  // ── Greeting ───────────────────────────────────────────────
+                  const Text(
+                    'Halo, Andi 👋',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Apa yang bisa kami bantu hari ini?',
+                    style: TextStyle(fontSize: 15, color: Color(0xFF64748B), fontFamily: 'Inter'),
+                  ),
+                  const SizedBox(height: 20),
 
-                  // ── Search Bar ─────────────────────────────────────────────
+                  // ── Floating Search Bar ────────────────────────────────────
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(color: const Color(0x080F172A), blurRadius: 16, offset: const Offset(0, 4)),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x0A0F172A), blurRadius: 24, offset: Offset(0, 8)),
                       ],
                     ),
                     child: TextField(
                       readOnly: true,
-                      onTap: () {},
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                       decoration: InputDecoration(
-                        hintText: 'Cari jasa atau kebutuhan...',
-                        prefixIcon: Icon(Icons.search_rounded, color: colorScheme.primary, size: 24),
+                        hintText: 'Cari perbaikan AC, Pipa, dll...',
+                        hintStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF94A3B8)),
+                        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF0525BB), size: 22),
+                        suffixIcon: Container(
+                          margin: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0525BB),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.tune_rounded, color: Colors.white, size: 18),
+                        ),
                         fillColor: Colors.transparent,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(24)),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(24)),
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(24)),
                       ),
                     ),
                   ),
                   const SizedBox(height: 32),
 
-                  // ── Post Task Banner ───────────────────────────────────────
-                  GestureDetector(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateTaskScreen())),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0525BB), Color(0xFF2563EB)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                  // ── Promo Banner (Carousel) ────────────────────────────────
+                  SizedBox(
+                    height: 140,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      children: [
+                        _buildPromoBanner(
+                          title: 'Diskon 50%',
+                          subtitle: 'Untuk servis AC pertama Anda',
+                          color1: const Color(0xFF0525BB),
+                          color2: const Color(0xFF2563EB),
+                          icon: Icons.ac_unit_rounded,
                         ),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Buat Permintaan',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Deskripsikan tugas Anda\ndan temukan mitra.',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 56, height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
-                          ),
-                        ],
-                      ),
+                        const SizedBox(width: 16),
+                        _buildPromoBanner(
+                          title: 'Pion Protection',
+                          subtitle: 'Garansi pengerjaan 30 hari',
+                          color1: const Color(0xFF0F172A),
+                          color2: const Color(0xFF334155),
+                          icon: Icons.shield_rounded,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 32),
 
                   // ── Categories ─────────────────────────────────────────────
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Kategori',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        'Kategori Populer',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                         style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                        child: const Text('Lihat semua'),
+                        child: const Text('Lihat semua', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF0525BB))),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 96,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      children: const [
-                        _CategoryItem(icon: Icons.build_rounded, label: 'Perbaikan'),
-                        _CategoryItem(icon: Icons.cleaning_services_rounded, label: 'Kebersihan'),
-                        _CategoryItem(icon: Icons.electrical_services_rounded, label: 'Listrik'),
-                        _CategoryItem(icon: Icons.fitness_center_rounded, label: 'Angkat'),
-                        _CategoryItem(icon: Icons.yard_rounded, label: 'Taman'),
-                        _CategoryItem(icon: Icons.ac_unit_rounded, label: 'AC'),
-                      ],
-                    ),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 16,
+                    children: const [
+                      _CategoryItem(icon: Icons.build_rounded, label: 'Perbaikan', color: Color(0xFFEFF6FF), iconColor: Color(0xFF2563EB)),
+                      _CategoryItem(icon: Icons.cleaning_services_rounded, label: 'Kebersihan', color: Color(0xFFF0FDF4), iconColor: Color(0xFF16A34A)),
+                      _CategoryItem(icon: Icons.electrical_services_rounded, label: 'Listrik', color: Color(0xFFFEF2F2), iconColor: Color(0xFFDC2626)),
+                      _CategoryItem(icon: Icons.plumbing_rounded, label: 'Ledeng', color: Color(0xFFFFFBEB), iconColor: Color(0xFFD97706)),
+                    ],
                   ),
                   const SizedBox(height: 36),
 
-                  // ── Nearby Providers ───────────────────────────────────────
+                  // ── Featured Providers (Mitra Teratas) ─────────────────────
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Penyedia Terdekat',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        'Mitra Teratas (Rating 4.9+)',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'),
                       ),
                       TextButton(
                         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectProviderScreen())),
                         style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                        child: const Text('Lihat semua'),
+                        child: const Text('Semua', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF0525BB))),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
+                  
+                  SizedBox(
+                    height: 240,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      children: const [
+                        _FeaturedProviderCard(
+                          name: 'Budi Santoso',
+                          specialty: 'Spesialis Pipa & Ledeng',
+                          rating: '4.9',
+                          jobs: '142',
+                          imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+                          isVerified: true,
+                        ),
+                        SizedBox(width: 16),
+                        _FeaturedProviderCard(
+                          name: 'Andi Pratama',
+                          specialty: 'Ahli Listrik & Kelistrikan',
+                          rating: '5.0',
+                          jobs: '89',
+                          imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+                          isVerified: true,
+                        ),
+                      ],
+                    ),
+                  ),
 
-                  _ProviderCard(
-                    name: 'Budi Santoso',
-                    specialty: 'Spesialis Pipa & Instalasi',
-                    distance: '1.2 km',
-                    rating: '4.9',
-                    reviews: 128,
-                    imageUrl: 'https://i.pravatar.cc/150?img=12',
-                    tags: const ['#Perbaikan', '#AhliAir'],
-                  ),
-                  const SizedBox(height: 16),
-                  _ProviderCard(
-                    name: 'Siti Aminah',
-                    specialty: 'Layanan Kebersihan Pro',
-                    distance: '2.5 km',
-                    rating: '4.8',
-                    reviews: 94,
-                    imageUrl: 'https://i.pravatar.cc/150?img=5',
-                    tags: const ['#Kebersihan', '#Cepat'],
-                  ),
-                  const SizedBox(height: 16),
-                  _ProviderCard(
-                    name: 'Andi Pratama',
-                    specialty: 'Ahli Listrik & Elektronik',
-                    distance: '3.1 km',
-                    rating: '5.0',
-                    reviews: 76,
-                    imageUrl: 'https://i.pravatar.cc/150?img=13',
-                    tags: const ['#Listrik', '#Aman'],
-                  ),
-                  const SizedBox(height: 24),
+                  // ── Daftar Permintaan (Worker only) ──────────────────
+                  if (isWorkerMode) ...[
+                    const SizedBox(height: 36),
+                    GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TaskRequestListScreen(isWorkerMode: true))),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF0525BB), Color(0xFF2563EB)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: const [BoxShadow(color: Color(0x330525BB), blurRadius: 16, offset: Offset(0, 8))],
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                                    child: Text(
+                                      '${TaskRequestStore.instance.requests.length} permintaan menunggu',
+                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700, fontFamily: 'Inter'),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text('Daftar Permintaan',
+                                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
+                                  const SizedBox(height: 4),
+                                  Text('Lihat permintaan pengguna dan ambil pekerjaan',
+                                      style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13, fontFamily: 'Inter')),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              width: 52, height: 52,
+                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(16)),
+                              child: const Icon(Icons.work_outline_rounded, color: Colors.white, size: 26),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 100), // padding for FAB
+
                 ],
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: isWorkerMode
-          ? FloatingActionButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateTaskScreen())),
-              child: const Icon(Icons.add_rounded, size: 28),
-            )
-          : null,
+      ),
+    );
+  }
+
+  Widget _buildPromoBanner({
+    required String title,
+    required String subtitle,
+    required Color color1,
+    required Color color2,
+    required IconData icon,
+  }) {
+    return Container(
+      width: 280,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [color1, color2], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [BoxShadow(color: Color(0x1A0525BB), blurRadius: 16, offset: Offset(0, 8))],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Icon(icon, size: 100, color: Colors.white.withOpacity(0.1)),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                child: const Text('PROMO', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+              ),
+              const SizedBox(height: 12),
+              Text(title, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
+              const SizedBox(height: 4),
+              Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13, fontFamily: 'Inter')),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -244,27 +345,30 @@ class HomeSeekerScreen extends StatelessWidget {
 class _CategoryItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _CategoryItem({required this.icon, required this.label});
+  final Color color;
+  final Color iconColor;
+  
+  const _CategoryItem({required this.icon, required this.label, required this.color, required this.iconColor});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
+    return SizedBox(
+      width: 76,
       child: Column(
         children: [
           Container(
             width: 64, height: 64,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: color,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: const Color(0x0A0F172A), blurRadius: 12, offset: const Offset(0, 4))],
             ),
-            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
+            child: Icon(icon, color: iconColor, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569), fontFamily: 'Inter'),
           ),
         ],
       ),
@@ -272,87 +376,84 @@ class _CategoryItem extends StatelessWidget {
   }
 }
 
-class _ProviderCard extends StatelessWidget {
+class _FeaturedProviderCard extends StatelessWidget {
   final String name;
   final String specialty;
-  final String distance;
   final String rating;
-  final int reviews;
+  final String jobs;
   final String imageUrl;
-  final List<String> tags;
+  final bool isVerified;
 
-  const _ProviderCard({
+  const _FeaturedProviderCard({
     required this.name,
     required this.specialty,
-    required this.distance,
     required this.rating,
-    required this.reviews,
+    required this.jobs,
     required this.imageUrl,
-    required this.tags,
+    required this.isVerified,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: 220,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [BoxShadow(color: const Color(0x0A0F172A), blurRadius: 16, offset: const Offset(0, 4))],
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(radius: 32, backgroundImage: NetworkImage(imageUrl)),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        name,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                      ),
-                    ),
-                    Icon(Icons.verified_rounded, color: Theme.of(context).colorScheme.primary, size: 18),
-                  ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(imageUrl, width: 64, height: 64, fit: BoxFit.cover),
+              ),
+              if (isVerified)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.verified, color: Color(0xFF0525BB), size: 12),
+                      SizedBox(width: 4),
+                      Text('Top', style: TextStyle(color: Color(0xFF0525BB), fontSize: 10, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  specialty,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
-                    const SizedBox(width: 4),
-                    Text(rating, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-                    Text(' ($reviews)', style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
-                    const Spacer(),
-                    const Icon(Icons.near_me_rounded, size: 14, color: Color(0xFF94A3B8)),
-                    const SizedBox(width: 4),
-                    Text(distance, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  children: tags.map((t) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEF0FF),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(t, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.primary)),
-                  )).toList(),
-                ),
-              ],
-            ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+          const SizedBox(height: 4),
+          Text(specialty, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter')),
+          const Spacer(),
+          const Divider(color: Color(0xFFF1F5F9)),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                  const SizedBox(width: 4),
+                  Text(rating, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                ],
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.task_alt_rounded, color: Color(0xFF10B981), size: 14),
+                  const SizedBox(width: 4),
+                  Text('$jobs tugas', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                ],
+              ),
+            ],
           ),
         ],
       ),

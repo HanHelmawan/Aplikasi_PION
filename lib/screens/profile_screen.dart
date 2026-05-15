@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'login_screen.dart';
-import 'wallet_screen.dart';
-
+import 'my_requests_screen.dart';
 class ProfileScreen extends StatefulWidget {
   final bool isWorkerMode;
   const ProfileScreen({super.key, this.isWorkerMode = false});
@@ -26,32 +25,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text('Profil'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1), 
           child: Container(height: 1, color: theme.dividerColor),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          // ── Profile Card ────────────────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
-            ),
-            child: Row(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFC6D8FF)],
+            stops: [0.3, 1.0],
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            // ── Profile Card ────────────────────────────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
+              ),
+              child: Row(
               children: [
                 Stack(
                   children: [
                     const CircleAvatar(
                       radius: 36,
-                      backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                      backgroundImage: NetworkImage('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop'),
                     ),
                     Positioned(
                       right: 0, bottom: 0,
@@ -151,17 +162,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           // ── Menu ────────────────────────────────────────────────────────────
           _menuSection([
-            _MenuItem(icon: Icons.person_outline_rounded, label: 'Edit Profil', onTap: () {}),
-            _MenuItem(icon: Icons.account_balance_wallet_outlined, label: 'Dompet & Riwayat', onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen()));
-            }),
-            _MenuItem(icon: Icons.history_rounded, label: 'Riwayat Transaksi', onTap: () {}),
+            _MenuItem(icon: Icons.person_outline_rounded, label: 'Edit Profil', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+            _MenuItem(
+              icon: Icons.assignment_outlined,
+              label: 'Riwayat Permintaan',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyRequestsScreen())),
+            ),
+            _MenuItem(icon: Icons.history_rounded, label: 'Riwayat Transaksi', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
           ], theme),
           const SizedBox(height: 16),
           _menuSection([
-            _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: () {}),
-            _MenuItem(icon: Icons.help_outline_rounded, label: 'Pusat Bantuan', onTap: () {}),
-            _MenuItem(icon: Icons.info_outline_rounded, label: 'Tentang Pion', onTap: () {}),
+            _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+            _MenuItem(icon: Icons.help_outline_rounded, label: 'Pusat Bantuan', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+            _MenuItem(icon: Icons.info_outline_rounded, label: 'Tentang Pion', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
           ], theme),
           const SizedBox(height: 32),
 
@@ -183,6 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
         ],
+      ),
       ),
     );
   }

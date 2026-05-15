@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'checkout_screen.dart';
+import '../models/task_request.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
@@ -11,6 +11,7 @@ class CreateTaskScreen extends StatefulWidget {
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final _issueController = TextEditingController();
+  final _priceController  = TextEditingController();
 
   bool _isProcessing = false;
   final List<_TagItem> _tags = [];
@@ -21,6 +22,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   void dispose() {
     _issueController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -42,19 +44,34 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   }
 
   Future<void> _pickWhen() async {
+    final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
     );
     if (date == null || !mounted) return;
-    final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (ctx, child) => MediaQuery(
+        data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
     if (!mounted) return;
+
+    final dateStr = '${date.day}/${date.month}/${date.year}';
     setState(() {
-      _whenLabel = time == null
-          ? DateFormat('EEE, d MMM yyyy', 'id').format(date)
-          : '${DateFormat('EEE, d MMM', 'id').format(date)} · ${time.format(context)}';
+      if (time == null) {
+        _whenLabel = dateStr;
+      } else {
+        final hh = time.hour.toString().padLeft(2, '0');
+        final mm = time.minute.toString().padLeft(2, '0');
+        _whenLabel = '$dateStr · $hh:$mm WIB';
+      }
     });
   }
 
@@ -71,15 +88,28 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mohon deskripsikan masalah Anda.'), backgroundColor: Color(0xFFDC2626)));
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => CheckoutScreen(
-        taskTitle: _issueController.text.trim(),
-        providerName: 'Belum dipilih',
-        category: _tags.isNotEmpty ? _tags.first.label : 'Umum',
-        initialDescription: _issueController.text.trim(),
-        initialPhotos: _photoUrls,
-      )),
+    final rawPrice = double.tryParse(_priceController.text.replaceAll('.', '').replaceAll(',', '')) ?? 0;
+
+    final request = TaskRequest(
+      id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+      title: _issueController.text.trim(),
+      category: _tags.isNotEmpty ? _tags.first.label : 'Umum',
+      location: _whereLabel,
+      scheduledAt: _whenLabel,
+      estimatedPrice: rawPrice,
+      photoUrls: List.from(_photoUrls),
+      createdAt: DateTime.now(),
+    );
+    TaskRequestStore.instance.add(request);
+
+    // Return to home and show confirmation
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Permintaan berhasil dikirim! Cek riwayat di Profil.', style: TextStyle(fontFamily: 'Inter')),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xFF16A34A),
+      ),
     );
   }
 
@@ -173,6 +203,52 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               value: _whereLabel,
               onTap: _pickWhere,
               theme: theme,
+            ),
+            const SizedBox(height: 32),
+
+            // ── Estimated Price ─────────────────────────────────────────────
+            _sectionTitle('Harga Estimasi Anda'),
+            const SizedBox(height: 6),
+            const Text(
+              'Masukkan perkiraan harga yang bersedia Anda bayarkan.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(left: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEF0FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text('Rp', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _priceController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'Inter'),
+                      decoration: const InputDecoration(
+                        hintText: '0',
+                        hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
 

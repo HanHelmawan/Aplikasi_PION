@@ -7,6 +7,8 @@ import 'screens/select_provider_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/chat_list_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/create_task_screen.dart';
+import 'screens/task_request_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +48,10 @@ class _MainNavigationState extends State<MainNavigation> {
 
   List<Widget> get _pages => [
     HomeSeekerScreen(isWorkerMode: widget.isWorkerMode),
-    const SelectProviderScreen(),
+    // Worker sees job board; regular user sees provider list
+    widget.isWorkerMode
+        ? const TaskRequestListScreen(isWorkerMode: true)
+        : const SelectProviderScreen(),
     const ChatListScreen(),
     ProfileScreen(isWorkerMode: widget.isWorkerMode),
   ];
@@ -54,37 +59,90 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true, // Allows body to scroll under the floating nav
       body: _pages[_currentIndex],
+      floatingActionButton: !widget.isWorkerMode ? FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreateTaskScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF0525BB),
+        elevation: 8,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ) : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: const Color(0x0A000000), blurRadius: 20, offset: const Offset(0, -4)),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x140525BB),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.home_outlined)),
-              activeIcon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.home)),
-              label: 'Beranda',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomAppBar(
+            color: Colors.white,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 8,
+            child: SizedBox(
+              height: 64,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNavItem(icon: Icons.home_filled, outlineIcon: Icons.home_outlined, index: 0, label: 'Beranda'),
+                  _buildNavItem(icon: Icons.assignment, outlineIcon: Icons.assignment_outlined, index: 1, label: 'Tugas'),
+                  if (!widget.isWorkerMode) const SizedBox(width: 48), // Space for FAB
+                  _buildNavItem(icon: Icons.chat_bubble, outlineIcon: Icons.chat_bubble_outline, index: 2, label: 'Pesan'),
+                  _buildNavItem(icon: Icons.person, outlineIcon: Icons.person_outline, index: 3, label: 'Profil'),
+                ],
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.assignment_outlined)),
-              activeIcon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.assignment)),
-              label: 'Tugas',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required IconData outlineIcon,
+    required int index,
+    required String label,
+  }) {
+    final isSelected = _currentIndex == index;
+    return InkWell(
+      onTap: () => setState(() => _currentIndex = index),
+      customBorder: const CircleBorder(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? icon : outlineIcon,
+              color: isSelected ? const Color(0xFF0525BB) : const Color(0xFF94A3B8),
+              size: 24,
             ),
-            BottomNavigationBarItem(
-              icon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.chat_bubble_outline)),
-              activeIcon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.chat_bubble)),
-              label: 'Pesan',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.person_outline)),
-              activeIcon: Padding(padding: EdgeInsets.only(bottom: 4), child: Icon(Icons.person)),
-              label: 'Profil',
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontFamily: 'Inter',
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? const Color(0xFF0525BB) : const Color(0xFF94A3B8),
+              ),
             ),
           ],
         ),
@@ -92,3 +150,4 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 }
+

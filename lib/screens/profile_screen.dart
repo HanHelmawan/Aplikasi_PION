@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'login_screen.dart';
+import 'wallet_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isWorkerMode;
@@ -16,121 +17,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _isWorkerMode = widget.isWorkerMode == true;
+    _isWorkerMode = widget.isWorkerMode;
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF8FF), // background
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFBF8FF),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: const Text(
-          'Profil',
-          style: TextStyle(
-            color: Color(0xFF0525BB),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            fontFamily: 'Hanken Grotesk',
-          ),
+        title: const Text('Profil'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1), 
+          child: Container(height: 1, color: theme.dividerColor),
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.all(24),
         children: [
-          // User Info
-          Row(
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: NetworkImage('https://i.pravatar.cc/150?img=11'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Profile Card ────────────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
+            ),
+            child: Row(
+              children: [
+                Stack(
                   children: [
-                    const Text(
-                      'Andi Pratama',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Hanken Grotesk',
-                        color: Color(0xFF1A1B23),
-                      ),
+                    const CircleAvatar(
+                      radius: 36,
+                      backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'andi.pratama@example.com',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        color: Color(0xFF757686),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDFE0FF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.verified_user_outlined, size: 14, color: Color(0xFF0525BB)),
-                          SizedBox(width: 4),
-                          Text(
-                            'KYC Lulus',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter',
-                              color: Color(0xFF0525BB),
-                            ),
-                          ),
-                        ],
+                    Positioned(
+                      right: 0, bottom: 0,
+                      child: Container(
+                        width: 24, height: 24,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.edit_rounded, color: Colors.white, size: 12),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Andi Pratama', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                      const SizedBox(height: 4),
+                      const Text('andi.pratama@example.com', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(20)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified_user_rounded, size: 14, color: colorScheme.primary),
+                            const SizedBox(width: 6),
+                            Text('KYC Lulus', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.primary)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
-          // Dual Role Toggle
+          // ── Mode Toggle ─────────────────────────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFC5C5D7), width: 1),
-              boxShadow: const [
-                BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-              ],
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 52, height: 52,
                   decoration: BoxDecoration(
-                    color: _isWorkerMode ? const Color(0xFF0525BB) : const Color(0xFFEEECF8),
-                    borderRadius: BorderRadius.circular(12),
+                    color: _isWorkerMode ? colorScheme.primary : const Color(0xFFEEF0FF),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
-                    _isWorkerMode ? Icons.work_outline : Icons.search_rounded,
-                    color: _isWorkerMode ? Colors.white : const Color(0xFF0525BB),
+                    _isWorkerMode ? Icons.work_rounded : Icons.search_rounded,
+                    color: _isWorkerMode ? Colors.white : colorScheme.primary,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -139,99 +124,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isWorkerMode ? 'Mode Kerja' : 'Mode Cari Jasa',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF1A1B23),
-                        ),
+                        _isWorkerMode ? 'Mode Kerja Aktif' : 'Mode Cari Jasa',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _isWorkerMode
-                            ? 'Anda siap menerima penawaran kerja.'
-                            : 'Cari bantuan untuk tugas Anda.',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF444655),
-                        ),
+                        _isWorkerMode ? 'Siap menerima penawaran kerja.' : 'Cari bantuan untuk tugas Anda.',
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
                 ),
                 Switch(
                   value: _isWorkerMode,
-                  activeTrackColor: const Color(0xFF0525BB),
-                  onChanged: (value) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MainNavigation(isWorkerMode: value),
-                      ),
-                      (route) => false,
-                    );
-                  },
+                  activeColor: colorScheme.primary,
+                  onChanged: (v) => Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => MainNavigation(isWorkerMode: v)),
+                    (route) => false,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          // Menu Items
-          _buildMenuItem(Icons.person_outline, 'Edit Profil'),
-          _buildMenuItem(Icons.history, 'Riwayat Transaksi'),
-          _buildMenuItem(Icons.shield_outlined, 'Keamanan & Privasi'),
-          _buildMenuItem(Icons.help_outline, 'Pusat Bantuan'),
-          const SizedBox(height: 24),
-          
-          TextButton.icon(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
+          // ── Menu ────────────────────────────────────────────────────────────
+          _menuSection([
+            _MenuItem(icon: Icons.person_outline_rounded, label: 'Edit Profil', onTap: () {}),
+            _MenuItem(icon: Icons.account_balance_wallet_outlined, label: 'Dompet & Riwayat', onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen()));
+            }),
+            _MenuItem(icon: Icons.history_rounded, label: 'Riwayat Transaksi', onTap: () {}),
+          ], theme),
+          const SizedBox(height: 16),
+          _menuSection([
+            _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: () {}),
+            _MenuItem(icon: Icons.help_outline_rounded, label: 'Pusat Bantuan', onTap: () {}),
+            _MenuItem(icon: Icons.info_outline_rounded, label: 'Tentang Pion', onTap: () {}),
+          ], theme),
+          const SizedBox(height: 32),
+
+          // ── Logout ─────────────────────────────────────────────────────────
+          SizedBox(
+            height: 56,
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,
-              );
-            },
-            icon: const Icon(Icons.logout, color: Color(0xFFBA1A1A)),
-            label: const Text(
-              'Keluar',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
-                color: Color(0xFFBA1A1A),
+              ),
+              icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 20),
+              label: const Text('Keluar', style: TextStyle(color: Color(0xFFEF4444))),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
               ),
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String label) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEEECF8),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: const Color(0xFF0525BB), size: 20),
+  Widget _menuSection(List<_MenuItem> items, ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      title: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Inter',
-          color: Color(0xFF1A1B23),
-        ),
+      child: Column(
+        children: items.asMap().entries.map((e) {
+          final isLast = e.key == items.length - 1;
+          return Column(
+            children: [
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                leading: Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(e.value.icon, color: theme.colorScheme.primary, size: 22),
+                ),
+                title: Text(e.value.label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
+                trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 24),
+                onTap: e.value.onTap,
+              ),
+              if (!isLast) const Divider(height: 1, indent: 80),
+            ],
+          );
+        }).toList(),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Color(0xFF757686)),
-      onTap: () {},
     );
   }
+}
+
+class _MenuItem {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _MenuItem({required this.icon, required this.label, required this.onTap});
 }

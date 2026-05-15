@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // To access MainNavigation
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,19 +9,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isPasswordVisible = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _passwordVisible = false;
   bool _isLoading = false;
 
   void _login() async {
     setState(() => _isLoading = true);
-    // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
     if (!mounted) return;
     setState(() => _isLoading = false);
-
-    // Navigate to Main Application (Default State: Pencari Jasa)
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const MainNavigation()),
@@ -38,221 +35,160 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF8FF), // background
       body: SafeArea(
         child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Spacer(),
-                      
-                      // App Logo / Header
-                      Center(
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE9E7F3),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.explore_rounded, // Placeholder for app icon
-                            size: 40,
-                            color: Color(0xFF0525BB),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Selamat Datang\ndi Pion',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Hanken Grotesk',
-                          color: Color(0xFF0525BB),
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Temukan bantuan hiperlokal dalam genggaman Anda.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF444655),
-                        ),
-                      ),
-                      const SizedBox(height: 48),
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(),
 
-                      // Email Input
-                      const Text(
-                        'Email / Nomor HP',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF1A1B23),
+                    // ── Logo ───────────────────────────────────────────────
+                    Center(
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.explore_rounded,
+                          size: 40,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          hintText: 'Masukkan email atau nomor HP',
-                          hintStyle: const TextStyle(
-                            fontFamily: 'Inter',
-                            color: Color(0xFF757686),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF4F2FE),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        style: const TextStyle(fontFamily: 'Inter', color: Color(0xFF1A1B23)),
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 20),
+                    ),
+                    const SizedBox(height: 32),
 
-                      // Password Input
-                      const Text(
-                        'Kata Sandi',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF1A1B23),
+                    // ── Heading ────────────────────────────────────────────
+                    const Text(
+                      'Selamat Datang',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Masuk ke akun Pion Anda',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // ── Email ──────────────────────────────────────────────
+                    _label('Email / Nomor HP'),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: _inputDecoration('contoh@email.com', Icons.person_outline),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Password ───────────────────────────────────────────
+                    _label('Kata Sandi'),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: !_passwordVisible,
+                      decoration: _inputDecoration(
+                        'Masukkan kata sandi',
+                        Icons.lock_outline,
+                        suffix: IconButton(
+                          icon: Icon(
+                            _passwordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 22,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                          onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          hintText: 'Masukkan kata sandi',
-                          hintStyle: const TextStyle(
-                            fontFamily: 'Inter',
-                            color: Color(0xFF757686),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF4F2FE),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                              color: const Color(0xFF444655),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
+                    ),
+
+                    // ── Forgot Password ────────────────────────────────────
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                         ),
-                        style: const TextStyle(fontFamily: 'Inter', color: Color(0xFF1A1B23)),
+                        child: const Text('Lupa Kata Sandi?'),
                       ),
-                      
-                      // Forgot Password Link
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Lupa Kata Sandi?',
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Login Button ───────────────────────────────────────
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _login,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24, height: 24,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                              )
+                            : const Text('Masuk'),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // ── Register ───────────────────────────────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Belum punya akun? ',
+                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Text(
+                            'Daftar Sekarang',
                             style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF0525BB),
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _login,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0525BB),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 4,
-                            shadowColor: const Color(0x330525BB),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : const Text(
-                                  'Masuk',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Inter',
-                                  ),
-                                ),
-                        ),
-                      ),
-
-                      // Register Link
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Belum punya akun? ',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF444655),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {},
-                            child: const Text(
-                              'Daftar Sekarang',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0525BB),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
+                      ],
+                    ),
+                    const Spacer(),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
   }
+
+  static Widget _label(String text) => Text(
+        text,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF334155),
+        ),
+      );
+
+  static InputDecoration _inputDecoration(String hint, IconData icon, {Widget? suffix}) =>
+      InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, size: 22, color: const Color(0xFF94A3B8)),
+        suffixIcon: suffix,
+      );
 }

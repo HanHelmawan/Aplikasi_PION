@@ -1,171 +1,205 @@
 import 'package:flutter/material.dart';
 import 'chat_screen.dart';
-import 'rating_screen.dart';
+import '../main.dart'; // To navigate back home safely
 
 class ActiveTaskScreen extends StatelessWidget {
   const ActiveTaskScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Tugas Aktif', style: TextStyle(color: Color(0xFF0052CC), fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
       body: Stack(
         children: [
-          // Background Map (Placeholder)
+          // ── Map Background (Placeholder) ──────────────────────────────────
           Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.55,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(Color(0xFFE3EDFE), BlendMode.multiply),
-              )
+            color: const Color(0xFFE2E8F0),
+            child: const Center(
+              child: Text(
+                'Peta Integrasi (Google Maps / Mapbox)\nMenampilkan rute penyedia jasa',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF94A3B8), height: 1.5),
+              ),
             ),
-            child: Stack(
+          ),
+
+          // ── Map Markers ───────────────────────────────────────────────────
+          Positioned(
+            top: 250, left: 100,
+            child: _mapMarker(Icons.location_on_rounded, colorScheme.primary, true),
+          ),
+          Positioned(
+            top: 350, right: 120,
+            child: _mapMarker(Icons.home_rounded, const Color(0xFF0F172A), false),
+          ),
+
+          // ── Top Bar (Floating) ────────────────────────────────────────────
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            left: 20, right: 20,
+            child: Row(
               children: [
-                // Mock Provider Location marker
-                Positioned(
-                  top: 150,
-                  left: 100,
+                GestureDetector(
+                  onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainNavigation()), (r) => false),
                   child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(color: Color(0xFF0052CC), shape: BoxShape.circle),
-                    child: const Icon(Icons.person_pin_circle, color: Colors.white),
+                    width: 48, height: 48,
+                    decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: const [BoxShadow(color: Color(0x1A0F172A), blurRadius: 12, offset: Offset(0, 4))]),
+                    child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
                   ),
                 ),
-                // Mock Destination Location marker
-                Positioned(
-                  top: 80,
-                  right: 120,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(color: Color(0xFFD32F2F), shape: BoxShape.circle),
-                    child: const Icon(Icons.home, color: Colors.white),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x1A0F172A), blurRadius: 12, offset: Offset(0, 4))]),
+                  child: Row(
+                    children: [
+                      Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                      const SizedBox(width: 8),
+                      const Text('Penyedia dalam perjalanan', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          
-          // Bottom Info Card
+
+          // ── Bottom Info Sheet ─────────────────────────────────────────────
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5))],
-              ),
+              margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: const [BoxShadow(color: Color(0x1A0F172A), blurRadius: 24, offset: Offset(0, 8))],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Status Badge
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(color: const Color(0xFFE3EDFE), borderRadius: BorderRadius.circular(24)),
-                      child: const Text('🟢 ON THE WAY', style: TextStyle(color: Color(0xFF0052CC), fontWeight: FontWeight.bold, fontSize: 12)),
-                    ),
-                  ),
+                  // Grip
+                  Container(width: 40, height: 5, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(10))),
                   const SizedBox(height: 24),
-                  
-                  // ETA & Title
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Expanded(
-                        child: Text('Perbaikan Pipa Bocor', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B233A))),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Text('ETA', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                          Text('10 Menit', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0052CC))),
-                        ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  
-                  // Provider Profile
+
+                  // Provider Info
                   Row(
                     children: [
-                      const CircleAvatar(radius: 24, backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12')),
-                      const SizedBox(width: 12),
+                      const CircleAvatar(radius: 28, backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12')),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Budi Santoso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Text('Budi Santoso', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                            const SizedBox(height: 4),
                             Row(
-                              children: const [
-                                Icon(Icons.star, color: Colors.orange, size: 14),
-                                SizedBox(width: 4),
-                                Text('4.9', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                SizedBox(width: 8),
-                                Icon(Icons.verified, color: Color(0xFF0052CC), size: 14),
+                              children: [
+                                const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                                const SizedBox(width: 4),
+                                const Text('4.9', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                                const Text(' (128)', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+                                const SizedBox(width: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(10)),
+                                  child: Text('Spesialis Pipa', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: colorScheme.primary)),
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF0052CC)),
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.call_outlined, color: Color(0xFF0052CC)),
-                        onPressed: () {},
+                      // Chat Icon
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen())),
+                        child: Container(
+                          width: 48, height: 48,
+                          decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle, boxShadow: [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))]),
+                          child: const Icon(Icons.chat_rounded, color: Colors.white, size: 20),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  
-                  // Action Buttons
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingScreen()));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: const Color(0xFF0052CC),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('Pekerjaan Selesai', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+                  // Status Timeline
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFE2E8F0))),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48, height: 48,
+                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          child: const Icon(Icons.electric_moped_rounded, color: Color(0xFF0F172A)),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text('Menuju ke lokasi Anda', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                              SizedBox(height: 4),
+                              Text('Estimasi tiba dalam 12 menit (2.4 km)', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFD32F2F)),
-                      child: const Text('Laporkan Masalah'),
-                    ),
-                  )
+                  const SizedBox(height: 24),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {},
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFFE2E8F0)),
+                            foregroundColor: const Color(0xFF0F172A),
+                          ),
+                          child: const Text('Detail Tugas'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: const Text('Telepon'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _mapMarker(IconData icon, Color color, bool pulse) {
+    return Container(
+      width: 56, height: 56,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 4))],
+          ),
+          child: Icon(icon, color: Colors.white, size: 18),
+        ),
       ),
     );
   }

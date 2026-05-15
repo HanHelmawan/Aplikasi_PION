@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'checkout_screen.dart';
 
-// ─── Data models ────────────────────────────────────────────────────────────
+// ─── Data models ─────────────────────────────────────────────────────────────
 
 class ProviderReview {
   final String reviewerName;
-  final String reviewerAvatar; // network url or '' for initials
+  final String reviewerAvatar;
   final String timeAgo;
   final double rating;
   final String text;
@@ -47,308 +47,140 @@ class ProviderData {
   });
 }
 
-// ─── Screen ─────────────────────────────────────────────────────────────────
+// ─── Screen ──────────────────────────────────────────────────────────────────
 
 class ProviderDetailScreen extends StatelessWidget {
   final ProviderData provider;
 
   const ProviderDetailScreen({super.key, required this.provider});
 
-  /// Convenience factory with default dummy data so the screen can be opened
-  /// without passing explicit arguments during prototyping.
-  factory ProviderDetailScreen.dummy() {
-    return ProviderDetailScreen(
-      provider: const ProviderData(
-        name: 'Budi Santoso',
-        title: 'Spesialis Instalasi & Pipa',
-        avatarUrl:
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBCZMqpSGrSJ4udn_WZzCN5Dz39RyaXM9RReqz42aEH1RaCYdMLb0ZnPpCCBXwjaAdEqbzeQBHLBQy4_UENmvw8P6ypARh_5jj5y4dLdy9HIU3xx8QZ3H482aVgOxR6V6A0VD3_8zfa_1XQZxperSeBfrpiT1zA1m4fTo9Fi5gQ3x_zH4x6mxe5wGfVUec_37zYdJyL9Tx2Mo_Qa2FvuWYPWA3wjG_B7C3fY3bntI_Jd1cts9vnIiFXvcdSiy1o0O0YfjMhW1CuKjSS',
-        kycPassed: true,
-        rating: 4.9,
-        tasksCompleted: 142,
-        bio:
-            'Profesional berpengalaman di bidang instalasi pipa dan sistem air dengan lebih dari 8 tahun pengalaman. Berkomitmen memberikan solusi cepat, andal, dan aman untuk hunian maupun usaha kecil. Sudah terverifikasi dan diasuransikan demi ketenangan pikiran Anda.',
-        skills: ['#AhliAir', '#TepatWaktu', '#Perbaikan', '#Instalasi'],
-        category: 'Plumbing',
-        reviews: [
-          ProviderReview(
-            reviewerName: 'Sarah J.',
-            reviewerAvatar:
-                'https://i.pravatar.cc/150?img=5',
-            timeAgo: '2 hari yang lalu',
-            rating: 5,
-            text:
-                'Budi sangat efisien dan profesional. Ia mendiagnosis masalah pipa saya dalam hitungan menit dan seluruh sistem kembali berjalan mulus. Sangat direkomendasikan!',
-          ),
-          ProviderReview(
-            reviewerName: 'David L.',
-            reviewerAvatar: '',
-            timeAgo: '1 minggu yang lalu',
-            rating: 4,
-            text:
-                'Datang tepat waktu dan sangat transparan soal biaya. Berhasil memperbaiki kebocoran yang sudah lama mengganggu. Pelayanan memuaskan.',
-          ),
-          ProviderReview(
-            reviewerName: 'Rina M.',
-            reviewerAvatar:
-                'https://i.pravatar.cc/150?img=9',
-            timeAgo: '2 minggu yang lalu',
-            rating: 5,
-            text:
-                'Pekerjaan rapi, cepat, dan hasilnya bersih. Tidak ada tetesan tersisa setelah selesai. Pasti akan memanggil lagi jika ada masalah.',
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F2FE),
-      // ── AppBar ─────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF4F2FE),
-        elevation: 0,
-        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0525BB)),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Pion',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Inter',
-            color: Color(0xFF0525BB),
-          ),
-        ),
-        centerTitle: true,
+        title: const Text('Detail Penyedia'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none_outlined,
-                color: Color(0xFF444655)),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.share_rounded), onPressed: () {}),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1), 
+          child: Container(height: 1, color: theme.dividerColor),
+        ),
       ),
       body: Column(
         children: [
-          // ── Scrollable content ────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Profile Card ───────────────────────────────────
-                  _buildCard(
+                  // ── Profile Card ───────────────────────────────────────────
+                  _card(
                     child: Column(
                       children: [
-                        // Avatar
-                        CircleAvatar(
-                          radius: 48,
-                          backgroundImage: NetworkImage(provider.avatarUrl),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          provider.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter',
-                            color: Color(0xFF1A1B23),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          provider.title,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontFamily: 'Inter',
-                            color: Color(0xFF757686),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // KYC Badge
-                        if (provider.kycPassed)
+                        CircleAvatar(radius: 48, backgroundImage: NetworkImage(provider.avatarUrl)),
+                        const SizedBox(height: 16),
+                        Text(provider.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                        const SizedBox(height: 6),
+                        Text(provider.title, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+                        if (provider.kycPassed) ...[
+                          const SizedBox(height: 16),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDFE0FF),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Row(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(20)),
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.verified_user_outlined,
-                                    size: 15, color: Color(0xFF0525BB)),
-                                SizedBox(width: 6),
-                                Text(
-                                  'KYC Lulus',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Inter',
-                                    color: Color(0xFF0525BB),
-                                  ),
-                                ),
+                                Icon(Icons.verified_user_rounded, size: 16, color: theme.colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Text('KYC Lulus', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: theme.colorScheme.primary)),
                               ],
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                  // ── Stats Row ──────────────────────────────────────
+                  // ── Stats ─────────────────────────────────────────────────
                   Row(
                     children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.star_rounded,
-                          iconColor: const Color(0xFFFFC107),
-                          value: provider.rating.toString(),
-                          label: 'Rating Keseluruhan',
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.check_circle_outline_rounded,
-                          iconColor: const Color(0xFF0525BB),
-                          value: provider.tasksCompleted.toString(),
-                          label: 'Tugas Selesai',
-                        ),
-                      ),
+                      Expanded(child: _statCard(icon: Icons.star_rounded, iconColor: const Color(0xFFF59E0B), value: provider.rating.toString(), label: 'Rating')),
+                      const SizedBox(width: 16),
+                      Expanded(child: _statCard(icon: Icons.task_alt_rounded, iconColor: theme.colorScheme.primary, value: provider.tasksCompleted.toString(), label: 'Tugas Selesai')),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
-                  // ── About Section ──────────────────────────────────
-                  Text(
-                    'Tentang ${provider.name.split(' ').first}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter',
-                      color: Color(0xFF1A1B23),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildCard(
+                  // ── About ─────────────────────────────────────────────────
+                  const Text('Tentang', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                  const SizedBox(height: 12),
+                  _card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          provider.bio,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontFamily: 'Inter',
-                            color: Color(0xFF444655),
-                            height: 1.6,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
+                        Text(provider.bio, style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6)),
+                        const SizedBox(height: 16),
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: provider.skills
-                              .map((s) => _buildSkillChip(s))
-                              .toList(),
+                          spacing: 8, runSpacing: 8,
+                          children: provider.skills.map((s) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
+                            child: Text(s, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                          )).toList(),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
-                  // ── Reviews Section ────────────────────────────────
+                  // ── Reviews ───────────────────────────────────────────────
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Ulasan Pelanggan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                          color: Color(0xFF1A1B23),
-                        ),
-                      ),
+                      const Text('Ulasan Pelanggan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                       TextButton(
                         onPressed: () {},
-                        child: const Text(
-                          'Lihat Semua',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontFamily: 'Inter',
-                            color: Color(0xFF0525BB),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+                        child: const Text('Lihat Semua'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   ...provider.reviews.map((r) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildReviewCard(r),
-                      )),
-                  const SizedBox(height: 80), // padding for bottom button
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _reviewCard(r, theme),
+                  )),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
 
-          // ── Bottom CTA ─────────────────────────────────────────────
+          // ── CTA ─────────────────────────────────────────────────────────
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF4F2FE),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: ),
-                  blurRadius: 12,
-                  offset: const Offset(0, -4),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 20, offset: Offset(0, -4))],
             ),
             child: SizedBox(
-              width: double.infinity,
-              height: 54,
+              width: double.infinity, height: 56,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CheckoutScreen(
-                        providerName: provider.name,
-                        taskTitle: 'Perbaikan / Layanan', // Default generic title
-                        category: provider.category,
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.send_rounded, size: 18),
-                label: const Text(
-                  'Undang ke Tugas',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
-                  ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CheckoutScreen(providerName: provider.name, taskTitle: 'Perbaikan / Layanan', category: provider.category)),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0525BB),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 4,
-                  shadowColor: const Color(0x330525BB),
-                ),
+                icon: const Icon(Icons.send_rounded, size: 20),
+                label: const Text('Undang ke Tugas'),
               ),
             ),
           ),
@@ -357,174 +189,82 @@ class ProviderDetailScreen extends StatelessWidget {
     );
   }
 
-  // ── Helper widgets ──────────────────────────────────────────────────────
+  Widget _card({required Widget child}) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+      boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
+    ),
+    child: child,
+  );
 
-  Widget _buildCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: child,
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required Color iconColor,
-    required String value,
-    required String label,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(width: 6),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1A1B23),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              fontFamily: 'Inter',
-              color: Color(0xFF757686),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkillChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEEECF8),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Inter',
-          color: Color(0xFF0525BB),
+  Widget _statCard({required IconData icon, required Color iconColor, required String value, required String label}) =>
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
         ),
-      ),
-    );
-  }
+        child: Column(
+          children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(icon, color: iconColor, size: 22),
+              const SizedBox(width: 8),
+              Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+            ]),
+            const SizedBox(height: 6),
+            Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+          ],
+        ),
+      );
 
-  Widget _buildReviewCard(ProviderReview review) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Avatar
-              review.reviewerAvatar.isNotEmpty
-                  ? CircleAvatar(
-                      radius: 18,
-                      backgroundImage: NetworkImage(review.reviewerAvatar),
-                    )
-                  : CircleAvatar(
-                      radius: 18,
-                      backgroundColor: const Color(0xFFDFE0FF),
-                      child: Text(
-                        review.reviewerName[0],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0525BB),
-                        ),
-                      ),
-                    ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      review.reviewerName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter',
-                        color: Color(0xFF1A1B23),
-                      ),
-                    ),
-                    Text(
-                      review.timeAgo,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontFamily: 'Inter',
-                        color: Color(0xFF757686),
-                      ),
-                    ),
-                  ],
-                ),
+  Widget _reviewCard(ProviderReview review, ThemeData theme) => Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            review.reviewerAvatar.isNotEmpty
+                ? CircleAvatar(radius: 20, backgroundImage: NetworkImage(review.reviewerAvatar))
+                : CircleAvatar(
+                    radius: 20,
+                    backgroundColor: const Color(0xFFEEF0FF),
+                    child: Text(review.reviewerName[0], style: TextStyle(fontWeight: FontWeight.w800, color: theme.colorScheme.primary)),
+                  ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(review.reviewerName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                  const SizedBox(height: 2),
+                  Text(review.timeAgo, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                ],
               ),
-              // Stars
-              Row(
-                children: List.generate(5, (i) {
-                  return Icon(
-                    i < review.rating.round()
-                        ? Icons.star_rounded
-                        : Icons.star_outline_rounded,
-                    size: 14,
-                    color: const Color(0xFFFFC107),
-                  );
-                }),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            review.text,
-            style: const TextStyle(
-              fontSize: 13,
-              fontFamily: 'Inter',
-              color: Color(0xFF444655),
-              height: 1.5,
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            Row(
+              children: List.generate(5, (i) => Icon(
+                i < review.rating.round() ? Icons.star_rounded : Icons.star_outline_rounded,
+                size: 16,
+                color: const Color(0xFFF59E0B),
+              )),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Text(review.text, style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6)),
+      ],
+    ),
+  );
 }

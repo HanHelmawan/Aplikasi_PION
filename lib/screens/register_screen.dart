@@ -1,53 +1,59 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
 import '../core/auth_service.dart';
-import 'register_screen.dart';
+import 'login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
   bool _isLoading = false;
+  bool _isWorkerMode = false;
 
-  void _login() async {
+  void _register() async {
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap isi email dan password')),
+        const SnackBar(content: Text('Harap lengkapi semua data')),
       );
       return;
     }
 
     setState(() => _isLoading = true);
-    
-    final user = await AuthService.login(email, password);
+
+    final success = await AuthService.register(name, email, password, _isWorkerMode);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (user != null) {
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registrasi berhasil, silakan masuk')),
+      );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => MainNavigation(isWorkerMode: user['isWorkerMode'] ?? false)),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email atau password salah')),
+        const SnackBar(content: Text('Email sudah terdaftar')),
       );
     }
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -66,29 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Spacer(),
-
-                    // ── Logo ───────────────────────────────────────────────
-                    Center(
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.explore_rounded,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 32),
 
                     // ── Heading ────────────────────────────────────────────
                     const Text(
-                      'Selamat Datang',
+                      'Daftar Akun Tester',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
@@ -98,14 +86,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Masuk ke akun Pion Anda',
+                      'Fase Closed Testing Pion',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Color(0xFF94A3B8), // Adjusted color
                       ),
                     ),
                     const SizedBox(height: 48),
+
+                    // ── Name ──────────────────────────────────────────────
+                    _label('Nama Lengkap'),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _nameController,
+                      decoration: _inputDecoration('John Doe', Icons.badge_outlined),
+                    ),
+                    const SizedBox(height: 20),
 
                     // ── Email ──────────────────────────────────────────────
                     _label('Email / Nomor HP'),
@@ -113,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: _inputDecoration('contoh@email.com', Icons.person_outline),
+                      decoration: _inputDecoration('contoh@email.com', Icons.email_outlined),
                     ),
                     const SizedBox(height: 20),
 
@@ -136,52 +133,54 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
 
-                    // ── Forgot Password ────────────────────────────────────
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    // ── Role ──────────────────────────────────────────────
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _isWorkerMode,
+                          onChanged: (val) {
+                            setState(() => _isWorkerMode = val ?? false);
+                          },
                         ),
-                        child: const Text('Lupa Kata Sandi?'),
-                      ),
+                        const Text('Daftar sebagai Pekerja (Worker Mode)'),
+                      ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 32),
 
-                    // ── Login Button ───────────────────────────────────────
+                    // ── Register Button ────────────────────────────────────
                     SizedBox(
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _login,
+                        onPressed: _isLoading ? null : _register,
                         child: _isLoading
                             ? const SizedBox(
                                 width: 24, height: 24,
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                               )
-                            : const Text('Masuk'),
+                            : const Text('Daftar'),
                       ),
                     ),
                     const SizedBox(height: 32),
 
-                    // ── Register ───────────────────────────────────────────
+                    // ── Login ───────────────────────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Belum punya akun? ',
-                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                          'Sudah punya akun? ',
+                          style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)), // Adjusted color
                         ),
                         GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                              MaterialPageRoute(builder: (_) => const LoginScreen()),
                             );
                           },
                           child: Text(
-                            'Daftar Sekarang',
+                            'Masuk',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

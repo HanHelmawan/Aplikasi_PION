@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../core/auth_service.dart';
 import 'login_screen.dart';
 import 'my_requests_screen.dart';
 class ProfileScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
           children: [
             // ── Profile Card ────────────────────────────────────────────────────
             Container(
@@ -174,7 +175,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _menuSection([
             _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
             _MenuItem(icon: Icons.help_outline_rounded, label: 'Pusat Bantuan', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
-            _MenuItem(icon: Icons.info_outline_rounded, label: 'Tentang Pion', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+            _MenuItem(
+              icon: Icons.info_outline_rounded, 
+              label: 'Tentang Pion', 
+              trailingText: 'v1.0.2',
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pion Versi 1.0.2', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))
+            ),
           ], theme),
           const SizedBox(height: 32),
 
@@ -182,11 +188,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(
             height: 56,
             child: OutlinedButton.icon(
-              onPressed: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              ),
+              onPressed: () async {
+                await AuthService.logout();
+                if (!context.mounted) return;
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              },
               icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 20),
               label: const Text('Keluar', style: TextStyle(color: Color(0xFFEF4444))),
               style: OutlinedButton.styleFrom(
@@ -221,7 +231,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Icon(e.value.icon, color: theme.colorScheme.primary, size: 22),
                 ),
                 title: Text(e.value.label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
-                trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 24),
+                trailing: e.value.trailingText != null 
+                    ? Text(e.value.trailingText!, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w600))
+                    : const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 24),
                 onTap: e.value.onTap,
               ),
               if (!isLast) const Divider(height: 1, indent: 80),
@@ -237,5 +249,6 @@ class _MenuItem {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _MenuItem({required this.icon, required this.label, required this.onTap});
+  final String? trailingText;
+  const _MenuItem({required this.icon, required this.label, required this.onTap, this.trailingText});
 }

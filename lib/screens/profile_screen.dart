@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../core/auth_service.dart';
+import '../core/url_helper.dart';
 import 'login_screen.dart';
 import 'my_requests_screen.dart';
 class ProfileScreen extends StatefulWidget {
@@ -18,6 +19,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _isWorkerMode = widget.isWorkerMode;
+  }
+
+  Future<void> _launchPrivacyPolicy() async {
+    await openUrl('https://pion-privacy-policy.vercel.app/');
   }
 
   @override
@@ -173,13 +178,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ], theme),
           const SizedBox(height: 16),
           _menuSection([
-            _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+            _MenuItem(icon: Icons.shield_outlined, label: 'Keamanan & Privasi', onTap: _launchPrivacyPolicy),
             _MenuItem(icon: Icons.help_outline_rounded, label: 'Pusat Bantuan', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
             _MenuItem(
               icon: Icons.info_outline_rounded, 
               label: 'Tentang Pion', 
-              trailingText: 'v1.0.2',
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pion Versi 1.0.2', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))
+              trailingText: 'v1.0.3',
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pion Versi 1.0.3', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))
             ),
           ], theme),
           const SizedBox(height: 32),

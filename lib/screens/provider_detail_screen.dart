@@ -272,36 +272,21 @@ class ProviderDetailScreen extends StatelessWidget {
               borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
               boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 24, offset: Offset(0, -8))],
             ),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text('Mulai dari', style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter')),
-                    SizedBox(height: 2),
-                    Text('Rp 50.000', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
-                  ],
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CheckoutScreen(providerName: provider.name, taskTitle: 'Pekerjaan', category: provider.category)),
                 ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => CheckoutScreen(providerName: provider.name, taskTitle: 'Pekerjaan', category: provider.category)),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0525BB),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 0,
-                      ),
-                      child: const Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
-                    ),
-                  ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0525BB),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
                 ),
-              ],
+                child: const Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+              ),
             ),
           ),
         ],

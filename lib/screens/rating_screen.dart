@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme.dart';
 
 class RatingScreen extends StatefulWidget {
   final String workerName;
@@ -57,15 +58,15 @@ class _RatingScreenState extends State<RatingScreen> {
               ),
               child: Row(
                 children: [
-                  const CircleAvatar(radius: 28, backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12')),
+                  PionAvatar(radius: 28, url: widget.workerAvatar),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Budi Santoso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                        SizedBox(height: 4),
-                        Text('Layanan Perbaikan Keran', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      children: [
+                        Text(widget.workerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                        const SizedBox(height: 4),
+                        Text(widget.taskTitle, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                       ],
                     ),
                   ),

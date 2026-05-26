@@ -17,31 +17,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       icon: Icons.location_on_outlined,
       title: 'Cari Jasa Sekitar',
       subtitle: 'Temukan penyedia jasa terverifikasi untuk segala kebutuhan dalam radius 1–5 km dari lokasi Anda.',
-      color: Color(0xFF0525BB),
+      color: Color(0xFF2563EB),
     ),
     _OnboardingPage(
       icon: Icons.verified_user_outlined,
       title: 'Pilih Mitra Terbaik',
       subtitle: 'Lihat profil, keahlian, dan ulasan asli dari pengguna lain sebelum memilih mitra kerja.',
-      color: Color(0xFF0525BB),
+      color: Color(0xFF2563EB),
     ),
     _OnboardingPage(
       icon: Icons.chat_bubble_outline,
       title: 'Pesan & Sepakati',
       subtitle: 'Gunakan fitur pesan untuk menjelaskan detail tugas dan menyepakati harga dengan mudah.',
-      color: Color(0xFF0525BB),
+      color: Color(0xFF2563EB),
     ),
     _OnboardingPage(
       icon: Icons.account_balance_wallet_outlined,
       title: 'Bayar di Tempat',
       subtitle: 'Tanpa top-up saldo! Lakukan pembayaran langsung setelah tugas diselesaikan dengan sempurna.',
-      color: Color(0xFF0525BB),
+      color: Color(0xFF2563EB),
     ),
     _OnboardingPage(
       icon: Icons.star_outline_rounded,
       title: 'Selesai & Ulas',
       subtitle: 'Konfirmasi penyelesaian di aplikasi dan berikan ulasan untuk membantu komunitas Pion.',
-      color: Color(0xFF0525BB),
+      color: Color(0xFF2563EB),
     ),
   ];
 
@@ -106,7 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 8,
                   width: active ? 28 : 8,
                   decoration: BoxDecoration(
-                    color: active ? const Color(0xFF0525BB) : const Color(0xFFE2E8F0),
+                    color: active ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 );
@@ -167,7 +167,7 @@ class _OnboardingPage extends StatelessWidget {
             width: 160,
             height: 160,
             decoration: BoxDecoration(
-              color: const Color(0xFFEEF0FF),
+              color: const Color(0xFFEFF6FF),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 72, color: color),

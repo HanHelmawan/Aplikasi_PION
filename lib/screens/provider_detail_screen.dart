@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../core/theme.dart';
 import 'checkout_screen.dart';
+import 'chat_screen.dart';
 
 // ─── Data models ─────────────────────────────────────────────────────────────
 
@@ -104,14 +106,14 @@ class ProviderDetailScreen extends StatelessWidget {
                         Stack(
                           alignment: Alignment.bottomRight,
                           children: [
-                            CircleAvatar(radius: 56, backgroundImage: NetworkImage(provider.avatarUrl)),
+                            PionAvatar(radius: 56, url: provider.avatarUrl),
                             if (provider.kycPassed)
                               Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(color: Color(0xFF0525BB), shape: BoxShape.circle),
+                                  decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle),
                                   child: const Icon(Icons.verified, color: Colors.white, size: 16),
                                 ),
                               ),
@@ -129,7 +131,7 @@ class ProviderDetailScreen extends StatelessWidget {
                           children: [
                             _buildMiniStat(Icons.star_rounded, provider.rating.toString(), 'Rating', const Color(0xFFF59E0B)),
                             _buildMiniStat(Icons.task_alt_rounded, provider.tasksCompleted.toString(), 'Selesai', const Color(0xFF10B981)),
-                            _buildMiniStat(Icons.flash_on_rounded, '< 10m', 'Respons', const Color(0xFF0525BB)),
+                            _buildMiniStat(Icons.flash_on_rounded, '< 10m', 'Respons', const Color(0xFF2563EB)),
                           ],
                         ),
                       ],
@@ -143,15 +145,15 @@ class ProviderDetailScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEEF0FF),
+                        color: const Color(0xFFEFF6FF),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFC7D0F8)),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: const BoxDecoration(color: Color(0xFF0525BB), shape: BoxShape.circle),
+                            decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle),
                             child: const Icon(Icons.shield_rounded, color: Colors.white, size: 24),
                           ),
                           const SizedBox(width: 16),
@@ -161,7 +163,7 @@ class ProviderDetailScreen extends StatelessWidget {
                               children: const [
                                 Text('Garansi Pion Protection', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF031480), fontFamily: 'Inter')),
                                 SizedBox(height: 4),
-                                Text('Pekerjaan dilindungi garansi 30 hari. Dana aman hingga selesai.', style: TextStyle(fontSize: 12, color: Color(0xFF0525BB), fontFamily: 'Inter', height: 1.4)),
+                                Text('Pekerjaan dilindungi garansi 30 hari. Dana aman hingga selesai.', style: TextStyle(fontSize: 12, color: Color(0xFF2563EB), fontFamily: 'Inter', height: 1.4)),
                               ],
                             ),
                           ),
@@ -195,7 +197,7 @@ class ProviderDetailScreen extends StatelessWidget {
                     clipBehavior: Clip.none,
                     child: Row(
                       children: [
-                        _buildAchievementBadge('Top Worker', Icons.workspace_premium, const Color(0xFF0525BB)),
+                        _buildAchievementBadge('Top Worker', Icons.workspace_premium, const Color(0xFF2563EB)),
                         const SizedBox(width: 12),
                         _buildAchievementBadge('Cepat Tanggap', Icons.bolt, const Color(0xFFF59E0B)),
                         const SizedBox(width: 12),
@@ -248,7 +250,7 @@ class ProviderDetailScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                           style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                          child: const Text('Semua (128)', style: TextStyle(color: Color(0xFF0525BB), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                          child: const Text('Semua (128)', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
                         ),
                       ],
                     ),
@@ -272,21 +274,59 @@ class ProviderDetailScreen extends StatelessWidget {
               borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
               boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 24, offset: Offset(0, -8))],
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CheckoutScreen(providerName: provider.name, taskTitle: 'Pekerjaan', category: provider.category)),
+            child: Row(
+              children: [
+                // Hubungi button
+                SizedBox(
+                  height: 56,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => ChatScreen(
+                          providerName: provider.name,
+                          providerAvatar: provider.avatarUrl,
+                          isOnline: true,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                    label: const Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 14)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2563EB),
+                      side: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                  ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0525BB),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
+                const SizedBox(width: 12),
+                // Pilih & Lanjutkan button
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => CheckoutScreen(
+                            providerName: provider.name,
+                            providerAvatar: provider.avatarUrl,
+                            taskTitle: 'Pekerjaan',
+                            category: provider.category,
+                          ),
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                    ),
+                  ),
                 ),
-                child: const Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
-              ),
+              ],
             ),
           ),
         ],
@@ -338,10 +378,10 @@ class ProviderDetailScreen extends StatelessWidget {
         Row(
           children: [
             review.reviewerAvatar.isNotEmpty
-                ? CircleAvatar(radius: 20, backgroundImage: NetworkImage(review.reviewerAvatar))
+                ? PionAvatar(radius: 20, url: review.reviewerAvatar)
                 : CircleAvatar(
                     radius: 20,
-                    backgroundColor: const Color(0xFFEEF0FF),
+                    backgroundColor: const Color(0xFFEFF6FF),
                     child: Text(review.reviewerName[0], style: TextStyle(fontWeight: FontWeight.w800, color: theme.colorScheme.primary)),
                   ),
             const SizedBox(width: 12),

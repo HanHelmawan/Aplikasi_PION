@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../core/theme.dart';
 import 'active_task_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final String taskTitle;
   final String providerName;
   final String category;
+  final String providerAvatar;
   final String? initialDescription;
   final List<String>? initialPhotos;
 
@@ -14,6 +16,7 @@ class CheckoutScreen extends StatefulWidget {
     this.taskTitle = 'Perbaikan / Layanan',
     this.providerName = 'Belum dipilih',
     this.category = 'Umum',
+    this.providerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
     this.initialDescription,
     this.initialPhotos,
   });
@@ -138,7 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))]),
                   child: Row(
                     children: [
-                      const CircleAvatar(radius: 26, backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12')),
+                      PionAvatar(radius: 26, url: widget.providerAvatar),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -152,12 +155,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(20)),
+                        decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(20)),
                         child: Row(
                           children: const [
                             Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
                             SizedBox(width: 4),
-                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
                           ],
                         ),
                       ),
@@ -205,7 +208,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))]),
                   child: Row(
                     children: [
-                      const Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                      const Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
                       const SizedBox(width: 16),
                       Expanded(
                         child: TextField(
@@ -267,7 +270,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ElevatedButton(
                   onPressed: _isProcessing ? null : _confirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0525BB),
+                    backgroundColor: const Color(0xFF2563EB),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
@@ -288,7 +291,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(label, style: TextStyle(fontSize: 14, fontWeight: isNormal ? FontWeight.w500 : FontWeight.w800, color: isNormal ? const Color(0xFF64748B) : const Color(0xFF0F172A), fontFamily: 'Inter')),
-      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : const Color(0xFF0525BB), fontFamily: 'Inter')),
+      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : const Color(0xFF2563EB), fontFamily: 'Inter')),
     ],
   );
 }

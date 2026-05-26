@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme.dart';
 import 'active_task_screen.dart';
 import 'rating_screen.dart';
 
@@ -73,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Stack(
               children: [
-                CircleAvatar(radius: 20, backgroundImage: NetworkImage(widget.providerAvatar)),
+                PionAvatar(radius: 20, url: widget.providerAvatar),
                 if (widget.isOnline)
                   Positioned(
                     right: 0, bottom: 0,
@@ -216,7 +217,7 @@ class _ChatScreenState extends State<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!msg.isMe) ...[
-            CircleAvatar(radius: 16, backgroundImage: NetworkImage(widget.providerAvatar)),
+            PionAvatar(radius: 16, url: widget.providerAvatar),
             const SizedBox(width: 12),
           ],
           Column(

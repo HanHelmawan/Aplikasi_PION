@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static const String _usersKey = 'pion_users';
   static const String _currentUserKey = 'pion_current_user';
+  static const String _locationSetupDoneKey = 'pion_location_setup_done';
+  static const String _savedLocationKey = 'pion_saved_location';
 
   // ── Demo accounts for Play Store review / closed testing ─────────────────
   // These credentials are hardcoded and always work, regardless of local storage.
@@ -84,5 +86,34 @@ class AuthService {
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_currentUserKey);
+    // NOTE: We intentionally keep _locationSetupDoneKey and _savedLocationKey
+    // so users don't have to re-setup location on every login.
+  }
+
+  // ── Location Setup ────────────────────────────────────────────────────────
+
+  /// Returns true if the user has NOT yet completed the location setup flow.
+  static Future<bool> isFirstLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool(_locationSetupDoneKey) ?? false);
+  }
+
+  /// Call this once the user completes (or skips) the location setup screen.
+  static Future<void> markLocationSetupDone() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_locationSetupDoneKey, true);
+  }
+
+  /// Saves the user's chosen city/area name (e.g., "Jakarta Selatan").
+  static Future<void> saveLocation(String cityName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_savedLocationKey, cityName);
+  }
+
+  /// Returns the previously saved city/area name, or null if not set.
+  static Future<String?> getSavedLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_savedLocationKey);
   }
 }
+

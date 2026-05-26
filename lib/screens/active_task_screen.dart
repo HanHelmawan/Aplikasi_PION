@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'chat_screen.dart';
 import '../main.dart'; // To navigate back home safely
+import '../core/theme.dart';
 
 class ActiveTaskScreen extends StatelessWidget {
   const ActiveTaskScreen({super.key});
@@ -86,7 +87,7 @@ class ActiveTaskScreen extends StatelessWidget {
                   // Provider Info
                   Row(
                     children: [
-                      const CircleAvatar(radius: 28, backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12')),
+                      const PionAvatar(radius: 28, url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop'),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -103,7 +104,7 @@ class ActiveTaskScreen extends StatelessWidget {
                                 const SizedBox(width: 12),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(10)),
+                                  decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10)),
                                   child: Text('Spesialis Pipa', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: colorScheme.primary)),
                                 ),
                               ],

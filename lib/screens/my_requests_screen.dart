@@ -28,7 +28,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
     switch (s) {
       case RequestStatus.menunggu:   return const Color(0xFFD97706);
       case RequestStatus.ditawar:    return const Color(0xFF7C3AED);
-      case RequestStatus.dikerjakan: return const Color(0xFF0525BB);
+      case RequestStatus.dikerjakan: return const Color(0xFF2563EB);
       case RequestStatus.selesai:    return const Color(0xFF16A34A);
       case RequestStatus.dibatalkan: return const Color(0xFFDC2626);
     }
@@ -53,7 +53,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A))),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0525BB)),
+            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF2563EB)),
             onPressed: () => setState(() {}),
           ),
         ],
@@ -82,8 +82,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
       children: [
         Container(
           width: 120, height: 120,
-          decoration: const BoxDecoration(color: Color(0xFFEEF0FF), shape: BoxShape.circle),
-          child: const Icon(Icons.assignment_outlined, size: 56, color: Color(0xFF0525BB)),
+          decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
+          child: const Icon(Icons.assignment_outlined, size: 56, color: Color(0xFF2563EB)),
         ),
         const SizedBox(height: 24),
         const Text('Belum Ada Riwayat',
@@ -139,8 +139,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           // ── Category ────────────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
-            child: Text(r.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+            decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
+            child: Text(r.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
           ),
           const SizedBox(height: 10),
 
@@ -165,7 +165,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             if (r.finalPrice != null) ...[
               const Text(' → ', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
               Text('Final: ${_fmtPrice(r.finalPrice!)}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
             ],
           ]),
 
@@ -195,7 +195,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                 TextButton(
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => JobTrackingScreen(request: r))),
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFEEF0FF),
+                    backgroundColor: const Color(0xFFEFF6FF),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     minimumSize: Size.zero,
@@ -203,9 +203,9 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.gps_fixed_rounded, size: 14, color: Color(0xFF0525BB)),
+                      Icon(Icons.gps_fixed_rounded, size: 14, color: Color(0xFF2563EB)),
                       SizedBox(width: 4),
-                      Text('Lacak', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                      Text('Lacak', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
                     ],
                   ),
                 ),

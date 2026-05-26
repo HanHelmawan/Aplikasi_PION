@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/task_request.dart';
+import '../core/theme.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
@@ -158,7 +159,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             if (_isProcessing)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -226,10 +227,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                     margin: const EdgeInsets.only(left: 16),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEF0FF),
+                      color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text('Rp', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                    child: const Text('Rp', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -280,13 +281,13 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                         child: Icon(Icons.add_photo_alternate_rounded, color: theme.colorScheme.primary, size: 32),
                       ),
                     ),
-                  ..._photoUrls.map((url) => Container(
-                    width: 100, height: 100,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+                  ..._photoUrls.map((url) => Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: PionImage(
+                      url: url,
+                      width: 100,
+                      height: 100,
+                      borderRadius: 20,
                     ),
                   )),
                 ],
@@ -328,7 +329,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             children: [
               Container(
                 width: 44, height: 44,
-                decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(16)),
                 child: Icon(icon, color: theme.colorScheme.primary, size: 22),
               ),
               const SizedBox(width: 16),

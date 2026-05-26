@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task_request.dart';
+import '../core/theme.dart';
 import 'negotiation_screen.dart';
 
 /// User-facing request list — shows all open requests from all users.
@@ -59,7 +60,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0525BB)),
+            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF4F46E5)),
             tooltip: 'Refresh',
             onPressed: () => setState(() {}),
           ),
@@ -107,17 +108,17 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                           horizontal: 18, vertical: 8),
                       decoration: BoxDecoration(
                         color: selected
-                            ? const Color(0xFF0525BB)
+                            ? const Color(0xFF4F46E5)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                             color: selected
-                                ? const Color(0xFF0525BB)
+                                ? const Color(0xFF4F46E5)
                                 : const Color(0xFFE2E8F0)),
                         boxShadow: selected
                             ? const [
                                 BoxShadow(
-                                    color: Color(0x330525BB),
+                                    color: Color(0x334F46E5),
                                     blurRadius: 8,
                                     offset: Offset(0, 3))
                               ]
@@ -166,9 +167,9 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               width: 120,
               height: 120,
               decoration: const BoxDecoration(
-                  color: Color(0xFFEEF0FF), shape: BoxShape.circle),
+                  color: Color(0xFFEEF2FF), shape: BoxShape.circle),
               child: const Icon(Icons.inbox_rounded,
-                  size: 56, color: Color(0xFF0525BB)),
+                  size: 56, color: Color(0xFF4F46E5)),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -231,11 +232,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
           // ── User Row ──────────────────────────────────────────────────────
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.network(avatarUrl,
-                    width: 48, height: 48, fit: BoxFit.cover),
-              ),
+              PionAvatar(radius: 24, url: avatarUrl),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -297,13 +294,13 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFEEF0FF),
+                    color: const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(12)),
                 child: Text(r.category,
                     style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF0525BB),
+                        color: Color(0xFF4F46E5),
                         fontFamily: 'Inter')),
               ),
               const SizedBox(width: 8),
@@ -329,15 +326,13 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: r.photoUrls.length,
-                itemBuilder: (_, i) => Container(
-                  width: 80,
-                  height: 80,
-                  margin: const EdgeInsets.only(right: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                        image: NetworkImage(r.photoUrls[i]),
-                        fit: BoxFit.cover),
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: PionImage(
+                    url: r.photoUrls[i],
+                    width: 80,
+                    height: 80,
+                    borderRadius: 12,
                   ),
                 ),
               ),
@@ -374,7 +369,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 icon: const Icon(Icons.handshake_rounded, size: 18),
                 label: const Text('Ambil Pekerjaan', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0525BB),
+                  backgroundColor: const Color(0xFF4F46E5),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,

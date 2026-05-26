@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task_request.dart';
+import '../core/theme.dart';
 import 'job_tracking_screen.dart';
 
 class NegotiationScreen extends StatefulWidget {
@@ -86,12 +87,12 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
             style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 18, color: Color(0xFF0F172A))),
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFC6D8FF)],
-            stops: [0.3, 1.0],
+            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.08)],
+            stops: const [0.3, 1.0],
           ),
         ),
         child: ListView(
@@ -106,8 +107,19 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
-                        child: Text(req.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          req.category,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).primaryColor,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Container(
@@ -130,12 +142,13 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: req.photoUrls.length,
-                        itemBuilder: (_, i) => Container(
-                          width: 90, height: 90,
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(image: NetworkImage(req.photoUrls[i]), fit: BoxFit.cover),
+                        itemBuilder: (_, i) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: PionImage(
+                            url: req.photoUrls[i],
+                            width: 90,
+                            height: 90,
+                            borderRadius: 12,
                           ),
                         ),
                       ),
@@ -154,7 +167,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                   const Text('Harga Estimasi Pengguna', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
                   const SizedBox(height: 4),
                   Text(req.estimatedPrice > 0 ? _fmt : 'Belum ditentukan',
-                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -196,8 +209,11 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                         Container(
                           margin: const EdgeInsets.only(left: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(10)),
-                          child: const Text('Rp', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text('Rp', style: TextStyle(fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -225,7 +241,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                       icon: const Icon(Icons.send_rounded, size: 18),
                       label: const Text('Kirim Penawaran', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0525BB),
+                        backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         elevation: 0,

@@ -38,7 +38,7 @@ class ProviderDashboardScreen extends StatelessWidget {
               // ── Icon ──────────────────────────────────────────────────────
               Container(
                 width: 100, height: 100,
-                decoration: BoxDecoration(color: const Color(0xFFEEF0FF), shape: BoxShape.circle, border: Border.all(color: const Color(0xFFC7D0F8))),
+                decoration: BoxDecoration(color: const Color(0xFFEEF2FF), shape: BoxShape.circle, border: Border.all(color: const Color(0xFFC7D0F8))),
                 child: Icon(Icons.work_rounded, size: 48, color: theme.colorScheme.primary),
               ),
               const SizedBox(height: 24),

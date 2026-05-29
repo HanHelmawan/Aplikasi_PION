@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "726520432814-p6nkuq9rf1nshlaf09b3cp7524bu9im6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.penacode.pion",
+            "certificate_hash": "2c34ff3a0870835b74f1dbe355961b80670ef990"
+          }
+        },
+        {
           "client_id": "726520432814-7hbfv8djg79quv8h44ne35h72sapneqd.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -41,11 +41,31 @@ android {
     }
 
     signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         create("release") {
-            keyAlias = keyProperties["keyAlias"] as String?
-            keyPassword = keyProperties["keyPassword"] as String?
-            storeFile = keyProperties["storeFile"]?.let { file(it) }
-            storePassword = keyProperties["storePassword"] as String?
+            val alias = keyProperties["keyAlias"] as? String
+            val password = keyProperties["keyPassword"] as? String
+            val storePath = keyProperties["storeFile"] as? String
+            val storePass = keyProperties["storePassword"] as? String
+
+            if (alias != null && password != null && storePath != null && storePass != null) {
+                keyAlias = alias
+                keyPassword = password
+                storeFile = file(storePath)
+                storePassword = storePass
+            } else {
+                // Fallback to debug signature if key.properties is missing
+                val debugConfig = signingConfigs.getByName("debug")
+                keyAlias = debugConfig.keyAlias
+                keyPassword = debugConfig.keyPassword
+                storeFile = debugConfig.storeFile
+                storePassword = debugConfig.storePassword
+            }
         }
     }
 

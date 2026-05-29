@@ -7,7 +7,6 @@ class SelectProviderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -142,14 +141,14 @@ class SelectProviderScreen extends StatelessWidget {
               const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
               const SizedBox(width: 4),
               Text(rating.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontFamily: 'Inter')),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               const Icon(Icons.flash_on_rounded, color: Color(0xFFF59E0B), size: 16),
               const SizedBox(width: 4),
-              Text(responseTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter')),
-              const SizedBox(width: 16),
+              Flexible(child: Text(responseTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+              const SizedBox(width: 12),
               const Icon(Icons.thumb_up_rounded, color: Color(0xFF10B981), size: 14),
               const SizedBox(width: 4),
-              Text(successRate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+              Flexible(child: Text(successRate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
             ],
           ),
           const SizedBox(height: 16),

@@ -1,93 +1,163 @@
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String _usersKey = 'pion_users';
-  static const String _currentUserKey = 'pion_current_user';
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   static const String _locationSetupDoneKey = 'pion_location_setup_done';
   static const String _savedLocationKey = 'pion_saved_location';
 
-  // ── Demo accounts for Play Store review / closed testing ─────────────────
-  // These credentials are hardcoded and always work, regardless of local storage.
-  static const List<Map<String, dynamic>> _demoAccounts = [
-    {
-      'name': 'Demo User',
-      'email': 'tester@pion.com',
-      'password': 'pion2024',
-      'isWorkerMode': false,
-    },
-    {
-      'name': 'Demo Worker',
-      'email': 'worker@pion.com',
-      'password': 'pion2024',
-      'isWorkerMode': true,
-    },
-  ];
+  // ── Register ──────────────────────────────────────────────────────────────
 
-  // Format: [{email, password, name, isWorkerMode}]
-  static Future<bool> register(String name, String email, String password, bool isWorkerMode) async {
-    final prefs = await SharedPreferences.getInstance();
-    final usersString = prefs.getString(_usersKey) ?? '[]';
-    final List<dynamic> users = jsonDecode(usersString);
+  /// Creates a new account with email/password and saves user data to Firestore.
+  /// Returns null on success, or an error message string on failure.
+  static Future<String?> register(
+      String name, String email, String password, bool isWorkerMode) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    // Check if email already exists (including demo accounts)
-    if (_demoAccounts.any((u) => u['email'] == email)) {
-      return false; // Demo account, cannot overwrite
+      // Update display name in Firebase Auth
+      await credential.user?.updateDisplayName(name);
+
+      // Save additional user data to Firestore
+      await _firestore.collection('users').doc(credential.user!.uid).set({
+        'name': name,
+        'email': email,
+        'isWorkerMode': isWorkerMode,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      return null; // success
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          return 'Email sudah terdaftar. Silakan gunakan email lain.';
+        case 'weak-password':
+          return 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+        case 'invalid-email':
+          return 'Format email tidak valid.';
+        default:
+          return 'Gagal mendaftar: ${e.message}';
+      }
+    } catch (e) {
+      return 'Terjadi kesalahan. Coba lagi.';
     }
-    // Check if email already exists
-    if (users.any((u) => u['email'] == email)) {
-      return false; // Already exists
-    }
-
-    final newUser = {
-      'name': name,
-      'email': email,
-      'password': password, // In a real app, hash this!
-      'isWorkerMode': isWorkerMode,
-    };
-
-    users.add(newUser);
-    await prefs.setString(_usersKey, jsonEncode(users));
-    return true;
   }
 
-  static Future<Map<String, dynamic>?> login(String email, String password) async {
-    // Check demo accounts first (always available for reviewers)
-    for (final demo in _demoAccounts) {
-      if (demo['email'] == email && demo['password'] == password) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_currentUserKey, jsonEncode(demo));
-        return demo;
-      }
-    }
+  // ── Login ─────────────────────────────────────────────────────────────────
 
-    final prefs = await SharedPreferences.getInstance();
-    final usersString = prefs.getString(_usersKey) ?? '[]';
-    final List<dynamic> users = jsonDecode(usersString);
+  /// Signs in with email/password and returns the user data map, or null on failure.
+  /// Also returns an error message via [onError] callback.
+  static Future<Map<String, dynamic>?> login(
+      String email, String password, {Function(String)? onError}) async {
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    for (var u in users) {
-      if (u['email'] == email && u['password'] == password) {
-        await prefs.setString(_currentUserKey, jsonEncode(u));
-        return u as Map<String, dynamic>;
+      final uid = credential.user!.uid;
+      final doc = await _firestore.collection('users').doc(uid).get();
+
+      if (doc.exists) {
+        return {
+          'uid': uid,
+          'name': doc['name'] ?? credential.user?.displayName ?? 'Pengguna',
+          'email': email,
+          'isWorkerMode': doc['isWorkerMode'] ?? false,
+        };
+      } else {
+        // User exists in Auth but not in Firestore (edge case)
+        return {
+          'uid': uid,
+          'name': credential.user?.displayName ?? 'Pengguna',
+          'email': email,
+          'isWorkerMode': false,
+        };
       }
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          message = 'Email atau password salah.';
+          break;
+        case 'user-disabled':
+          message = 'Akun ini telah dinonaktifkan.';
+          break;
+        case 'too-many-requests':
+          message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+          break;
+        default:
+          message = 'Gagal masuk: ${e.message}';
+      }
+      onError?.call(message);
+      return null;
+    } catch (e) {
+      onError?.call('Terjadi kesalahan. Coba lagi.');
+      return null;
     }
-    return null; // Login failed
   }
 
+  // ── Get Current User ──────────────────────────────────────────────────────
+
+  /// Returns the currently signed-in user data, or null if not logged in.
   static Future<Map<String, dynamic>?> getCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userString = prefs.getString(_currentUserKey);
-    if (userString != null) {
-      return jsonDecode(userString) as Map<String, dynamic>;
-    }
-    return null;
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return null;
+
+    try {
+      final doc =
+          await _firestore.collection('users').doc(firebaseUser.uid).get();
+      if (doc.exists) {
+        return {
+          'uid': firebaseUser.uid,
+          'name': doc['name'] ?? firebaseUser.displayName ?? 'Pengguna',
+          'email': firebaseUser.email ?? '',
+          'isWorkerMode': doc['isWorkerMode'] ?? false,
+        };
+      }
+    } catch (_) {}
+
+    return {
+      'uid': firebaseUser.uid,
+      'name': firebaseUser.displayName ?? 'Pengguna',
+      'email': firebaseUser.email ?? '',
+      'isWorkerMode': false,
+    };
   }
+
+  // ── Logout ────────────────────────────────────────────────────────────────
 
   static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_currentUserKey);
-    // NOTE: We intentionally keep _locationSetupDoneKey and _savedLocationKey
-    // so users don't have to re-setup location on every login.
+    await _auth.signOut();
+    // NOTE: We intentionally keep location preferences so users
+    // don't have to re-setup location on every login.
+  }
+
+  // ── Reset Password ────────────────────────────────────────────────────────
+
+  /// Sends a password reset email. Returns null on success, error string on failure.
+  static Future<String?> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return null; // success
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          return 'Email tidak terdaftar.';
+        case 'invalid-email':
+          return 'Format email tidak valid.';
+        default:
+          return 'Gagal mengirim email: ${e.message}';
+      }
+    }
   }
 
   // ── Location Setup ────────────────────────────────────────────────────────
@@ -116,4 +186,3 @@ class AuthService {
     return prefs.getString(_savedLocationKey);
   }
 }
-

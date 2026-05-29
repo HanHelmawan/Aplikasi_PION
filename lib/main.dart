@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'core/theme.dart';
 import 'core/config_reader.dart';
 import 'screens/home_seeker_screen.dart';
@@ -9,6 +11,7 @@ import 'screens/profile_screen.dart';
 import 'screens/create_task_screen.dart';
 import 'screens/task_request_list_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/worker_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +19,11 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await ConfigReader.initialize();
   runApp(const PionApp());
 }
+
 
 class PionApp extends StatelessWidget {
   const PionApp({super.key});
@@ -48,7 +53,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   // Tab order: Beranda (0) | Riwayat (1) | [FAB] | Pesan (2) | Profil (3)
   List<Widget> get _pages => [
-    HomeSeekerScreen(isWorkerMode: widget.isWorkerMode),
+    widget.isWorkerMode
+        ? const WorkerHomeScreen()
+        : HomeSeekerScreen(isWorkerMode: false),
     widget.isWorkerMode
         ? const TaskRequestListScreen(isWorkerMode: true)
         : const ActivityScreen(),
@@ -88,11 +95,13 @@ class _MainNavigationState extends State<MainNavigation> {
         bottomNavigationBar: Container(
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: widget.isWorkerMode ? const Color(0xFF0A1628) : Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: theme.primaryColor.withOpacity(0.08),
+                color: widget.isWorkerMode
+                    ? const Color(0xFF4F46E5).withOpacity(0.2)
+                    : theme.primaryColor.withOpacity(0.08),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -101,7 +110,7 @@ class _MainNavigationState extends State<MainNavigation> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: BottomAppBar(
-              color: Colors.white,
+              color: widget.isWorkerMode ? const Color(0xFF0A1628) : Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               shape: const CircularNotchedRectangle(),

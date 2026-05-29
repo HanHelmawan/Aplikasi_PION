@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726520432814",
+    "project_id": "pion-app-5f12f",
+    "storage_bucket": "pion-app-5f12f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726520432814:android:dd50170dbd65e6261fc53f",
+        "android_client_info": {
+          "package_name": "com.penacode.pion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQt62E2PN02E8SM0W_soUe0nj7D12Oj4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

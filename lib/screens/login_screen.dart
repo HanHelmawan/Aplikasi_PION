@@ -22,15 +22,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap isi email dan password')),
-      );
+      _showSnackBar('Harap isi email dan password');
       return;
     }
 
     setState(() => _isLoading = true);
-    
-    final user = await AuthService.login(email, password);
+
+    final user = await AuthService.login(
+      email,
+      password,
+      onError: (msg) {
+        if (mounted) _showSnackBar(msg);
+      },
+    );
 
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -54,11 +58,39 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email atau password salah')),
-      );
     }
+  }
+
+  void _forgotPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showSnackBar('Masukkan email kamu terlebih dahulu');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    final error = await AuthService.sendPasswordReset(email);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (error == null) {
+      _showSnackBar('Email reset password telah dikirim ke $email ✉️', isSuccess: true);
+    } else {
+      _showSnackBar(error);
+    }
+  }
+
+  void _showSnackBar(String message, {bool isSuccess = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontFamily: 'Inter')),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isSuccess ? const Color(0xFF22C55E) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   @override
@@ -123,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 48),
 
                     // ── Email ──────────────────────────────────────────────
-                    _label('Email / Nomor HP'),
+                    _label('Email'),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _emailController,
@@ -156,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
+                        onPressed: _isLoading ? null : _forgotPassword,
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                         ),

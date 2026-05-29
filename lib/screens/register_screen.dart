@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/auth_service.dart';
 import 'login_screen.dart';
+import 'location_setup_screen.dart';
+import '../main.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,32 +25,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text;
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap lengkapi semua data')),
-      );
+      _showSnackBar('Harap lengkapi semua data');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showSnackBar('Password minimal 6 karakter');
       return;
     }
 
     setState(() => _isLoading = true);
 
-    final success = await AuthService.register(name, email, password, _isWorkerMode);
+    final error = await AuthService.register(name, email, password, _isWorkerMode);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrasi berhasil, silakan masuk')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+    if (error == null) {
+      // Registration successful — go directly to location setup or main
+      final user = await AuthService.getCurrentUser();
+      if (!mounted) return;
+
+      if (user != null) {
+        final firstLogin = await AuthService.isFirstLogin();
+        if (!mounted) return;
+
+        if (firstLogin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LocationSetupScreen(user: user)),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MainNavigation(isWorkerMode: user['isWorkerMode'] ?? false),
+            ),
+          );
+        }
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email sudah terdaftar')),
-      );
+      _showSnackBar(error);
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontFamily: 'Inter')),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   @override
@@ -76,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     // ── Heading ────────────────────────────────────────────
                     const Text(
-                      'Daftar Akun Tester',
+                      'Buat Akun Baru',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
@@ -86,11 +115,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Fase Closed Testing Pion',
+                      'Bergabung dengan Pion sekarang',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
-                        color: Color(0xFF94A3B8), // Adjusted color
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -105,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 20),
 
                     // ── Email ──────────────────────────────────────────────
-                    _label('Email / Nomor HP'),
+                    _label('Email'),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _emailController,
@@ -121,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _passwordController,
                       obscureText: !_passwordVisible,
                       decoration: _inputDecoration(
-                        'Masukkan kata sandi',
+                        'Minimal 6 karakter',
                         Icons.lock_outline,
                         suffix: IconButton(
                           icon: Icon(
@@ -136,16 +165,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 20),
 
                     // ── Role ──────────────────────────────────────────────
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isWorkerMode,
-                          onChanged: (val) {
-                            setState(() => _isWorkerMode = val ?? false);
-                          },
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: CheckboxListTile(
+                        value: _isWorkerMode,
+                        onChanged: (val) => setState(() => _isWorkerMode = val ?? false),
+                        title: const Text(
+                          'Daftar sebagai Pekerja (Worker)',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                         ),
-                        const Text('Daftar sebagai Pekerja (Worker Mode)'),
-                      ],
+                        subtitle: const Text(
+                          'Pilih ini jika kamu ingin menawarkan jasa',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
                     ),
                     const SizedBox(height: 32),
 
@@ -159,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 width: 24, height: 24,
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                               )
-                            : const Text('Daftar'),
+                            : const Text('Daftar Sekarang'),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -170,7 +208,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         Text(
                           'Sudah punya akun? ',
-                          style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)), // Adjusted color
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {

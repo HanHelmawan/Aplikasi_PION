@@ -147,7 +147,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
           _isLoading = false;
           _selectedCity = 'Jakarta Selatan'; // Simulated GPS result
         });
-        _showSnack('ðŸ“ Lokasi terdeteksi: Jakarta Selatan', isSuccess: true);
+        _showSnack('Lokasi terdeteksi: Jakarta Selatan', isSuccess: true);
       }
     }
   }

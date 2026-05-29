@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task_request.dart';
+import 'negotiation_screen.dart';
 
 /// Public job board — shows all open task requests from users.
 /// Workers browse this screen and pick jobs to respond to.
@@ -70,7 +71,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                     Expanded(child: _statItem('${_store.requests.length}', 'Permintaan\nMasuk')),
                     Container(width: 1, height: 36, color: Colors.white.withOpacity(0.3)),
                     Expanded(child: _statItem(
-                      '${_store.requests.where((r) => r.status == 'Menunggu').length}',
+                      '${_store.requests.where((r) => r.status == RequestStatus.menunggu).length}',
                       'Belum\nDitangani',
                     )),
                     Container(width: 1, height: 36, color: Colors.white.withOpacity(0.3)),
@@ -254,8 +255,9 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                 width: double.infinity,
                 height: 46,
                 child: ElevatedButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => NegotiationScreen(request: r)),
                   ),
                   icon: const Icon(Icons.handshake_outlined, size: 18),
                   label: const Text('Ambil Tugas Ini', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),

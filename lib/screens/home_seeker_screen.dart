@@ -463,7 +463,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
                     // â”€â”€ Greeting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Text(
-                      'Halo, ${_userName.split(' ').first} ðŸ‘‹',
+                      'Halo, ${_userName.split(' ').first}',
                       style: const TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 26,
@@ -680,7 +680,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _searchQuery.isEmpty ? 'Terdekat dari Anda ðŸ“' : 'Hasil Pencarian',
+                          _searchQuery.isEmpty ? 'Terdekat dari Anda' : 'Hasil Pencarian',
                           style: const TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                         ),
                         if (_searchQuery.isEmpty)
@@ -994,9 +994,9 @@ class _FeaturedProviderCard extends StatelessWidget {
             Text(name, style: const TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
             const SizedBox(height: 4),
             Text(specialty, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
-            const Spacer(),
+            const SizedBox(height: 16),
             const Divider(color: Color(0xFFF1F5F9)),
-            const Spacer(),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1008,7 +1008,7 @@ class _FeaturedProviderCard extends StatelessWidget {
                 Row(children: [
                   const Icon(Icons.task_alt_rounded, color: Color(0xFF10B981), size: 14),
                   const SizedBox(width: 4),
-                  Text('$jobs tugas', style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                  Text('$jobs tugas', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
                 ]),
               ],
             ),

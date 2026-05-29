@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../core/auth_service.dart';
 import '../main.dart';
 import 'onboarding_screen.dart';
@@ -38,22 +39,26 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigate() async {
-    final user = await AuthService.getCurrentUser();
+    final firebaseUser = FirebaseAuth.instance.currentUser;
 
     if (!mounted) return;
 
-    if (user == null) {
+    if (firebaseUser == null) {
       // No active session → show onboarding
       _pushReplacement(const OnboardingScreen());
     } else {
+      // User is logged in → get full user data from Firestore
+      final user = await AuthService.getCurrentUser();
+      if (!mounted) return;
+
       final firstLogin = await AuthService.isFirstLogin();
-      if (firstLogin) {
-        // Active session but location not set yet
+      if (!mounted) return;
+
+      if (firstLogin && user != null) {
         _pushReplacement(LocationSetupScreen(user: user));
       } else {
-        // Fully set up → go straight to main app
         _pushReplacement(
-          MainNavigation(isWorkerMode: user['isWorkerMode'] ?? false),
+          MainNavigation(isWorkerMode: user?['isWorkerMode'] ?? false),
         );
       }
     }

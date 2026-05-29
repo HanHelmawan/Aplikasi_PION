@@ -125,39 +125,48 @@ class _ActivityScreenState extends State<ActivityScreen>
                     indicatorSize: TabBarIndicatorSize.tab,
                     tabs: [
                       Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Aktif'),
-                            if (_active.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              _badge(_active.length),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Aktif'),
+                              if (_active.isNotEmpty) ...[
+                                const SizedBox(width: 6),
+                                _badge(_active.length),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                       Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Selesai'),
-                            if (_done.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              _badge(_done.length, color: const Color(0xFF10B981)),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Selesai'),
+                              if (_done.isNotEmpty) ...[
+                                const SizedBox(width: 6),
+                                _badge(_done.length, color: const Color(0xFF10B981)),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                       Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Dibatalkan'),
-                            if (_cancelled.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              _badge(_cancelled.length, color: const Color(0xFFDC2626)),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Dibatalkan'),
+                              if (_cancelled.isNotEmpty) ...[
+                                const SizedBox(width: 6),
+                                _badge(_cancelled.length, color: const Color(0xFFDC2626)),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ],
@@ -212,7 +221,7 @@ class _ActivityScreenState extends State<ActivityScreen>
   }) {
     if (items.isEmpty) return _buildEmpty(emptyIcon, emptyTitle, emptySubtitle);
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
       itemCount: items.length,
       itemBuilder: (ctx, i) => _buildCard(items[i]),
     );
@@ -266,7 +275,7 @@ class _ActivityScreenState extends State<ActivityScreen>
     final statusBg = statusColor.withValues(alpha: 0.1);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -279,7 +288,7 @@ class _ActivityScreenState extends State<ActivityScreen>
         children: [
           // ── Card Body ───────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -319,7 +328,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // Category chip
                 Container(
@@ -338,7 +347,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 // Meta info
                 _metaRow(Icons.access_time_rounded, r.scheduledAt),
@@ -368,9 +377,9 @@ class _ActivityScreenState extends State<ActivityScreen>
 
                 // Assigned worker
                 if (r.assignedWorkerName != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       ClipRRect(
@@ -439,7 +448,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                 children: [
                   // Escrow summary row
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
                     child: Row(
                       children: [
                         // Dana Cair badge
@@ -483,7 +492,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                   ),
                   // Beri Ulasan button
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
                     child: GestureDetector(
                       onTap: () => Navigator.push(
                         context,
@@ -517,8 +526,8 @@ class _ActivityScreenState extends State<ActivityScreen>
               ),
             )
           else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+             Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
               child: Row(
                 children: [
                   Text(

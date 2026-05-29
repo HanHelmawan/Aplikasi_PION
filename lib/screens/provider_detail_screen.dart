@@ -291,7 +291,10 @@ class ProviderDetailScreen extends StatelessWidget {
                       ),
                     ),
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                    label: const Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 14)),
+                    label: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 14)),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2563EB),
                       side: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
@@ -322,7 +325,10 @@ class ProviderDetailScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
-                      child: const Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                      ),
                     ),
                   ),
                 ),

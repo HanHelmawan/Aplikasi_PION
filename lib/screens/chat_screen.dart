@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
+import '../models/task_request.dart';
 import 'active_task_screen.dart';
+import 'job_tracking_screen.dart';
 import 'rating_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String providerName;
   final String providerAvatar;
   final bool isOnline;
+  final TaskRequest? request;
 
   const ChatScreen({
     super.key,
     this.providerName = 'Budi Santoso',
     this.providerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
     this.isOnline = true,
+    this.request,
   });
 
   @override
@@ -86,13 +90,24 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.providerName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                Text(widget.isOnline ? 'Online' : 'Terakhir aktif baru saja',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: widget.isOnline ? const Color(0xFF10B981) : const Color(0xFF94A3B8))),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.providerName,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.isOnline ? 'Online' : 'Terakhir aktif baru saja',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: widget.isOnline ? const Color(0xFF10B981) : const Color(0xFF94A3B8)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -102,8 +117,20 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: Icon(Icons.more_vert_rounded, color: theme.colorScheme.primary),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             onSelected: (v) {
-              if (v == 'active') Navigator.push(context, MaterialPageRoute(builder: (_) => const ActiveTaskScreen()));
-              if (v == 'rate') Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingScreen()));
+              if (v == 'active') {
+                if (widget.request != null) {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => JobTrackingScreen(request: widget.request!)));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ActiveTaskScreen()));
+                }
+              }
+              if (v == 'rate') {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => RatingScreen(
+                  workerName: widget.providerName,
+                  workerAvatar: widget.providerAvatar,
+                  taskTitle: widget.request?.title ?? 'Pekerjaan',
+                )));
+              }
             },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'active', child: Text('Lihat Tugas Aktif')),

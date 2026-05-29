@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/theme.dart';
-import 'active_task_screen.dart';
+import '../models/task_request.dart';
+import 'my_requests_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final String taskTitle;
@@ -69,16 +70,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _addPhoto() => setState(() => _photos.add('https://picsum.photos/seed/${_photos.length + 10}/200/200'));
 
-  void _confirm() async {
+  Future<void> _confirm() async {
     if (_offerPrice == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Masukkan penawaran harga Anda.', style: TextStyle(fontFamily: 'Inter')), backgroundColor: Color(0xFFEF4444)));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Masukkan penawaran harga Anda.', style: TextStyle(fontFamily: 'Inter')),
+        backgroundColor: Color(0xFFEF4444),
+      ));
       return;
     }
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
+
+    // Create a new TaskRequest and add it to the shared store
+    final newRequest = TaskRequest(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: widget.taskTitle,
+      description: _descriptionController.text.trim(),
+      category: widget.category,
+      location: 'Lokasi Anda',
+      scheduledAt: 'Segera',
+      estimatedPrice: _offerPrice.toDouble(),
+      photoUrls: List.from(_photos),
+      status: RequestStatus.menunggu,
+    );
+    TaskRequestStore.instance.addRequest(newRequest);
+
     setState(() => _isProcessing = false);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ActiveTaskScreen()));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MyRequestsScreen()),
+      (route) => route.isFirst,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Permintaan berhasil dikirim! ✓', style: TextStyle(fontFamily: 'Inter')),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF10B981),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -95,12 +126,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true,
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFC6D8FF)],
-            stops: [0.3, 1.0],
+            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            stops: const [0.3, 1.0],
           ),
         ),
         child: Stack(
@@ -155,12 +186,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(20)),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         child: Row(
-                          children: const [
-                            Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
-                            SizedBox(width: 4),
-                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+                          children: [
+                            const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
+                            const SizedBox(width: 4),
+                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
                           ],
                         ),
                       ),
@@ -193,6 +227,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           contentPadding: const EdgeInsets.all(16),
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      // ── Photo strip ──────────────────────────────────────
+                      SizedBox(
+                        height: 80,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            ..._photos.map((url) => Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: PionImage(url: url, width: 80, height: 80, borderRadius: 12),
+                            )),
+                            GestureDetector(
+                              onTap: _addPhoto,
+                              child: Container(
+                                width: 80, height: 80,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF94A3B8), size: 26),
+                                    SizedBox(height: 4),
+                                    Text('Foto', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -208,7 +275,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))]),
                   child: Row(
                     children: [
-                      const Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+                      Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
                       const SizedBox(width: 16),
                       Expanded(
                         child: TextField(
@@ -270,7 +337,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ElevatedButton(
                   onPressed: _isProcessing ? null : _confirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: Theme.of(context).primaryColor,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
@@ -290,8 +357,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   static Widget _priceRow(String label, String value, {required bool isNormal, ThemeData? theme}) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(label, style: TextStyle(fontSize: 14, fontWeight: isNormal ? FontWeight.w500 : FontWeight.w800, color: isNormal ? const Color(0xFF64748B) : const Color(0xFF0F172A), fontFamily: 'Inter')),
-      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : const Color(0xFF2563EB), fontFamily: 'Inter')),
+      Expanded(
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isNormal ? FontWeight.w500 : FontWeight.w800,
+            color: isNormal ? const Color(0xFF64748B) : const Color(0xFF0F172A),
+            fontFamily: 'Inter',
+          ),
+        ),
+      ),
+      const SizedBox(width: 12),
+      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : (theme?.primaryColor ?? const Color(0xFF2563EB)), fontFamily: 'Inter')),
     ],
   );
 }

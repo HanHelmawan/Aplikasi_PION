@@ -9,7 +9,7 @@ import 'screens/activity_screen.dart';
 import 'screens/chat_list_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/create_task_screen.dart';
-import 'screens/task_request_list_screen.dart';
+import 'screens/job_board_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/worker_home_screen.dart';
 
@@ -57,7 +57,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ? const WorkerHomeScreen()
         : HomeSeekerScreen(isWorkerMode: false),
     widget.isWorkerMode
-        ? const TaskRequestListScreen(isWorkerMode: true)
+        ? const JobBoardScreen()
         : const ActivityScreen(),
     const ChatListScreen(),
     ProfileScreen(isWorkerMode: widget.isWorkerMode),
@@ -95,13 +95,11 @@ class _MainNavigationState extends State<MainNavigation> {
         bottomNavigationBar: Container(
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           decoration: BoxDecoration(
-            color: widget.isWorkerMode ? const Color(0xFF0A1628) : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: widget.isWorkerMode
-                    ? const Color(0xFF4F46E5).withOpacity(0.2)
-                    : theme.primaryColor.withOpacity(0.08),
+                color: theme.primaryColor.withOpacity(0.08),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -110,24 +108,23 @@ class _MainNavigationState extends State<MainNavigation> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: BottomAppBar(
-              color: widget.isWorkerMode ? const Color(0xFF0A1628) : Colors.white,
+              color: Colors.white,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.zero,
               shape: const CircularNotchedRectangle(),
               notchMargin: 8,
               child: SizedBox(
                 height: 64,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Left side: Beranda, Riwayat
-                    _buildNavItem(0, theme),
-                    _buildNavItem(1, theme),
+                    Expanded(child: _buildNavItem(0, theme)),
+                    Expanded(child: _buildNavItem(1, theme)),
                     // Center gap for FAB
-                    if (!widget.isWorkerMode) const SizedBox(width: 56),
+                    if (!widget.isWorkerMode) const SizedBox(width: 48),
                     // Right side: Pesan, Profil
-                    _buildNavItem(2, theme),
-                    _buildNavItem(3, theme),
+                    Expanded(child: _buildNavItem(2, theme)),
+                    Expanded(child: _buildNavItem(3, theme)),
                   ],
                 ),
               ),
@@ -144,25 +141,26 @@ class _MainNavigationState extends State<MainNavigation> {
 
     return InkWell(
       onTap: () => setState(() => _currentIndex = index),
-      customBorder: const CircleBorder(),
+      borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           child: Column(
             key: ValueKey(isSelected),
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 isSelected ? item.icon : item.outlineIcon,
                 color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),
-                size: 24,
+                size: 22,
               ),
               const SizedBox(height: 4),
               Text(
                 item.label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9.5,
                   fontFamily: 'Inter',
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),

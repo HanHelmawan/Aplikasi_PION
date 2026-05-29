@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../core/auth_service.dart';
 import '../core/theme.dart';
 import 'select_provider_screen.dart';
@@ -324,7 +325,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 20,
-                    childAspectRatio: 0.8,
+                    childAspectRatio: 0.7,
                   ),
                   itemCount: _allCategories.length,
                   itemBuilder: (buildCtx, i) {
@@ -433,6 +434,25 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                 ),
               ),
               actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: true)),
+                        (route) => false,
+                      );
+                    },
+                    icon: const Icon(Icons.swap_horiz_rounded, size: 14, color: Color(0xFF2563EB)),
+                    label: const Text('Mode Kerja', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFEFF6FF),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined),
                   color: const Color(0xFF0F172A),
@@ -455,13 +475,13 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
 
-                    // â”€â”€ Greeting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    // ── Greeting ──────────────────────────────────────────
                     Text(
                       'Halo, ${_userName.split(' ').first}',
                       style: const TextStyle(
@@ -471,7 +491,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         color: Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     const Text(
                       'Apa yang bisa kami bantu hari ini?',
                       style: TextStyle(
@@ -480,9 +500,9 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         color: Color(0xFF64748B),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
 
-                    // â”€â”€ Search Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    // ── Search Bar ────────────────────────────────────────
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -522,12 +542,12 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 12),
 
-                    // â”€â”€ Promo Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    // ── Promo Banner ──────────────────────────────────────
                     if (_searchQuery.isEmpty) ...[
                       SizedBox(
-                        height: 140,
+                        height: 125,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           clipBehavior: Clip.none,
@@ -550,9 +570,9 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 12),
 
-                      // â”€â”€ Kategori Populer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      // ── Kategori Populer ──────────────────────────────────
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -577,15 +597,16 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 4,
                           crossAxisSpacing: 8,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.82,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.72,
                         ),
                         itemCount: _categories.length,
                         itemBuilder: (buildCtx, i) {
@@ -638,7 +659,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           );
                         },
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 4),
 
                       // ── Mitra Teratas ─────────────────────────────────────
                       Row(
@@ -651,9 +672,9 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       SizedBox(
-                        height: 240,
+                        height: 210,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           clipBehavior: Clip.none,
@@ -672,7 +693,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 12),
                     ],
 
                     // ── Terdekat dari Anda / Search Results / Kategori ───────
@@ -698,7 +719,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
                     if (filteredWorkers.isEmpty)
                       _buildSearchEmpty()
@@ -707,11 +728,11 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: filteredWorkers.length,
-                        separatorBuilder: (sepCtx, sepIdx) => const SizedBox(height: 12),
+                        separatorBuilder: (sepCtx, sepIdx) => const SizedBox(height: 8),
                         itemBuilder: (buildCtx, i) => _buildNearbyWorkerCard(filteredWorkers[i]),
                       ),
 
-                    const SizedBox(height: 120),
+                    const SizedBox(height: 60),
                   ],
                 ),
               ),
@@ -750,7 +771,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
         MaterialPageRoute(builder: (ctx) => ProviderDetailScreen(provider: _dummyProvider)),
       ),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -812,22 +833,26 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                   const SizedBox(height: 3),
                   Text(w['specialty'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B)), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, size: 14, color: Color(0xFFF59E0B)),
-                      const SizedBox(width: 3),
-                      Text(w['rating'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.task_alt_rounded, size: 13, color: Color(0xFF10B981)),
-                      const SizedBox(width: 3),
-                      Text('${w['jobs']} tugas', style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B))),
-                      const Spacer(),
-                      const Icon(Icons.near_me_rounded, size: 13, color: Color(0xFF94A3B8)),
-                      const SizedBox(width: 3),
-                      Text(w['distance'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
-                    ],
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star_rounded, size: 14, color: Color(0xFFF59E0B)),
+                        const SizedBox(width: 3),
+                        Text(w['rating'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.task_alt_rounded, size: 13, color: Color(0xFF10B981)),
+                        const SizedBox(width: 3),
+                        Text('${w['jobs']} tugas', style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B))),
+                        const SizedBox(width: 16),
+                        const Icon(Icons.near_me_rounded, size: 13, color: Color(0xFF94A3B8)),
+                        const SizedBox(width: 3),
+                        Text(w['distance'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   // ── Action buttons ─────────────────────────────────────────
                   Row(
                     children: [
@@ -844,18 +869,21 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                             ),
                           ),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF2563EB)),
-                                SizedBox(width: 5),
-                                Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
-                              ],
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF2563EB)),
+                                  SizedBox(width: 5),
+                                  Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -868,18 +896,21 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                             MaterialPageRoute(builder: (ctx) => ProviderDetailScreen(provider: _dummyProvider)),
                           ),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                             decoration: BoxDecoration(
                               color: const Color(0xFF2563EB),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
-                                SizedBox(width: 5),
-                                Text('Lihat Profil', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-                              ],
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
+                                  SizedBox(width: 5),
+                                  Text('Lihat Profil', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -904,7 +935,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
   }) =>
       Container(
         width: 280,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [color1, color2], begin: Alignment.topLeft, end: Alignment.bottomRight),
           borderRadius: BorderRadius.circular(24),
@@ -925,7 +956,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                   decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
                   child: const Text('PROMO', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Text(title, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
                 const SizedBox(height: 4),
                 Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13, fontFamily: 'Inter')),
@@ -955,7 +986,7 @@ class _FeaturedProviderCard extends StatelessWidget {
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => ProviderDetailScreen(provider: _dummyProvider))),
       child: Container(
         width: 220,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -990,13 +1021,13 @@ class _FeaturedProviderCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             Text(name, style: const TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
             const SizedBox(height: 4),
             Text(specialty, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             const Divider(color: Color(0xFFF1F5F9)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

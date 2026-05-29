@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/auth_service.dart';
+import '../core/theme.dart';
 import '../main.dart';
 
 class LocationSetupScreen extends StatefulWidget {
@@ -204,22 +205,23 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    final isWorker = widget.user['isWorkerMode'] ?? false;
+    final theme = PionTheme.buildTheme(isWorkerMode: isWorker);
+
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnim,
           child: SlideTransition(
             position: _slideAnim,
-            child: LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                         // ── Skip Button ──────────────────────────────────────
                         Align(
                           alignment: Alignment.topRight,
@@ -238,7 +240,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                           ),
                         ),
 
-                        const Spacer(),
+                        const SizedBox(height: 32),
 
                         // ── Illustration ──────────────────────────────────────
                         Center(
@@ -328,11 +330,11 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                             borderRadius: BorderRadius.circular(16),
                             color: _gpsGranted
                                 ? const Color(0xFFD1FAE5)
-                                : const Color(0xFFEEF0FF),
+                                : (Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08)),
                             border: Border.all(
                               color: _gpsGranted
                                   ? const Color(0xFF10B981)
-                                  : const Color(0xFFC7D0F8),
+                                  : Theme.of(context).primaryColor.withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
@@ -348,7 +350,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               decoration: BoxDecoration(
                                 color: _gpsGranted
                                     ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                    : const Color(0xFF0525BB).withValues(alpha: 0.1),
+                                    : Theme.of(context).primaryColor.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -357,7 +359,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                     : Icons.gps_fixed_rounded,
                                 color: _gpsGranted
                                     ? const Color(0xFF10B981)
-                                    : const Color(0xFF0525BB),
+                                    : Theme.of(context).primaryColor,
                                 size: 24,
                               ),
                             ),
@@ -371,7 +373,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                 fontSize: 15,
                                 color: _gpsGranted
                                     ? const Color(0xFF059669)
-                                    : const Color(0xFF0525BB),
+                                    : Theme.of(context).primaryColor,
                               ),
                             ),
                             subtitle: Text(
@@ -388,9 +390,9 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                             ),
                             trailing: _gpsGranted
                                 ? null
-                                : const Icon(
+                                : Icon(
                                     Icons.chevron_right_rounded,
-                                    color: Color(0xFF0525BB),
+                                    color: Theme.of(context).primaryColor,
                                   ),
                           ),
                         ),
@@ -425,7 +427,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: _selectedCity != null && !_gpsGranted
-                                  ? const Color(0xFF0525BB)
+                                  ? Theme.of(context).primaryColor
                                   : const Color(0xFFE2E8F0),
                               width: 1.5,
                             ),
@@ -489,12 +491,12 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                 ? null
                                 : _confirmAndContinue,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0525BB),
+                              backgroundColor: Theme.of(context).primaryColor,
                               foregroundColor: Colors.white,
                               disabledBackgroundColor: const Color(0xFFE2E8F0),
                               shape: const StadiumBorder(),
                               elevation: _selectedCity != null ? 8 : 0,
-                              shadowColor: const Color(0x400525BB),
+                              shadowColor: Theme.of(context).primaryColor.withOpacity(0.25),
                             ),
                             child: _isLoading
                                 ? const SizedBox(
@@ -510,32 +512,20 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                     children: [
                                       const Icon(Icons.check_rounded, size: 20),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        _selectedCity != null
-                                            ? 'Konfirmasi: $_selectedCity'
-                                            : 'Pilih lokasi dulu',
-                                        style: const TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 15,
-                                        ),
-                                      ),
+                                      Flexible(child: Text(_selectedCity != null ? 'Konfirmasi: $_selectedCity' : 'Pilih lokasi dulu', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 15), overflow: TextOverflow.ellipsis)),
                                     ],
                                   ),
                           ),
                         ),
 
-                        const Spacer(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

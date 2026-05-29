@@ -13,8 +13,6 @@ class NegotiationScreen extends StatefulWidget {
 
 class _NegotiationScreenState extends State<NegotiationScreen> {
   final _offerController = TextEditingController();
-  bool _accepted = false;
-
   final _workerName   = 'Budi Santoso';
   final _workerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
   final _workerPhone  = '+62 812-3456-7890';
@@ -28,7 +26,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
     widget.request.assignedWorkerName   = _workerName;
     widget.request.assignedWorkerAvatar = _workerAvatar;
     widget.request.assignedWorkerPhone  = _workerPhone;
-    setState(() => _accepted = true);
+    TaskRequestStore.instance.updateRequest(widget.request);
 
     Future.delayed(const Duration(milliseconds: 400), () {
       if (!mounted) return;
@@ -49,11 +47,12 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
     }
     widget.request.workerOffer = raw;
     widget.request.status = RequestStatus.ditawar;
+    TaskRequestStore.instance.updateRequest(widget.request);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Penawaran ${_fmtNum(raw)} dikirim ke pengguna.', style: const TextStyle(fontFamily: 'Inter')),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xFF0525BB),
+      backgroundColor: Theme.of(context).primaryColor,
     ));
 
     // Simulate user accepting after 1.5s
@@ -64,6 +63,8 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
       widget.request.assignedWorkerName   = _workerName;
       widget.request.assignedWorkerAvatar = _workerAvatar;
       widget.request.assignedWorkerPhone  = _workerPhone;
+      TaskRequestStore.instance.updateRequest(widget.request);
+      
       Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (_) => JobTrackingScreen(request: widget.request),
       ));

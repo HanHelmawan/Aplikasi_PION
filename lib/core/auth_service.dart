@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   static const String _locationSetupDoneKey = 'pion_location_setup_done';
   static const String _savedLocationKey = 'pion_saved_location';
@@ -137,8 +139,116 @@ class AuthService {
 
   static Future<void> logout() async {
     await _auth.signOut();
+    await _googleSignIn.signOut(); // also sign out from Google
     // NOTE: We intentionally keep location preferences so users
     // don't have to re-setup location on every login.
+  }
+
+  // ── Google Sign-In ─────────────────────────────────────────────
+
+  /// Signs in with a Google account.
+  /// Returns the user data map on success, or null if cancelled/failed.
+  /// Delivers error messages via the [onError] callback.
+  static Future<Map<String, dynamic>?> loginWithGoogle(
+      {Function(String)? onError}) async {
+    try {
+      // Trigger the Google authentication flow
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null; // User cancelled the picker
+
+      // Obtain the auth details from the request
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final userCredential = await _auth.signInWithCredential(credential);
+      final firebaseUser = userCredential.user!;
+      final uid = firebaseUser.uid;
+
+      // Check if this is a new user; create their Firestore doc if so
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        await _firestore.collection('users').doc(uid).set({
+          'name': firebaseUser.displayName ?? googleUser.displayName ?? 'Pengguna',
+          'email': firebaseUser.email ?? '',
+          'isWorkerMode': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Fetch the latest Firestore data to return
+      final freshDoc = await _firestore.collection('users').doc(uid).get();
+      return {
+        'uid': uid,
+        'name': freshDoc.exists
+            ? (freshDoc['name'] ?? firebaseUser.displayName ?? 'Pengguna')
+            : (firebaseUser.displayName ?? 'Pengguna'),
+        'email': firebaseUser.email ?? '',
+        'isWorkerMode': freshDoc.exists ? (freshDoc['isWorkerMode'] ?? false) : false,
+      };
+    } catch (e) {
+      onError?.call('Gagal masuk dengan Google. Coba lagi.');
+      return null;
+    }
+  }
+
+  // ── Update Profile ────────────────────────────────────────────────────────
+
+  /// Updates the user's profile data in Firestore (and displayName in Auth).
+  /// Returns null on success, or an error message string on failure.
+  static Future<String?> updateProfile({
+    required String name,
+    required String phone,
+    required String bio,
+  }) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return 'Anda belum masuk.';
+
+    try {
+      await firebaseUser.updateDisplayName(name);
+      await _firestore.collection('users').doc(firebaseUser.uid).update({
+        'name': name,
+        'phone': phone,
+        'bio': bio,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return null; // success
+    } catch (e) {
+      return 'Gagal memperbarui profil. Coba lagi.';
+    }
+  }
+
+  // ── Submit Rating ─────────────────────────────────────────────────────────
+
+  /// Submits a worker rating to Firestore.
+  /// Returns null on success, or an error message string on failure.
+  static Future<String?> submitRating({
+    required String taskId,
+    required String workerName,
+    required int rating,
+    required List<String> tags,
+    required String review,
+  }) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return 'Anda belum masuk.';
+
+    try {
+      await _firestore.collection('ratings').add({
+        'taskId': taskId,
+        'userId': firebaseUser.uid,
+        'workerName': workerName,
+        'rating': rating,
+        'tags': tags,
+        'review': review,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return null; // success
+    } catch (e) {
+      return 'Gagal mengirim ulasan. Coba lagi.';
+    }
   }
 
   // ── Reset Password ────────────────────────────────────────────────────────

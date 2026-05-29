@@ -32,10 +32,9 @@ class PionTheme {
   static ThemeData get lightTheme => buildTheme(isWorkerMode: false);
 
   static ThemeData buildTheme({bool isWorkerMode = false}) {
-    final Color currentPrimary = isWorkerMode ? const Color(0xFF4F46E5) : const Color(0xFF2563EB);
-    final Color currentPrimaryDark = isWorkerMode ? const Color(0xFF3730A3) : const Color(0xFF1D4ED8);
+    final Color currentPrimary = isWorkerMode ? const Color(0xFF0525BB) : const Color(0xFF2563EB);
+    final Color currentPrimaryDark = isWorkerMode ? const Color(0xFF031A85) : const Color(0xFF1D4ED8);
     final Color currentPrimaryLight = isWorkerMode ? const Color(0xFFEEF2FF) : const Color(0xFFEFF6FF);
-    final Color currentPrimaryBorder = isWorkerMode ? const Color(0xFFC7D0F8) : const Color(0xFFBFDBFE);
 
     final baseTextTheme = GoogleFonts.interTextTheme();
 

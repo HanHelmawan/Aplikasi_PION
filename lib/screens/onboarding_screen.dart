@@ -112,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 );
               }),
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 24),
 
             // ── Next Button ───────────────────────────────────────────────────
             Padding(
@@ -157,11 +157,12 @@ class _OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 36),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
           // ── Illustration ─────────────────────────────────────────────────
           Container(
             width: 160,
@@ -172,7 +173,7 @@ class _OnboardingPage extends StatelessWidget {
             ),
             child: Icon(icon, size: 72, color: color),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
 
           // ── Title ─────────────────────────────────────────────────────────
           Text(
@@ -199,6 +200,7 @@ class _OnboardingPage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

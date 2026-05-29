@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/auth_service.dart';
 import '../core/theme.dart';
 
 class RatingScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _RatingScreenState extends State<RatingScreen> {
   final List<String> _allTags = ['Sopan', 'Cepat', 'Sesuai Deskripsi', 'Ramah', 'Ahli', 'Tepat Waktu'];
   final List<String> _selected = ['Sesuai Deskripsi'];
   final _reviewController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -64,9 +66,19 @@ class _RatingScreenState extends State<RatingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.workerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                        Text(
+                          widget.workerName,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 4),
-                        Text(widget.taskTitle, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                        Text(
+                          widget.taskTitle,
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
@@ -90,22 +102,25 @@ class _RatingScreenState extends State<RatingScreen> {
                   const SizedBox(height: 6),
                   const Text('Ketuk bintang untuk memberi penilaian', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                   const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (i) {
-                      final active = i < _rating;
-                      return GestureDetector(
-                        onTap: () => setState(() => _rating = _rating == i + 1 ? i : i + 1),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Icon(
-                            active ? Icons.star_rounded : Icons.star_outline_rounded,
-                            size: 48,
-                            color: active ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (i) {
+                        final active = i < _rating;
+                        return GestureDetector(
+                          onTap: () => setState(() => _rating = _rating == i + 1 ? i : i + 1),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(
+                              active ? Icons.star_rounded : Icons.star_outline_rounded,
+                              size: 40,
+                              color: active ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -184,12 +199,43 @@ class _RatingScreenState extends State<RatingScreen> {
             ),
             const SizedBox(height: 40),
 
-            // ── Submit Button ─────────────────────────────────────────────────
+            // ── Submit Button ─────────────────────────────────────────────
             SizedBox(
               height: 56,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-                child: const Text('Kirim Ulasan'),
+                onPressed: _isSubmitting ? null : () async {
+                  setState(() => _isSubmitting = true);
+                  // Capture context-dependent objects before the async gap
+                  final navigator = Navigator.of(context);
+                  final messenger = ScaffoldMessenger.of(context);
+                  final error = await AuthService.submitRating(
+                    taskId: DateTime.now().millisecondsSinceEpoch.toString(),
+                    workerName: widget.workerName,
+                    rating: _rating,
+                    tags: List.from(_selected),
+                    review: _reviewController.text.trim(),
+                  );
+                  if (!mounted) return;
+                  setState(() => _isSubmitting = false);
+                  if (error == null) {
+                    navigator.popUntil((r) => r.isFirst);
+                  } else {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(error, style: const TextStyle(fontFamily: 'Inter')),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFFEF4444),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  }
+                },
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 24, height: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : const Text('Kirim Ulasan'),
               ),
             ),
           ],

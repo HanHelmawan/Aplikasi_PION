@@ -18,8 +18,9 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
   final _filters = ['Semua', 'Perbaikan', 'Kebersihan', 'Listrik', 'Ledeng', 'Umum'];
 
   List<TaskRequest> get _filtered {
-    if (_selectedFilter == 'Semua') return _store.requests;
-    return _store.requests.where((r) => r.category.contains(_selectedFilter)).toList();
+    final openRequests = _store.requests.where((r) => r.status == RequestStatus.menunggu).toList();
+    if (_selectedFilter == 'Semua') return openRequests;
+    return openRequests.where((r) => r.category.contains(_selectedFilter)).toList();
   }
 
   @override
@@ -31,28 +32,33 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text(
           'Papan Tugas',
           style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A)),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0525BB)),
-            onPressed: () => setState(() {}),
+            icon: Icon(Icons.refresh_rounded, color: Theme.of(context).primaryColor),
+            onPressed: () async {
+              await TaskRequestStore.instance.fetchRequests();
+              if (mounted) setState(() {});
+            },
           ),
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFC6D8FF)],
-            stops: [0.3, 1.0],
+            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            stops: const [0.3, 1.0],
           ),
         ),
         child: Column(
@@ -63,7 +69,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0525BB),
+                  color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -89,7 +95,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final f = _filters[i];
                   final selected = _selectedFilter == f;
@@ -99,11 +105,11 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                       decoration: BoxDecoration(
-                        color: selected ? const Color(0xFF0525BB) : Colors.white,
+                        color: selected ? Theme.of(context).primaryColor : Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: selected ? const Color(0xFF0525BB) : const Color(0xFFE2E8F0)),
+                        border: Border.all(color: selected ? Theme.of(context).primaryColor : const Color(0xFFE2E8F0)),
                         boxShadow: selected
-                            ? const [BoxShadow(color: Color(0x330525BB), blurRadius: 8, offset: Offset(0, 3))]
+                            ? [BoxShadow(color: Theme.of(context).primaryColor.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 3))]
                             : [],
                       ),
                       child: Text(
@@ -148,8 +154,8 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
       children: [
         Container(
           width: 120, height: 120,
-          decoration: const BoxDecoration(color: Color(0xFFEEF0FF), shape: BoxShape.circle),
-          child: const Icon(Icons.inbox_rounded, size: 56, color: Color(0xFF0525BB)),
+          decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08), shape: BoxShape.circle),
+          child: Icon(Icons.inbox_rounded, size: 56, color: Theme.of(context).primaryColor),
         ),
         const SizedBox(height: 24),
         const Text('Belum Ada Permintaan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
@@ -233,8 +239,8 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
               // Category
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
-                child: Text(r.category, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                child: Text(r.category, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
               ),
               const SizedBox(height: 12),
               // Time & Location
@@ -262,7 +268,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                   icon: const Icon(Icons.handshake_outlined, size: 18),
                   label: const Text('Ambil Tugas Ini', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0525BB),
+                    backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,

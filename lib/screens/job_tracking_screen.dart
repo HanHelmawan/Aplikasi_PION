@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task_request.dart';
+import 'chat_screen.dart';
 import 'rating_screen.dart';
 
 class JobTrackingScreen extends StatefulWidget {
@@ -34,17 +35,22 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text('Lacak Pekerjaan',
-            style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 18, color: Color(0xFF0F172A))),
+            style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A))),
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFC6D8FF)],
-            stops: [0.3, 1.0],
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.08)],
+            stops: const [0.3, 1.0],
           ),
         ),
         child: ListView(
@@ -125,8 +131,8 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                         Text(req.assignedWorkerName ?? 'Worker',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
                         const SizedBox(height: 2),
-                        const Text('Mitra Terverifikasi ✓',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF0525BB), fontWeight: FontWeight.w600, fontFamily: 'Inter')),
+                        Text('Mitra Terverifikasi ✓',
+                            style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600, fontFamily: 'Inter')),
                         const SizedBox(height: 2),
                         Text(req.assignedWorkerPhone ?? '-',
                             style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter')),
@@ -134,13 +140,21 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(
+                          providerName: req.assignedWorkerName ?? 'Worker',
+                          providerAvatar: req.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+                          isOnline: true,
+                          request: req,
+                        ),
+                      ),
                     ),
                     icon: Container(
                       width: 40, height: 40,
-                      decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF0525BB), size: 18),
+                      decoration: BoxDecoration(color: Theme.of(context).primaryColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+                      child: Icon(Icons.chat_bubble_outline_rounded, color: Theme.of(context).primaryColor, size: 18),
                     ),
                   ),
                 ],
@@ -169,7 +183,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                               duration: const Duration(milliseconds: 300),
                               width: 32, height: 32,
                               decoration: BoxDecoration(
-                                color: done ? const Color(0xFF0525BB) : const Color(0xFFF1F5F9),
+                                color: done ? Theme.of(context).primaryColor : const Color(0xFFF1F5F9),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(done ? Icons.check_rounded : Icons.circle,
@@ -177,7 +191,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                                   color: done ? Colors.white : const Color(0xFFCBD5E1)),
                             ),
                             if (!isLast)
-                              Container(width: 2, height: 36, color: done ? const Color(0xFF0525BB) : const Color(0xFFE2E8F0)),
+                              Container(width: 2, height: 36, color: done ? Theme.of(context).primaryColor : const Color(0xFFE2E8F0)),
                           ],
                         ),
                         const SizedBox(width: 14),
@@ -209,6 +223,11 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
             ),
             const SizedBox(height: 16),
 
+            if (_step == _steps.length - 1) ...[
+              _buildCompletionCard(context),
+              const SizedBox(height: 16),
+            ],
+
             // ── Price Summary ───────────────────────────────────────────────
             _card(
               child: Row(
@@ -216,7 +235,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                 children: [
                   const Text('Harga Disepakati', style: TextStyle(fontSize: 14, color: Color(0xFF64748B), fontFamily: 'Inter')),
                   Text(_fmtNum(finalPrice),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF0525BB), fontFamily: 'Inter')),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
                 ],
               ),
             ),
@@ -250,6 +269,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       widget.request.status = RequestStatus.selesai;
+                      TaskRequestStore.instance.updateRequest(widget.request);
                       Navigator.pushReplacement(context, MaterialPageRoute(
                         builder: (_) => RatingScreen(
                           workerName: req.assignedWorkerName ?? 'Worker',
@@ -261,16 +281,99 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                     icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
                     label: const Text('Konfirmasi Selesai', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF16A34A),
+                      backgroundColor: const Color(0xFF10B981),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      elevation: 4,
+                      shape: const StadiumBorder(),
+                      elevation: 8,
+                      shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
                     ),
                   ),
                 ),
               ),
             )
           : null,
+    );
+  }
+
+  Widget _buildCompletionCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFD1FAE5), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF10B981).withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xFFD1FAE5),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check_circle_rounded,
+              color: Color(0xFF10B981),
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Pekerjaan Selesai!',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Inter',
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Mitra melaporkan bahwa pekerjaan telah rampung dengan sukses. Harap periksa hasil pekerjaan sebelum melakukan konfirmasi selesai.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF64748B),
+              fontFamily: 'Inter',
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.security_rounded, color: Color(0xFF16A34A), size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'PION Escrow menjamin dana Anda aman dan hanya akan dicairkan setelah Anda menyetujui.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF166534),
+                      fontFamily: 'Inter',
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

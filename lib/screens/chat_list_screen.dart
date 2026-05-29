@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/task_request.dart';
 import 'chat_screen.dart';
 
 class ChatListScreen extends StatefulWidget {
@@ -127,10 +128,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                 const SizedBox(width: 8),
               ],
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(56),
+                preferredSize: const Size.fromHeight(52),
                 child: Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Row(
                     children: [
                       _filterChip('Semua', 0),
@@ -149,7 +150,7 @@ class _ChatListScreenState extends State<ChatListScreen>
               // ── Online Status Header ──────────────────────────────────────
               if (_onlineCount > 0)
                 Container(
-                  margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0FDF4),
@@ -217,7 +218,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                 child: filtered.isEmpty
                     ? _buildEmpty()
                     : ListView.builder(
-                        padding: const EdgeInsets.only(top: 12, bottom: 100),
+                        padding: const EdgeInsets.only(top: 8, bottom: 80),
                         itemCount: filtered.length,
                         itemBuilder: (ctx, i) => _chatItem(filtered[i]),
                       ),
@@ -235,7 +236,7 @@ class _ChatListScreenState extends State<ChatListScreen>
       onTap: () => setState(() => _filterIndex = index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected ? Theme.of(context).primaryColor : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(20),
@@ -292,18 +293,28 @@ class _ChatListScreenState extends State<ChatListScreen>
     final isOnline = chat['isOnline'] as bool;
 
     return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => ChatScreen(
-            providerName: chat['name'] as String,
-            providerAvatar: chat['avatarUrl'] as String,
-            isOnline: chat['isOnline'] as bool,
+      onTap: () {
+        TaskRequest? matchedReq;
+        try {
+          matchedReq = TaskRequestStore.instance.requests.firstWhere(
+            (r) => r.assignedWorkerName == chat['name'] || (chat['name'] == 'Budi Santoso' && r.status == RequestStatus.dikerjakan),
+          );
+        } catch (_) {}
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => ChatScreen(
+              providerName: chat['name'] as String,
+              providerAvatar: chat['avatarUrl'] as String,
+              isOnline: chat['isOnline'] as bool,
+              request: matchedReq,
+            ),
           ),
-        ),
-      ),
+        );
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: unread > 0 ? const Color(0xFFF8FAFC) : Colors.transparent,
           border: const Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),

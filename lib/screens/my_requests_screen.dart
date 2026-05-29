@@ -157,17 +157,21 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             Expanded(child: Text(r.location, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
           ]),
           const SizedBox(height: 4),
-          Row(children: [
-            const Icon(Icons.monetization_on_rounded, size: 13, color: Color(0xFF16A34A)),
-            const SizedBox(width: 6),
-            Text('Estimasi: ${_fmtPrice(r.estimatedPrice)}',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), fontFamily: 'Inter')),
-            if (r.finalPrice != null) ...[
-              const Text(' → ', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
-              Text('Final: ${_fmtPrice(r.finalPrice!)}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
-            ],
-          ]),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(children: [
+              const Icon(Icons.monetization_on_rounded, size: 13, color: Color(0xFF16A34A)),
+              const SizedBox(width: 6),
+              Text('Estimasi: ${_fmtPrice(r.estimatedPrice)}',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), fontFamily: 'Inter')),
+              if (r.finalPrice != null) ...[
+                const Text(' → ', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                Text('Final: ${_fmtPrice(r.finalPrice!)}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+              ],
+            ]),
+          ),
 
           // ── Worker Info ──────────────────────────────────────────────────
           if (r.assignedWorkerName != null) ...[
@@ -219,8 +223,51 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           Row(children: [
             Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1), fontFamily: 'Inter')),
             const Spacer(),
-            Text('${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+            if (r.status == RequestStatus.menunggu)
+              TextButton.icon(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      title: const Text('Batalkan Tugas?', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w800)),
+                      content: const Text(
+                        'Tugas ini akan dibatalkan dan tidak dapat dikembalikan. Yakin ingin membatalkan?',
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B), height: 1.5),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Tidak', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFEF4444),
+                            foregroundColor: Colors.white,
+                            shape: const StadiumBorder(),
+                          ),
+                          child: const Text('Ya, Batalkan', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    setState(() => r.status = RequestStatus.dibatalkan);
+                    TaskRequestStore.instance.updateRequest(r);
+                  }
+                },
+                icon: const Icon(Icons.cancel_outlined, size: 14, color: Color(0xFFEF4444)),
+                label: const Text('Batalkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFEF4444), fontFamily: 'Inter')),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              )
+            else
+              Text('${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}',
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
           ]),
         ],
       ),

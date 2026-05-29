@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../core/auth_service.dart';
 import '../core/theme.dart';
 import '../models/task_request.dart';
@@ -11,14 +12,9 @@ class WorkerHomeScreen extends StatefulWidget {
   State<WorkerHomeScreen> createState() => _WorkerHomeScreenState();
 }
 
-class _WorkerHomeScreenState extends State<WorkerHomeScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _pulseController;
-  late final AnimationController _radarController;
-
+class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
   final _store = TaskRequestStore.instance;
   String _userName = 'Pekerja';
-  bool _radarActive = true;
 
   // ── Dummy earnings & stats ─────────────────────────────────────────────────
   static const int _todayEarnings = 285000;
@@ -29,18 +25,10 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
   @override
   void initState() {
     super.initState();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-
-    _radarController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
-
     _loadUser();
+    TaskRequestStore.instance.fetchRequests().then((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   Future<void> _loadUser() async {
@@ -50,13 +38,6 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
         _userName = user?['name'] ?? 'Pekerja Pion';
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    _radarController.dispose();
-    super.dispose();
   }
 
   String _fmtRp(int v) {
@@ -73,315 +54,260 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
       .where((r) => r.status == RequestStatus.menunggu)
       .toList();
 
-  // ── Build ───────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final open = _openRequests;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0F1E),
-      body: CustomScrollView(
-        slivers: [
-          // ── App Bar ──────────────────────────────────────────────────────────
-          SliverAppBar(
-            backgroundColor: const Color(0xFF0A0F1E),
-            elevation: 0,
-            pinned: true,
-            automaticallyImplyLeading: false,
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _radarActive
-                        ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                        : const Color(0xFFEF4444).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: _radarActive
-                          ? const Color(0xFF10B981).withValues(alpha: 0.4)
-                          : const Color(0xFFEF4444).withValues(alpha: 0.4),
+      backgroundColor: Colors.white,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            stops: const [0.3, 1.0],
+          ),
+        ),
+        child: CustomScrollView(
+          slivers: [
+            // ── App Bar ──────────────────────────────────────────────────────────
+            SliverAppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              pinned: true,
+              automaticallyImplyLeading: false,
+              title: const Text(
+                'Beranda Pekerja',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              actions: [
+                // Mode switcher
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: false)),
+                        (route) => false,
+                      );
+                    },
+                    icon: Icon(Icons.swap_horiz_rounded, size: 14, color: Theme.of(context).primaryColor),
+                    label: Text('Cari Jasa', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _pulseController,
-                        builder: (_, __) => Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _radarActive
-                                ? const Color(0xFF10B981)
-                                : const Color(0xFFEF4444),
-                            boxShadow: [
-                              BoxShadow(
-                                color: (_radarActive
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFFEF4444))
-                                    .withValues(alpha: _pulseController.value * 0.6),
-                                blurRadius: 6,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _radarActive ? 'Radar Aktif' : 'Radar Mati',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: _radarActive
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFEF4444),
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 8),
+                const Padding(
+                  padding: EdgeInsets.only(right: 16),
+                  child: PionAvatar(
+                    radius: 18,
+                    url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
                   ),
                 ),
               ],
             ),
-            actions: [
-              // Toggle radar switch
-              Transform.scale(
-                scale: 0.85,
-                child: Switch(
-                  value: _radarActive,
-                  activeThumbColor: const Color(0xFF10B981),
-                  inactiveThumbColor: const Color(0xFF475569),
-                  inactiveTrackColor: const Color(0xFF1E293B),
-                  onChanged: (v) => setState(() => _radarActive = v),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: PionAvatar(
-                  radius: 18,
-                  url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-                ),
-              ),
-            ],
-          ),
 
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── Greeting & Radar Visualizer ───────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Selamat datang,',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _userName.split(' ').first,
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 28,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Radar animation widget
-                      SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: AnimatedBuilder(
-                          animation: _radarController,
-                          builder: (_, __) => CustomPaint(
-                            painter: _RadarPainter(
-                              progress: _radarActive ? _radarController.value : 0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // ── Earnings Card ─────────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Greeting ─────────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Pendapatan Hari Ini',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 13,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Text(
-                                'Hari ini',
-                                style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _fmtRp(_todayEarnings),
-                          style: const TextStyle(
+                        const Text(
+                          'Selamat datang,',
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            fontSize: 14,
+                            color: Color(0xFF64748B),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.trending_up_rounded, size: 14, color: Color(0xFF6EE7B7)),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Minggu ini: ${_fmtRp(_weekEarnings)}',
-                              style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF6EE7B7)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        // Stats row
-                        Row(
-                          children: [
-                            _earningsStatChip(
-                              icon: Icons.task_alt_rounded,
-                              label: '$_todayCompleted Selesai',
-                              color: const Color(0xFF6EE7B7),
-                            ),
-                            const SizedBox(width: 10),
-                            _earningsStatChip(
-                              icon: Icons.star_rounded,
-                              label: '$_workerRating Rating',
-                              color: const Color(0xFFFDE68A),
-                            ),
-                            const SizedBox(width: 10),
-                            _earningsStatChip(
-                              icon: Icons.people_rounded,
-                              label: '${open.length} Menunggu',
-                              color: const Color(0xFFA5B4FC),
-                            ),
-                          ],
+                        const SizedBox(height: 2),
+                        Text(
+                          _userName.split(' ').first,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 28),
+                  const SizedBox(height: 12),
 
-                // ── Tugas Tersedia ────────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Tugas Tersedia di Radar',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                  // ── Earnings Card ─────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Theme.of(context).primaryColor, Theme.of(context).colorScheme.primaryContainer],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      if (open.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Pendapatan Hari Ini',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  'Hari ini',
+                                  style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            '${open.length} baru',
-                            style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+                          const SizedBox(height: 8),
+                          Text(
+                            _fmtRp(_todayEarnings),
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.trending_up_rounded, size: 14, color: Color(0xFF6EE7B7)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Minggu ini: ${_fmtRp(_weekEarnings)}',
+                                style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF6EE7B7)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Stats row
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _earningsStatChip(
+                                icon: Icons.task_alt_rounded,
+                                label: '$_todayCompleted Selesai',
+                                color: const Color(0xFF6EE7B7),
+                              ),
+                              _earningsStatChip(
+                                icon: Icons.star_rounded,
+                                label: '$_workerRating Rating',
+                                color: const Color(0xFFFDE68A),
+                              ),
+                              _earningsStatChip(
+                                icon: Icons.people_rounded,
+                                label: '${open.length} Menunggu',
+                                color: const Color(0xFF93C5FD),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Tugas Tersedia ────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Tugas Tersedia',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
-                    ],
+                        if (open.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                            ),
+                            child: Text(
+                              '${open.length} baru',
+                              style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
-                if (!_radarActive)
-                  _buildRadarOffBanner()
-                else if (open.isEmpty)
-                  _buildNoTasksCard()
-                else
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: open.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _buildTaskCard(open[i]),
-                  ),
+                  if (open.isEmpty)
+                    _buildNoTasksCard()
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: open.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 8),
+                      itemBuilder: (_, i) => _buildTaskCard(open[i]),
+                    ),
 
-                const SizedBox(height: 120),
-              ],
+                  const SizedBox(height: 60),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────────
 
   Widget _earningsStatChip({required IconData icon, required String label, required Color color}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -395,79 +321,46 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
     );
   }
 
-  Widget _buildRadarOffBanner() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24),
-    child: Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.wifi_off_rounded, color: Color(0xFFEF4444), size: 24),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Radar Tidak Aktif', style: TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
-                SizedBox(height: 3),
-                Text(
-                  'Aktifkan radar untuk menerima tugas di sekitar Anda.',
-                  style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF94A3B8)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
   Widget _buildNoTasksCard() => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 40),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A0F172A),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Container(
             width: 72, height: 72,
             decoration: BoxDecoration(
-              color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.radar_rounded, size: 36, color: Color(0xFF818CF8)),
+            child: Icon(Icons.assignment_turned_in_rounded, size: 36, color: Theme.of(context).primaryColor),
           ),
           const SizedBox(height: 16),
-          const Text('Belum Ada Tugas Masuk', style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
+          const Text('Belum Ada Tugas Tersedia', style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
           const SizedBox(height: 6),
-          const Text('Radar sedang memindai area Anda...', style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
+          const Text('Semua tugas baru akan muncul di sini.', style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
         ],
       ),
     ),
   );
 
   Widget _buildTaskCard(TaskRequest r) {
-    // Jarak acak untuk demo
     final distances = ['0.3 km', '0.8 km', '1.2 km', '1.7 km', '2.0 km'];
     final distIdx = int.parse(r.id.substring(r.id.length - 1)) % distances.length;
     final dist = distances[distIdx];
 
-    // Urgency badge
     final isUrgent = r.title.toLowerCase().contains('darurat') || r.estimatedPrice > 300000;
 
     return GestureDetector(
@@ -476,20 +369,26 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
         MaterialPageRoute(builder: (_) => NegotiationScreen(request: r)),
       ).then((_) => setState(() {})),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isUrgent
                 ? const Color(0xFFEF4444).withValues(alpha: 0.4)
-                : const Color(0xFF334155),
+                : const Color(0xFFE2E8F0),
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A0F172A),
+              blurRadius: 16,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -516,7 +415,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
                         ),
                       Text(
                         r.title,
-                        style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -524,39 +423,37 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Distance badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
+                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.near_me_rounded, size: 12, color: Color(0xFF818CF8)),
+                      Icon(Icons.near_me_rounded, size: 12, color: Theme.of(context).primaryColor),
                       const SizedBox(width: 4),
-                      Text(dist, style: const TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF818CF8))),
+                      Text(dist, style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor)),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
-            // Meta info row
             Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4F46E5).withValues(alpha: 0.15),
+                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(r.category, style: const TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF818CF8))),
+                  child: Text(r.category, style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFF475569)),
+                const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 3),
                 Expanded(
                   child: Text(
@@ -569,26 +466,33 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
             ),
 
             if (r.estimatedPrice > 0) ...[
-              const SizedBox(height: 10),
-              const Divider(color: Color(0xFF334155), height: 1),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
+              const Divider(color: Color(0xFFF1F5F9), height: 1),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.monetization_on_rounded, size: 14, color: Color(0xFF10B981)),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Est. ${_fmtRp(r.estimatedPrice.toInt())}',
-                        style: const TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.monetization_on_rounded, size: 14, color: Color(0xFF16A34A)),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Est. ${_fmtRp(r.estimatedPrice.toInt())}',
+                            style: const TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF16A34A)),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4F46E5),
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
@@ -604,63 +508,4 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen>
       ),
     );
   }
-}
-
-// ── Radar Painter ──────────────────────────────────────────────────────────────
-class _RadarPainter extends CustomPainter {
-  final double progress;
-  _RadarPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final maxR = size.width / 2;
-
-    // Background circles
-    final ringPaint = Paint()
-      ..color = const Color(0xFF4F46E5).withValues(alpha: 0.12)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    for (double r = maxR * 0.35; r <= maxR; r += maxR * 0.33) {
-      canvas.drawCircle(center, r, ringPaint);
-    }
-
-    // Sweep
-    final sweepPaint = Paint()
-      ..shader = SweepGradient(
-        colors: [
-          const Color(0xFF4F46E5).withValues(alpha: 0),
-          const Color(0xFF4F46E5).withValues(alpha: 0.5),
-          const Color(0xFF4F46E5).withValues(alpha: 0),
-        ],
-        stops: const [0.0, 0.12, 0.25],
-        transform: GradientRotation(progress * 2 * 3.14159),
-      ).createShader(Rect.fromCircle(center: center, radius: maxR));
-
-    canvas.drawCircle(center, maxR, sweepPaint);
-
-    // Center dot
-    canvas.drawCircle(
-      center,
-      4,
-      Paint()..color = const Color(0xFF818CF8),
-    );
-
-    // Cross lines
-    final linePaint = Paint()
-      ..color = const Color(0xFF4F46E5).withValues(alpha: 0.3)
-      ..strokeWidth = 0.8;
-    canvas.drawLine(Offset(center.dx, center.dy - maxR), Offset(center.dx, center.dy + maxR), linePaint);
-    canvas.drawLine(Offset(center.dx - maxR, center.dy), Offset(center.dx + maxR, center.dy), linePaint);
-
-    // Blip dots (simulated at fixed positions)
-    final blipPaint = Paint()..color = const Color(0xFF10B981);
-    canvas.drawCircle(center + Offset(maxR * 0.4, -maxR * 0.3), 3.5, blipPaint);
-    canvas.drawCircle(center + Offset(-maxR * 0.55, maxR * 0.2), 2.5, blipPaint);
-    canvas.drawCircle(center + Offset(maxR * 0.15, maxR * 0.6), 3, blipPaint);
-  }
-
-  @override
-  bool shouldRepaint(_RadarPainter oldDelegate) => oldDelegate.progress != progress;
 }

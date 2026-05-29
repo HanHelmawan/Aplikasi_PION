@@ -12,7 +12,20 @@
           "package_name": "com.penacode.pion"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "726520432814-761nm32d8shn1fjkt2ml98utp7b5mcda.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.penacode.pion",
+            "certificate_hash": "4b3438ea3d27e0982b9596772ae0804a2c2a7c0c"
+          }
+        },
+        {
+          "client_id": "726520432814-7hbfv8djg79quv8h44ne35h72sapneqd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCQt62E2PN02E8SM0W_soUe0nj7D12Oj4A"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726520432814-7hbfv8djg79quv8h44ne35h72sapneqd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "726520432814-atsdnk88jggdjve8ivd50g3ofnac6jnb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.penacode.pion"
+              }
+            }
+          ]
         }
       }
     }

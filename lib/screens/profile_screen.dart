@@ -20,8 +20,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _userEmail = '';
   bool _isLoadingUser = true;
 
-  Color get _primaryColor => _isWorkerMode ? const Color(0xFF4F46E5) : const Color(0xFF2563EB);
-  Color get _primaryLight => _isWorkerMode ? const Color(0xFFEEF2FF) : const Color(0xFFEFF6FF);
+  Color get _primaryColor => Theme.of(context).primaryColor;
+  Color get _primaryLight => Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08);
 
   // Editable fields (local state)
   final _nameCtrl = TextEditingController();
@@ -172,17 +172,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {
-                      setState(() => _userName = _nameCtrl.text.isNotEmpty ? _nameCtrl.text : _userName);
+                    onPressed: () async {
+                      // Show loading, save to Firestore
                       Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Profil berhasil diperbarui ✓', style: TextStyle(fontFamily: 'Inter')),
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: const Color(0xFF10B981),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                      final error = await AuthService.updateProfile(
+                        name: _nameCtrl.text.isNotEmpty ? _nameCtrl.text : _userName,
+                        phone: _phoneCtrl.text,
+                        bio: _bioCtrl.text,
                       );
+                      if (!mounted) return;
+                      if (error == null) {
+                        setState(() => _userName = _nameCtrl.text.isNotEmpty ? _nameCtrl.text : _userName);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Profil berhasil diperbarui ✓', style: TextStyle(fontFamily: 'Inter')),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: const Color(0xFF10B981),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(error, style: const TextStyle(fontFamily: 'Inter')),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: const Color(0xFFEF4444),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        );
+                      }
                     },
                     child: const Text('Simpan Perubahan'),
                   ),
@@ -245,9 +263,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.edit_outlined, color: _primaryColor),
-                  onPressed: _showEditProfileSheet,
-                  tooltip: 'Edit Profil',
+                  icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
+                  onPressed: () async {
+                    await AuthService.logout();
+                    if (!context.mounted) return;
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (ctx) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  },
+                  tooltip: 'Keluar',
                 ),
                 const SizedBox(width: 8),
               ],
@@ -255,13 +281,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 130),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // ── Profile Card ───────────────────────────────────────────
                     Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [_primaryColor, _primaryColor.withOpacity(0.8)],
@@ -303,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(width: 20),
+                                const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,11 +366,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // ── Stats Row ──────────────────────────────────────────────
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
@@ -361,11 +387,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
 
                     // ── Mode Toggle ────────────────────────────────────────────
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
@@ -377,7 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             duration: const Duration(milliseconds: 300),
                             width: 52, height: 52,
                             decoration: BoxDecoration(
-                              color: _isWorkerMode ? colorScheme.primary : const Color(0xFFEEF0FF),
+                              color: _isWorkerMode ? colorScheme.primary : _primaryLight,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Icon(
@@ -415,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
 
                     // ── Menu Akun ──────────────────────────────────────────────
                     _menuSection([
@@ -435,7 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ]),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     _menuSection([
                       _MenuItem(
@@ -462,32 +488,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ]),
-                    const SizedBox(height: 32),
-
-                    // ── Logout ─────────────────────────────────────────────────
-                    SizedBox(
-                      height: 52,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          await AuthService.logout();
-                          if (!context.mounted) return;
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (ctx) => const LoginScreen()),
-                            (route) => false,
-                          );
-                        },
-                        icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 20),
-                        label: const Text(
-                          'Keluar dari Akun',
-                          style: TextStyle(fontFamily: 'Inter', color: Color(0xFFEF4444), fontWeight: FontWeight.w700),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
-                          shape: const StadiumBorder(),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -534,7 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return Column(
             children: [
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                 leading: Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(color: _primaryLight, borderRadius: BorderRadius.circular(14)),

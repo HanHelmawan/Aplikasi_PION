@@ -60,7 +60,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF4F46E5)),
+            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF2563EB)),
             tooltip: 'Refresh',
             onPressed: () => setState(() {}),
           ),
@@ -91,12 +91,12 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
 
             // ── Filter Chips ─────────────────────────────────────────────────
             SizedBox(
-              height: 40,
+              height: 36,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (context, index) => const SizedBox(width: 6),
                 itemBuilder: (_, i) {
                   final f = _filters[i];
                   final selected = _selectedFilter == f;
@@ -105,20 +105,20 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 8),
+                          horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
                         color: selected
-                            ? const Color(0xFF4F46E5)
+                            ? const Color(0xFF2563EB)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                             color: selected
-                                ? const Color(0xFF4F46E5)
+                                ? const Color(0xFF2563EB)
                                 : const Color(0xFFE2E8F0)),
                         boxShadow: selected
                             ? const [
                                 BoxShadow(
-                                    color: Color(0x334F46E5),
+                                    color: Color(0x332563EB),
                                     blurRadius: 8,
                                     offset: Offset(0, 3))
                               ]
@@ -140,7 +140,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── List ─────────────────────────────────────────────────────────
             Expanded(
@@ -148,7 +148,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                   ? _buildEmpty()
                   : ListView.builder(
                       padding:
-                          const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                          const EdgeInsets.fromLTRB(16, 4, 16, 80),
                       itemCount: items.length,
                       itemBuilder: (_, i) => _buildCard(items[i]),
                     ),
@@ -167,9 +167,9 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               width: 120,
               height: 120,
               decoration: const BoxDecoration(
-                  color: Color(0xFFEEF2FF), shape: BoxShape.circle),
+                  color: Color(0xFFEFF6FF), shape: BoxShape.circle),
               child: const Icon(Icons.inbox_rounded,
-                  size: 56, color: Color(0xFF4F46E5)),
+                  size: 56, color: Color(0xFF2563EB)),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -212,8 +212,8 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
     final avatarUrl = userAvatars[userIdx];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -272,7 +272,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // ── Task Description ──────────────────────────────────────────────
           Text(
@@ -285,7 +285,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // ── Category + Location ───────────────────────────────────────────
           Row(
@@ -294,13 +294,13 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2FF),
+                    color: const Color(0xFFEFF6FF),
                     borderRadius: BorderRadius.circular(12)),
                 child: Text(r.category,
                     style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF4F46E5),
+                        color: Color(0xFF2563EB),
                         fontFamily: 'Inter')),
               ),
               const SizedBox(width: 8),
@@ -320,14 +320,14 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
 
           // ── Photos strip ──────────────────────────────────────────────────
           if (r.photoUrls.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             SizedBox(
               height: 80,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: r.photoUrls.length,
                 itemBuilder: (_, i) => Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 6),
                   child: PionImage(
                     url: r.photoUrls[i],
                     width: 80,
@@ -341,7 +341,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
 
           // ── Price row ─────────────────────────────────────────────────────
           if (r.estimatedPrice > 0) ...[  
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(children: [
               const Icon(Icons.monetization_on_rounded, size: 14, color: Color(0xFF16A34A)),
               const SizedBox(width: 6),
@@ -352,9 +352,9 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
             ]),
           ],
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           const Divider(height: 1, color: Color(0xFFF1F5F9)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // ── Footer ────────────────────────────────────────────────────────
           if (widget.isWorkerMode && r.status == RequestStatus.menunggu)
@@ -369,7 +369,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 icon: const Icon(Icons.handshake_rounded, size: 18),
                 label: const Text('Ambil Pekerjaan', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4F46E5),
+                  backgroundColor: const Color(0xFF2563EB),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,

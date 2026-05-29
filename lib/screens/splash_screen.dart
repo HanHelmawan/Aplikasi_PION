@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../core/auth_service.dart';
 import '../main.dart';
@@ -21,6 +22,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Enable sticky immersive mode (completely full screen, hides status and navigation bars)
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     _controller = AnimationController(
       vsync: this,
@@ -79,6 +83,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
+    // Restore edge-to-edge mode and standard status bar styling when leaving the splash screen
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     _controller.dispose();
     super.dispose();
   }
@@ -87,6 +99,8 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,

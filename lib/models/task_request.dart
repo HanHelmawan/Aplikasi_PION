@@ -205,7 +205,7 @@ class TaskRequestStore {
     }
   }
 
-  Future<void> fetchRequests() async {
+  Future<void> fetchRequests({bool onlyCurrentUser = true}) async {
     final uid = _currentUserId;
     if (uid == null) {
       debugPrint('fetchRequests: No user logged in, skipping.');
@@ -213,29 +213,20 @@ class TaskRequestStore {
     }
 
     try {
-      // ✅ AUDIT FIX: filter berdasarkan userId — hanya ambil data milik user ini
-      final snapshot = await FirebaseFirestore.instance
-          .collection('task_requests')
-          .where('userId', isEqualTo: uid)
-          .orderBy('createdAt', descending: true)
-          .get();
+      Query query = FirebaseFirestore.instance.collection('task_requests');
+      if (onlyCurrentUser) {
+        query = query.where('userId', isEqualTo: uid);
+      }
+      
+      final snapshot = await query.orderBy('createdAt', descending: true).get();
 
       final loaded = snapshot.docs
-          .map((doc) => TaskRequest.fromMap(doc.id, doc.data()))
+          .map((doc) => TaskRequest.fromMap(doc.id, doc.data() as Map<String, dynamic>))
           .toList();
 
-      // Merge with local requests (avoid duplicates, keep order)
-      for (final r in loaded) {
-        final idx = requests.indexWhere((req) => req.id == r.id);
-        if (idx == -1) {
-          requests.add(r);
-        } else {
-          requests[idx] = r;
-        }
-      }
-
-      // Sort requests by createdAt descending
-      requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      // Clear local list first to ensure in-memory state is clean and accurate
+      requests.clear();
+      requests.addAll(loaded);
     } catch (e) {
       debugPrint('Firestore error fetching task requests: $e'); // ✅ AUDIT FIX: debugPrint
     }

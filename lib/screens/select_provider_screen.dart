@@ -19,7 +19,7 @@ class SelectProviderScreen extends StatelessWidget {
         ),
         title: const Text('Pilih Penyedia'),
         actions: [
-          IconButton(icon: const Icon(Icons.tune_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+          IconButton(icon: const Icon(Icons.tune_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating))),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -121,7 +121,7 @@ class SelectProviderScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.verified_rounded, color: theme.colorScheme.primary, size: 14),
                     const SizedBox(width: 4),
-                    Text('Terverifikasi', style: TextStyle(color: theme.colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                    Text('Terverifikasi', style: TextStyle(color: theme.colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w700, )),
                   ],
                 ),
               ),
@@ -130,9 +130,9 @@ class SelectProviderScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // ── Name & Category ────────────────────────────────────────────────
-          Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+          Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
           const SizedBox(height: 4),
-          Text(category, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontFamily: 'Inter')),
+          Text(category, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), )),
           const SizedBox(height: 12),
 
           // ── Stats ─────────────────────────────────────────────────────────
@@ -140,15 +140,15 @@ class SelectProviderScreen extends StatelessWidget {
             children: [
               const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
               const SizedBox(width: 4),
-              Text(rating.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+              Text(rating.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), )),
               const SizedBox(width: 12),
               const Icon(Icons.flash_on_rounded, color: Color(0xFFF59E0B), size: 16),
               const SizedBox(width: 4),
-              Flexible(child: Text(responseTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+              Flexible(child: Text(responseTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), ), overflow: TextOverflow.ellipsis)),
               const SizedBox(width: 12),
               const Icon(Icons.thumb_up_rounded, color: Color(0xFF10B981), size: 14),
               const SizedBox(width: 4),
-              Flexible(child: Text(successRate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+              Flexible(child: Text(successRate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), ), overflow: TextOverflow.ellipsis)),
             ],
           ),
           const SizedBox(height: 16),

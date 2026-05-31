@@ -20,10 +20,10 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
   // ⚠️ AUDIT FIX (M-8): Data ini adalah DEMO hardcoded.
   //    TODO: Gantikan dengan query Firestore dari koleksi 'earnings' / 'ratings'
   //          sebelum production. Contoh: _store.requests.where(selesai).length
-  static const int _todayEarnings = 285000;
-  static const int _weekEarnings = 1420000;
-  static const double _workerRating = 4.9;
-  static const int _todayCompleted = 3;
+  static const int _todayEarnings = 0;
+  static const int _weekEarnings = 0;
+  static const double _workerRating = 0.0;
+  static const int _todayCompleted = 0;
 
   bool _isLoading = false;
 
@@ -33,7 +33,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
     _loadUser();
     // ✅ AUDIT FIX (I-3): Tampilkan loading state saat fetch berlangsung
     setState(() => _isLoading = true);
-    TaskRequestStore.instance.fetchRequests().then((_) {
+    TaskRequestStore.instance.fetchRequests(onlyCurrentUser: false).then((_) {
       if (mounted) setState(() => _isLoading = false);
     });
   }
@@ -88,7 +88,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
               title: const Text(
                 'Beranda Pekerja',
                 style: TextStyle(
-                  fontFamily: 'Inter',
+                  
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF0F172A),
@@ -140,7 +140,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                         const Text(
                           'Selamat datang,',
                           style: TextStyle(
-                            fontFamily: 'Inter',
+                            
                             fontSize: 14,
                             color: Color(0xFF64748B),
                           ),
@@ -149,7 +149,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                         Text(
                           _userName.split(' ').first,
                           style: const TextStyle(
-                            fontFamily: 'Inter',
+                            
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF0F172A),
@@ -193,7 +193,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                               const Text(
                                 'Pendapatan Hari Ini',
                                 style: TextStyle(
-                                  fontFamily: 'Inter',
+                                  
                                   fontSize: 13,
                                   color: Colors.white70,
                                 ),
@@ -206,7 +206,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                                 ),
                                 child: const Text(
                                   'Hari ini',
-                                  style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
+                                  style: TextStyle( fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ],
@@ -215,7 +215,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                           Text(
                             _fmtRp(_todayEarnings),
                             style: const TextStyle(
-                              fontFamily: 'Inter',
+                              
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
@@ -228,7 +228,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 'Minggu ini: ${_fmtRp(_weekEarnings)}',
-                                style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF6EE7B7)),
+                                style: const TextStyle( fontSize: 12, color: Color(0xFF6EE7B7)),
                               ),
                             ],
                           ),
@@ -270,7 +270,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                         const Text(
                           'Tugas Tersedia',
                           style: TextStyle(
-                            fontFamily: 'Inter',
+                            
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF0F172A),
@@ -286,7 +286,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                             ),
                             child: Text(
                               '${open.length} baru',
-                              style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
+                              style: const TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF10B981)),
                             ),
                           ),
                       ],
@@ -309,7 +309,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                       itemBuilder: (_, i) => _buildTaskCard(open[i]),
                     ),
 
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 120),
                 ],
               ),
             ),
@@ -331,7 +331,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
         children: [
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 5),
-          Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+          Text(label, style: TextStyle( fontSize: 11, fontWeight: FontWeight.w600, color: color)),
         ],
       ),
     );
@@ -353,7 +353,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
             children: [
               CircularProgressIndicator(strokeWidth: 2),
               SizedBox(height: 16),
-              Text('Memuat tugas tersedia...', style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B))),
+              Text('Memuat tugas tersedia...', style: TextStyle( fontSize: 14, color: Color(0xFF64748B))),
             ],
           ),
         ),
@@ -387,9 +387,9 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
             child: Icon(Icons.assignment_turned_in_rounded, size: 36, color: Theme.of(context).primaryColor),
           ),
           const SizedBox(height: 16),
-          const Text('Belum Ada Tugas Tersedia', style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+          const Text('Belum Ada Tugas Tersedia', style: TextStyle( fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
           const SizedBox(height: 6),
-          const Text('Semua tugas baru akan muncul di sini.', style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
+          const Text('Semua tugas baru akan muncul di sini.', style: TextStyle( fontSize: 13, color: Color(0xFF64748B))),
         ],
       ),
     ),
@@ -398,7 +398,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
 
   Widget _buildTaskCard(TaskRequest r) {
     final distances = ['0.3 km', '0.8 km', '1.2 km', '1.7 km', '2.0 km'];
-    final distIdx = int.parse(r.id.substring(r.id.length - 1)) % distances.length;
+    final distIdx = r.id.hashCode.abs() % distances.length;
     final dist = distances[distIdx];
 
     final isUrgent = r.title.toLowerCase().contains('darurat') || r.estimatedPrice > 300000;
@@ -449,13 +449,13 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                             children: [
                               Icon(Icons.bolt_rounded, size: 12, color: Color(0xFFEF4444)),
                               SizedBox(width: 4),
-                              Text('MENDESAK', style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+                              Text('MENDESAK', style: TextStyle( fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
                             ],
                           ),
                         ),
                       Text(
                         r.title,
-                        style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                        style: const TextStyle( fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -474,7 +474,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                     children: [
                       Icon(Icons.near_me_rounded, size: 12, color: Theme.of(context).primaryColor),
                       const SizedBox(width: 4),
-                      Text(dist, style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor)),
+                      Text(dist, style: TextStyle( fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor)),
                     ],
                   ),
                 ),
@@ -490,7 +490,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                     color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(r.category, style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),
+                  child: Text(r.category, style: TextStyle( fontSize: 10, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),
                 ),
                 const SizedBox(width: 8),
                 const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFF94A3B8)),
@@ -498,7 +498,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                 Expanded(
                   child: Text(
                     r.location,
-                    style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B)),
+                    style: const TextStyle( fontSize: 12, color: Color(0xFF64748B)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -522,7 +522,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                           const SizedBox(width: 5),
                           Text(
                             'Est. ${_fmtRp(r.estimatedPrice.toInt())}',
-                            style: const TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF16A34A)),
+                            style: const TextStyle( fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF16A34A)),
                           ),
                         ],
                       ),
@@ -537,7 +537,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                     ),
                     child: const Text(
                       'Ambil Tugas',
-                      style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                   ),
                 ],

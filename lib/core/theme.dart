@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 /// Pion Design System – Modern Tech (Inter)
 class PionTheme {
   // ── Color Tokens ────────────────────────────────────────────────────────────
-  static const Color primary        = Color(0xFF2563EB); // Royal Blue (Biru Utama)
-  static const Color primaryDark    = Color(0xFF1D4ED8);
+  static const Color primary        = Color(0xFF3B82F6); // Biru Primary yang ramah
+  static const Color primaryDark    = Color(0xFF2563EB);
   static const Color primaryLight   = Color(0xFFEFF6FF);
   static const Color primaryBorder  = Color(0xFFBFDBFE);
 
@@ -32,26 +32,50 @@ class PionTheme {
   static ThemeData get lightTheme => buildTheme(isWorkerMode: false);
 
   static ThemeData buildTheme({bool isWorkerMode = false}) {
-    final Color currentPrimary = isWorkerMode ? const Color(0xFF0525BB) : const Color(0xFF2563EB);
-    final Color currentPrimaryDark = isWorkerMode ? const Color(0xFF031A85) : const Color(0xFF1D4ED8);
+    final Color currentPrimary = isWorkerMode ? const Color(0xFF0525BB) : const Color(0xFF3B82F6);
+    final Color currentPrimaryDark = isWorkerMode ? const Color(0xFF031A85) : const Color(0xFF2563EB);
     final Color currentPrimaryLight = isWorkerMode ? const Color(0xFFEEF2FF) : const Color(0xFFEFF6FF);
 
-    final baseTextTheme = GoogleFonts.interTextTheme();
+    final baseTextTheme = GoogleFonts.nunitoSansTextTheme().copyWith(
+      titleLarge: GoogleFonts.poppins(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: const Color(0xFF1E293B),
+      ),
+      titleMedium: GoogleFonts.poppins(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: const Color(0xFF334155),
+      ),
+      bodyLarge: GoogleFonts.nunitoSans(
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+        color: const Color(0xFF475569),
+      ),
+      bodyMedium: GoogleFonts.nunitoSans(
+        fontSize: 13,
+        color: const Color(0xFF475569),
+      ),
+      bodySmall: GoogleFonts.nunitoSans(
+        fontSize: 12,
+        color: const Color(0xFF64748B),
+      ),
+    );
 
     return ThemeData(
+      useMaterial3: true,
       brightness: Brightness.light,
       primaryColor: currentPrimary,
       scaffoldBackgroundColor: background,
       textTheme: baseTextTheme,
-      colorScheme: ColorScheme.light(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF3B82F6),
         primary: currentPrimary,
         primaryContainer: currentPrimaryDark,
-        onPrimary: white,
-        secondary: currentPrimary,
+        background: const Color(0xFFF8FAFC),
         surface: surface,
         onSurface: textDark,
         error: error,
-        outline: border,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: white,
@@ -59,7 +83,7 @@ class PionTheme {
         scrolledUnderElevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: currentPrimary),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: GoogleFonts.poppins(
           color: textDark, // Keep header text readable with textDark
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -82,7 +106,7 @@ class PionTheme {
           shadowColor: currentPrimary.withValues(alpha: 0.3), // ✅ AUDIT FIX (L-1)
           shape: const StadiumBorder(), // Pill shape
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -99,7 +123,7 @@ class PionTheme {
           side: BorderSide(color: currentPrimary, width: 1.5),
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -109,7 +133,7 @@ class PionTheme {
         style: TextButton.styleFrom(
           foregroundColor: currentPrimary,
           shape: const StadiumBorder(),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -135,7 +159,7 @@ class PionTheme {
           borderSide: const BorderSide(color: error, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        hintStyle: GoogleFonts.inter(color: textLight, fontSize: 15),
+        hintStyle: GoogleFonts.nunitoSans(color: textLight, fontSize: 15),
       ),
       dividerColor: divider,
       dividerTheme: const DividerThemeData(color: divider, space: 1),
@@ -146,11 +170,11 @@ class PionTheme {
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.inter(
+        selectedLabelStyle: GoogleFonts.nunitoSans(
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
+        unselectedLabelStyle: GoogleFonts.nunitoSans(
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -166,7 +190,7 @@ class PionTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: currentPrimaryLight,
-        labelStyle: GoogleFonts.inter(
+        labelStyle: GoogleFonts.nunitoSans(
           color: currentPrimary,
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -313,3 +337,5 @@ class PionAvatar extends StatelessWidget {
     return avatar;
   }
 }
+
+final ThemeData temaPionHomey = PionTheme.lightTheme;

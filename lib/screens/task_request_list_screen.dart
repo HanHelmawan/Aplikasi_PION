@@ -53,7 +53,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
           'Daftar Permintaan',
           style: TextStyle(
             fontWeight: FontWeight.w800,
-            fontFamily: 'Inter',
+            
             fontSize: 20,
             color: Color(0xFF0F172A),
           ),
@@ -84,7 +84,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               child: Text(
                 '${_store.requests.length} permintaan aktif di sekitar Anda',
                 style: const TextStyle(
-                  fontSize: 14, color: Color(0xFF64748B), fontFamily: 'Inter',
+                  fontSize: 14, color: Color(0xFF64748B), 
                 ),
               ),
             ),
@@ -129,7 +129,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          fontFamily: 'Inter',
+                          
                           color: selected
                               ? Colors.white
                               : const Color(0xFF64748B),
@@ -178,7 +178,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF0F172A),
-                  fontFamily: 'Inter'),
+                  ),
             ),
             const SizedBox(height: 10),
             const Padding(
@@ -190,7 +190,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                     fontSize: 14,
                     color: Color(0xFF64748B),
                     height: 1.6,
-                    fontFamily: 'Inter'),
+                    ),
               ),
             ),
           ],
@@ -200,7 +200,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
   Widget _buildCard(TaskRequest r) {
     // Generate a fake user name from the id for display
     final userNames = ['Budi S.', 'Siti A.', 'Ahmad W.', 'Rina P.', 'Dian K.'];
-    final userIdx = int.parse(r.id.substring(r.id.length - 1)) % userNames.length;
+    final userIdx = r.id.hashCode.abs() % userNames.length;
     final userName = userNames[userIdx];
     final userAvatars = [
       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
@@ -243,13 +243,13 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF0F172A),
-                            fontFamily: 'Inter')),
+                            )),
                     const SizedBox(height: 2),
                     Text(r.scheduledAt,
                         style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF94A3B8),
-                            fontFamily: 'Inter')),
+                            )),
                   ],
                 ),
               ),
@@ -267,7 +267,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFFD97706),
-                      fontFamily: 'Inter'),
+                      ),
                 ),
               ),
             ],
@@ -281,7 +281,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF0F172A),
-                fontFamily: 'Inter'),
+                ),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -301,7 +301,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2563EB),
-                        fontFamily: 'Inter')),
+                        )),
               ),
               const SizedBox(width: 8),
               const Icon(Icons.location_on_rounded,
@@ -312,7 +312,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                     style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF64748B),
-                        fontFamily: 'Inter'),
+                        ),
                     overflow: TextOverflow.ellipsis),
               ),
             ],
@@ -347,7 +347,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               const SizedBox(width: 6),
               Text(
                 'Estimasi: ${_fmtPrice(r.estimatedPrice)}',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), fontFamily: 'Inter'),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), ),
               ),
             ]),
           ],
@@ -367,7 +367,7 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
                   MaterialPageRoute(builder: (_) => NegotiationScreen(request: r)),
                 ).then((_) => setState(() {})),
                 icon: const Icon(Icons.handshake_rounded, size: 18),
-                label: const Text('Ambil Pekerjaan', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                label: const Text('Ambil Pekerjaan', style: TextStyle(fontWeight: FontWeight.w700, )),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2563EB),
                   foregroundColor: Colors.white,
@@ -381,9 +381,9 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
               children: [
                 const Icon(Icons.visibility_outlined, size: 14, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 6),
-                const Text('Permintaan publik', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                const Text('Permintaan publik', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8), )),
                 const Spacer(),
-                Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1), fontFamily: 'Inter')),
+                Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1), )),
               ],
             ),
         ],

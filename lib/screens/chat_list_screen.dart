@@ -109,7 +109,7 @@ class _ChatListScreenState extends State<ChatListScreen>
               title: const Text(
                 'Pesan',
                 style: TextStyle(
-                  fontFamily: 'Inter',
+                  
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF0F172A),
@@ -120,7 +120,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                   icon: Icon(Icons.search_rounded, color: Theme.of(context).primaryColor),
                   onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Cari pesan — segera hadir', style: TextStyle(fontFamily: 'Inter')),
+                      content: Text('Cari pesan — segera hadir', style: TextStyle()),
                       behavior: SnackBarBehavior.floating,
                     ),
                   ),
@@ -176,7 +176,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         '$_onlineCount kontak sedang aktif',
                         style: const TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF059669),
@@ -257,7 +257,7 @@ class _ChatListScreenState extends State<ChatListScreen>
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Inter',
+                
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: isSelected ? Colors.white : const Color(0xFF64748B),
@@ -280,10 +280,10 @@ class _ChatListScreenState extends State<ChatListScreen>
             ),
             const SizedBox(height: 20),
             const Text('Belum Ada Pesan',
-                style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
             const SizedBox(height: 8),
             const Text('Pesan dari mitra akan muncul di sini',
-                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B))),
+                style: TextStyle( fontSize: 14, color: Color(0xFF64748B))),
           ],
         ),
       );
@@ -352,7 +352,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         chat['name'] as String,
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 16,
                           fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w700,
                           color: const Color(0xFF0F172A),
@@ -361,7 +361,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         chat['time'] as String,
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 12,
                           fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                           color: unread > 0 ? Theme.of(context).primaryColor : const Color(0xFF94A3B8),
@@ -378,7 +378,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Inter',
+                            
                             fontSize: 14,
                             fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
                             color: unread > 0 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
@@ -396,7 +396,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                           child: Text(
                             '$unread',
                             style: const TextStyle(
-                              fontFamily: 'Inter',
+                              
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,

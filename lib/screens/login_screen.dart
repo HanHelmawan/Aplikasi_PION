@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showSnackBar(String message, {bool isSuccess = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontFamily: 'Inter')),
+        content: Text(message, style: const TextStyle()),
         behavior: SnackBarBehavior.floating,
         backgroundColor: isSuccess ? const Color(0xFF22C55E) : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -266,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // ✅ AUDIT FIX (H-5): Tampilkan countdown saat cooldown aktif
                       : _isCoolingDown
                           ? Text('Coba lagi dalam $_cooldownSeconds detik',
-                              style: const TextStyle(fontFamily: 'Inter', fontSize: 14))
+                              style: const TextStyle( fontSize: 14))
                           : const Text('Masuk'),
                 ),
               ),
@@ -315,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text(
                         'Lanjutkan dengan Google',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF0F172A),

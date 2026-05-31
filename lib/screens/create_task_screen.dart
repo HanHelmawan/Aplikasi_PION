@@ -120,7 +120,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       navigator.popUntil((route) => route.isFirst);
       messenger.showSnackBar(
         const SnackBar(
-          content: Text('Permintaan berhasil dikirim! Cek riwayat di Profil.', style: TextStyle(fontFamily: 'Inter')),
+          content: Text('Permintaan berhasil dikirim! Cek riwayat di Profil.', style: TextStyle()),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Color(0xFF16A34A),
         ),
@@ -130,7 +130,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         setState(() => _isSubmitting = false);
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Gagal mengirim permintaan: $e', style: const TextStyle(fontFamily: 'Inter')),
+            content: Text('Gagal mengirim permintaan: $e', style: const TextStyle()),
             backgroundColor: const Color(0xFFDC2626),
             behavior: SnackBarBehavior.floating,
           ),
@@ -255,14 +255,14 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                       color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text('Rp', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+                    child: const Text('Rp', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF2563EB), )),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _priceController,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'Inter'),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, ),
                       decoration: const InputDecoration(
                         hintText: '0',
                         hintStyle: TextStyle(color: Color(0xFFCBD5E1)),

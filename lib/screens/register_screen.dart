@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontFamily: 'Inter')),
+        content: Text(message, style: const TextStyle()),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -252,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const Text(
                         'Lanjutkan dengan Google',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF0F172A),

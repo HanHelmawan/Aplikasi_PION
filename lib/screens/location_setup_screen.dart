@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/auth_service.dart';
 import '../core/theme.dart';
 import '../main.dart';
@@ -93,24 +94,22 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Izinkan Akses Lokasi',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Inter',
+              style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+                color: const Color(0xFF0F172A),
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               '"Pion" ingin mengakses lokasi Anda untuk menampilkan penyedia jasa terdekat dalam radius pencarian.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Inter',
+              style: GoogleFonts.nunitoSans(
                 fontSize: 14,
-                color: Color(0xFF475569),
+                color: const Color(0xFF475569),
                 height: 1.5,
               ),
             ),
@@ -121,7 +120,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             style: TextButton.styleFrom(foregroundColor: const Color(0xFF94A3B8)),
-            child: const Text('Jangan Izinkan', style: TextStyle(fontFamily: 'Inter')),
+            child: Text('Jangan Izinkan', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -131,7 +130,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
-            child: const Text('Izinkan', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
+            child: Text('Izinkan', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: 4),
         ],
@@ -195,7 +194,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
   void _showSnack(String message, {bool isSuccess = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontFamily: 'Inter')),
+        content: Text(message, style: GoogleFonts.nunitoSans()),
         behavior: SnackBarBehavior.floating,
         backgroundColor: isSuccess ? const Color(0xFF10B981) : Theme.of(context).primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -232,9 +231,9 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF94A3B8),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Lewati',
-                                style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
+                                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
@@ -299,25 +298,23 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                         const SizedBox(height: 40),
 
                         // â”€â”€ Heading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                        const Text(
+                        Text(
                           'Di mana lokasi Anda?',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
+                          style: GoogleFonts.poppins(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0F172A),
+                            color: const Color(0xFF0F172A),
                             height: 1.2,
                           ),
                         ),
                         const SizedBox(height: 14),
-                        const Text(
-                          'Kami membutuhkan lokasi Anda untuk menampilkan penyedia jasa terverifikasi dalam radius 1â€“5 km dari Anda.',
+                        Text(
+                          'Kami membutuhkan lokasi Anda untuk menampilkan penyedia jasa terverifikasi dalam radius 1-5 km dari Anda.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
+                          style: GoogleFonts.nunitoSans(
                             fontSize: 15,
-                            color: Color(0xFF475569),
+                            color: const Color(0xFF475569),
                             height: 1.6,
                           ),
                         ),
@@ -367,8 +364,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               _gpsGranted
                                   ? 'Lokasi GPS aktif'
                                   : 'Gunakan Lokasi GPS',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                                 color: _gpsGranted
@@ -380,8 +376,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               _gpsGranted
                                   ? _selectedCity ?? 'Mendeteksi...'
                                   : 'Deteksi otomatis via perangkat',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
+                              style: GoogleFonts.nunitoSans(
                                 fontSize: 13,
                                 color: _gpsGranted
                                     ? const Color(0xFF10B981)
@@ -407,8 +402,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
                                 'atau pilih manual',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
+                                style: GoogleFonts.nunitoSans(
                                   fontSize: 13,
                                   color: Colors.grey.shade500,
                                 ),
@@ -435,13 +429,12 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: (!_gpsGranted) ? _selectedCity : null,
-                              hint: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
+                              hint: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
                                   'Pilih kota / area',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    color: Color(0xFF94A3B8),
+                                  style: GoogleFonts.nunitoSans(
+                                    color: const Color(0xFF94A3B8),
                                     fontSize: 15,
                                   ),
                                 ),
@@ -462,10 +455,9 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                           padding: const EdgeInsets.symmetric(horizontal: 20),
                                           child: Text(
                                             c,
-                                            style: const TextStyle(
-                                              fontFamily: 'Inter',
+                                            style: GoogleFonts.nunitoSans(
                                               fontSize: 15,
-                                              color: Color(0xFF0F172A),
+                                              color: const Color(0xFF0F172A),
                                             ),
                                           ),
                                         ),
@@ -512,7 +504,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                     children: [
                                       const Icon(Icons.check_rounded, size: 20),
                                       const SizedBox(width: 8),
-                                      Flexible(child: Text(_selectedCity != null ? 'Konfirmasi: $_selectedCity' : 'Pilih lokasi dulu', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 15), overflow: TextOverflow.ellipsis)),
+                                      Flexible(child: Text(_selectedCity != null ? 'Konfirmasi: $_selectedCity' : 'Pilih lokasi dulu', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 15), overflow: TextOverflow.ellipsis)),
                                     ],
                                   ),
                           ),

@@ -178,12 +178,12 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Text('Ubah Lokasi', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                child: Text('Ubah Lokasi', style: TextStyle( fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
               ),
               const SizedBox(height: 6),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Text('Pilih area pencarian jasa Anda', style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B))),
+                child: Text('Pilih area pencarian jasa Anda', style: TextStyle( fontSize: 14, color: Color(0xFF64748B))),
               ),
               const SizedBox(height: 20),
               Padding(
@@ -194,10 +194,10 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                     child: DropdownButton<String>(
                       value: _cityList.contains(tempCity) ? tempCity : null,
                       isExpanded: true,
-                      hint: const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('Pilih kota', style: TextStyle(fontFamily: 'Inter', color: Color(0xFF94A3B8)))),
+                      hint: const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('Pilih kota', style: TextStyle( color: Color(0xFF94A3B8)))),
                       icon: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B))),
                       borderRadius: BorderRadius.circular(16),
-                      items: _cityList.map((c) => DropdownMenuItem(value: c, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(c, style: const TextStyle(fontFamily: 'Inter', fontSize: 15, color: Color(0xFF0F172A)))))).toList(),
+                      items: _cityList.map((c) => DropdownMenuItem(value: c, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(c, style: const TextStyle( fontSize: 15, color: Color(0xFF0F172A)))))).toList(),
                       onChanged: (val) => setSheetState(() => tempCity = val),
                     ),
                   ),
@@ -247,7 +247,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Semua Kategori', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                  child: Text('Semua Kategori', style: TextStyle( fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                 ),
               ),
               const SizedBox(height: 16),
@@ -263,7 +263,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       onTap: () {
                         Navigator.pop(ctx);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Kategori: ${cat['label']}', style: const TextStyle(fontFamily: 'Inter')),
+                          content: Text('Kategori: ${cat['label']}', style: const TextStyle()),
                           behavior: SnackBarBehavior.floating,
                           backgroundColor: const Color(0xFF2563EB),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -278,7 +278,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                             child: Icon(cat['icon'] as IconData, color: Color(cat['iconColor'] as int), size: 26),
                           ),
                           const SizedBox(height: 8),
-                          Text(cat['label'] as String, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                          Text(cat['label'] as String, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle( fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
                         ],
                       ),
                     );
@@ -331,7 +331,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                     children: [
                       const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF2563EB)),
                       const SizedBox(width: 4),
-                      Flexible(child: Text(_currentLocation, style: const TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF2563EB)), overflow: TextOverflow.ellipsis)),
+                      Flexible(child: Text(_currentLocation, style: const TextStyle( fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF2563EB)), overflow: TextOverflow.ellipsis)),
                       const SizedBox(width: 4),
                       const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Color(0xFF2563EB)),
                     ],
@@ -351,7 +351,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined),
                   color: const Color(0xFF0F172A),
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Belum ada notifikasi baru', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Belum ada notifikasi baru', style: TextStyle()), behavior: SnackBarBehavior.floating)),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(right: 16),
@@ -371,10 +371,10 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                     // ── Greeting ────────────────────────────────────────────
                     Text(
                       'Halo, ${_userName.split(' ').first}',
-                      style: const TextStyle(fontFamily: 'Inter', fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                      style: const TextStyle( fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                     ),
                     const SizedBox(height: 2),
-                    const Text('Apa yang bisa kami bantu hari ini?', style: TextStyle(fontFamily: 'Inter', fontSize: 15, color: Color(0xFF64748B))),
+                    const Text('Apa yang bisa kami bantu hari ini?', style: TextStyle( fontSize: 15, color: Color(0xFF64748B))),
                     const SizedBox(height: 12),
 
                     // ── Search Bar ──────────────────────────────────────────
@@ -385,7 +385,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           hintText: 'Cari perbaikan AC, Pipa, dll...',
-                          hintStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF94A3B8)),
+                          hintStyle: const TextStyle( fontSize: 14, color: Color(0xFF94A3B8)),
                           prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF2563EB), size: 22),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 20), onPressed: () { _searchController.clear(); setState(() => _searchQuery = ''); })
@@ -420,14 +420,14 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Kategori', style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                          const Text('Kategori', style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                           GestureDetector(
                             onTap: _showAllCategories,
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(20)),
                               child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                                Text('Lihat Semua', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
+                                Text('Lihat Semua', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
                                 SizedBox(width: 4),
                                 Icon(Icons.grid_view_rounded, size: 14, color: Color(0xFF2563EB)),
                               ]),
@@ -462,7 +462,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                                   child: Icon(cat['icon'] as IconData, color: isActive ? Colors.white : Color(cat['iconColor'] as int), size: 26),
                                 ),
                                 const SizedBox(height: 7),
-                                Text(catLabel, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: isActive ? FontWeight.w800 : FontWeight.w600, color: isActive ? const Color(0xFF2563EB) : const Color(0xFF475569))),
+                                Text(catLabel, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle( fontSize: 11, fontWeight: isActive ? FontWeight.w800 : FontWeight.w600, color: isActive ? const Color(0xFF2563EB) : const Color(0xFF475569))),
                               ],
                             ),
                           );
@@ -474,10 +474,10 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Mitra Teratas ⭐ ', style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                          const Text('Mitra Teratas ⭐ ', style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                           GestureDetector(
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SelectProviderScreen())),
-                            child: const Text('Semua', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF2563EB), fontSize: 14)),
+                            child: const Text('Semua', style: TextStyle( fontWeight: FontWeight.bold, color: Color(0xFF2563EB), fontSize: 14)),
                           ),
                         ],
                       ),
@@ -512,7 +512,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       children: [
                         Text(
                           _searchQuery.isEmpty ? 'Terdekat dari Anda' : 'Hasil Pencarian',
-                          style: const TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          style: const TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                         ),
                         if (_searchQuery.isEmpty)
                           Container(
@@ -521,7 +521,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                             child: const Row(mainAxisSize: MainAxisSize.min, children: [
                               Icon(Icons.circle, size: 8, color: Color(0xFF10B981)),
                               SizedBox(width: 5),
-                              Text('Live', style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669))),
+                              Text('Live', style: TextStyle( fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669))),
                             ]),
                           ),
                       ],
@@ -560,9 +560,9 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       children: [
         Container(width: 88, height: 88, decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle), child: const Icon(Icons.search_off_rounded, size: 42, color: Color(0xFF2563EB))),
         const SizedBox(height: 16),
-        const Text('Tidak Ditemukan', style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+        const Text('Tidak Ditemukan', style: TextStyle( fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
         const SizedBox(height: 6),
-        const Text('Coba kata kunci lain', style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B))),
+        const Text('Coba kata kunci lain', style: TextStyle( fontSize: 13, color: Color(0xFF64748B))),
       ],
     ),
   );

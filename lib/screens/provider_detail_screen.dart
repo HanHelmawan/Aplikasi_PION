@@ -69,10 +69,10 @@ class ProviderDetailScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Detail Profil', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+        title: const Text('Detail Profil', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, )),
         actions: [
-          IconButton(icon: const Icon(Icons.share_outlined, color: Color(0xFF0F172A)), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
-          IconButton(icon: const Icon(Icons.favorite_border_rounded, color: Color(0xFF0F172A)), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+          IconButton(icon: const Icon(Icons.share_outlined, color: Color(0xFF0F172A)), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating))),
+          IconButton(icon: const Icon(Icons.favorite_border_rounded, color: Color(0xFF0F172A)), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating))),
         ],
       ),
       body: Container(
@@ -120,9 +120,9 @@ class ProviderDetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(provider.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                        Text(provider.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                         const SizedBox(height: 6),
-                        Text(provider.title, style: const TextStyle(fontSize: 15, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                        Text(provider.title, style: const TextStyle(fontSize: 15, color: Color(0xFF64748B), )),
                         const SizedBox(height: 20),
                         const Divider(color: Color(0xFFF1F5F9)),
                         const SizedBox(height: 20),
@@ -161,9 +161,9 @@ class ProviderDetailScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: const [
-                                Text('Garansi Pion Protection', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF031480), fontFamily: 'Inter')),
+                                Text('Garansi Pion Protection', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF031480), )),
                                 SizedBox(height: 4),
-                                Text('Pekerjaan dilindungi garansi 30 hari. Dana aman hingga selesai.', style: TextStyle(fontSize: 12, color: Color(0xFF2563EB), fontFamily: 'Inter', height: 1.4)),
+                                Text('Pekerjaan dilindungi garansi 30 hari. Dana aman hingga selesai.', style: TextStyle(fontSize: 12, color: Color(0xFF2563EB),  height: 1.4)),
                               ],
                             ),
                           ),
@@ -176,19 +176,19 @@ class ProviderDetailScreen extends StatelessWidget {
                   // ── About ─────────────────────────────────────────────────
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text('Tentang Pekerja', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                    child: Text('Tentang Pekerja', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   ),
                   const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(provider.bio, style: const TextStyle(fontSize: 15, color: Color(0xFF475569), height: 1.6, fontFamily: 'Inter')),
+                    child: Text(provider.bio, style: const TextStyle(fontSize: 15, color: Color(0xFF475569), height: 1.6, )),
                   ),
                   const SizedBox(height: 24),
 
                   // ── Skills & Badges ────────────────────────────────────────
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text('Keahlian & Pencapaian', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                    child: Text('Keahlian & Pencapaian', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   ),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
@@ -206,7 +206,7 @@ class ProviderDetailScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
-                            child: Text(s, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569), fontFamily: 'Inter')),
+                            child: Text(s, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569), )),
                           ),
                         )),
                       ],
@@ -217,7 +217,7 @@ class ProviderDetailScreen extends StatelessWidget {
                   // ── Portfolio Gallery ──────────────────────────────────────
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text('Portofolio Pekerjaan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                    child: Text('Portofolio Pekerjaan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -246,12 +246,12 @@ class ProviderDetailScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Ulasan Pelanggan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                        const Text('Ulasan Pelanggan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                         TextButton(
-                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
+                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating)),
                           style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
                           // ✅ AUDIT FIX (L-8): Gunakan jumlah ulasan dinamis dari data provider
-                          child: Text('Semua (${provider.reviews.length})', style: const TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                          child: Text('Semua (${provider.reviews.length})', style: const TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, )),
                         ),
                       ],
                     ),
@@ -294,7 +294,7 @@ class ProviderDetailScreen extends StatelessWidget {
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                     label: const FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 14)),
+                      child: Text('Hubungi', style: TextStyle( fontWeight: FontWeight.w700, fontSize: 14)),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2563EB),
@@ -328,7 +328,7 @@ class ProviderDetailScreen extends StatelessWidget {
                       ),
                       child: const FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                        child: Text('Pilih & Lanjutkan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, )),
                       ),
                     ),
                   ),
@@ -347,9 +347,9 @@ class ProviderDetailScreen extends StatelessWidget {
       children: [
         Icon(icon, color: color, size: 24),
         const SizedBox(height: 8),
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), )),
         const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter')),
+        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), )),
       ],
     );
   }
@@ -367,7 +367,7 @@ class ProviderDetailScreen extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 16),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color, fontFamily: 'Inter')),
+          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color, )),
         ],
       ),
     );
@@ -397,9 +397,9 @@ class ProviderDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(review.reviewerName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                  Text(review.reviewerName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   const SizedBox(height: 2),
-                  Text(review.timeAgo, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                  Text(review.timeAgo, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), )),
                 ],
               ),
             ),
@@ -413,7 +413,7 @@ class ProviderDetailScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Text(review.text, style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6, fontFamily: 'Inter')),
+        Text(review.text, style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6, )),
       ],
     ),
   );

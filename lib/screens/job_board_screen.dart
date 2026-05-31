@@ -40,13 +40,13 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
             : null,
         title: const Text(
           'Papan Tugas',
-          style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A)),
+          style: TextStyle(fontWeight: FontWeight.w800,  fontSize: 20, color: Color(0xFF0F172A)),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: Theme.of(context).primaryColor),
             onPressed: () async {
-              await TaskRequestStore.instance.fetchRequests();
+              await TaskRequestStore.instance.fetchRequests(onlyCurrentUser: false);
               if (mounted) setState(() {});
             },
           ),
@@ -115,7 +115,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                       child: Text(
                         f,
                         style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w700, fontFamily: 'Inter',
+                          fontSize: 13, fontWeight: FontWeight.w700, 
                           color: selected ? Colors.white : const Color(0xFF64748B),
                         ),
                       ),
@@ -142,9 +142,9 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
 
   Widget _statItem(String value, String label) => Column(
     children: [
-      Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, fontFamily: 'Inter')),
+      Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, )),
       const SizedBox(height: 2),
-      Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8), fontFamily: 'Inter')), // ✅ AUDIT FIX (L-1)
+      Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8), )), // ✅ AUDIT FIX (L-1)
     ],
   );
 
@@ -158,14 +158,14 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
           child: Icon(Icons.inbox_rounded, size: 56, color: Theme.of(context).primaryColor),
         ),
         const SizedBox(height: 24),
-        const Text('Belum Ada Permintaan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+        const Text('Belum Ada Permintaan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
         const SizedBox(height: 10),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 48),
           child: Text(
             'Permintaan dari pengguna akan muncul di sini. Tunggu sebentar atau coba refresh.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.6, fontFamily: 'Inter'),
+            style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.6, ),
           ),
         ),
       ],
@@ -199,12 +199,12 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                   children: const [
                     Icon(Icons.circle, size: 8, color: Color(0xFFD97706)),
                     SizedBox(width: 6),
-                    Text('Menunggu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFD97706), fontFamily: 'Inter')),
+                    Text('Menunggu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFD97706), )),
                   ],
                 ),
               ),
               const Spacer(),
-              Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+              Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), )),
             ],
           ),
         ),
@@ -234,26 +234,26 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text(r.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'), maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(r.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), ), maxLines: 3, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 10),
               // Category
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)), // ✅ AUDIT FIX (L-1)
-                child: Text(r.category, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                child: Text(r.category, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor, )),
               ),
               const SizedBox(height: 12),
               // Time & Location
               Row(children: [
                 const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 6),
-                Text(r.scheduledAt, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                Text(r.scheduledAt, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), )),
               ]),
               const SizedBox(height: 6),
               Row(children: [
                 const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 6),
-                Expanded(child: Text(r.location, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+                Expanded(child: Text(r.location, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), ), overflow: TextOverflow.ellipsis)),
               ]),
               const SizedBox(height: 16),
               // Action
@@ -266,7 +266,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                     MaterialPageRoute(builder: (_) => NegotiationScreen(request: r)),
                   ),
                   icon: const Icon(Icons.handshake_outlined, size: 18),
-                  label: const Text('Ambil Tugas Ini', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                  label: const Text('Ambil Tugas Ini', style: TextStyle(fontWeight: FontWeight.w700, )),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,

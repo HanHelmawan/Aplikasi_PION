@@ -42,7 +42,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
               )
             : null,
         title: const Text('Lacak Pekerjaan',
-            style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A))),
+            style: TextStyle(fontWeight: FontWeight.w800,  fontSize: 20, color: Color(0xFF0F172A))),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -84,10 +84,10 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(_steps[_step].label,
-                                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
+                                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800, )),
                             const SizedBox(height: 2),
                             Text(_steps[_step].desc,
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontFamily: 'Inter'), maxLines: 2), // ✅ AUDIT FIX (L-1)
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, ), maxLines: 2), // ✅ AUDIT FIX (L-1)
                           ],
                         ),
                       ),
@@ -106,7 +106,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text('Langkah ${_step + 1} dari ${_steps.length}',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontFamily: 'Inter')), // ✅ AUDIT FIX (L-1)
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, )), // ✅ AUDIT FIX (L-1)
                 ],
               ),
             ),
@@ -129,13 +129,13 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(req.assignedWorkerName ?? 'Worker',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                         const SizedBox(height: 2),
                         Text('Mitra Terverifikasi ✓',
-                            style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600, fontFamily: 'Inter')),
+                            style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600, )),
                         const SizedBox(height: 2),
                         Text(req.assignedWorkerPhone ?? '-',
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), )),
                       ],
                     ),
                   ),
@@ -167,7 +167,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Riwayat Status', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                  const Text('Riwayat Status', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   const SizedBox(height: 16),
                   ..._steps.asMap().entries.map((e) {
                     final idx = e.key;
@@ -203,13 +203,13 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                               children: [
                                 Text(s.label,
                                     style: TextStyle(
-                                      fontSize: 13, fontWeight: FontWeight.w700, fontFamily: 'Inter',
+                                      fontSize: 13, fontWeight: FontWeight.w700, 
                                       color: done ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                                     )),
                                 if (done)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 2),
-                                    child: Text(s.desc, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                                    child: Text(s.desc, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), )),
                                   ),
                               ],
                             ),
@@ -233,9 +233,9 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Harga Disepakati', style: TextStyle(fontSize: 14, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                  const Text('Harga Disepakati', style: TextStyle(fontSize: 14, color: Color(0xFF64748B), )),
                   Text(_fmtNum(finalPrice),
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, )),
                 ],
               ),
             ),
@@ -246,7 +246,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
               OutlinedButton.icon(
                 onPressed: () => setState(() => _step++),
                 icon: const Icon(Icons.skip_next_rounded, size: 18),
-                label: const Text('Simulasi: Langkah Berikutnya', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+                label: const Text('Simulasi: Langkah Berikutnya', style: TextStyle( fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF64748B),
                   side: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -283,7 +283,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                       ));
                     },
                     icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
-                    label: const Text('Konfirmasi Selesai', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                    label: const Text('Konfirmasi Selesai', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, )),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981),
                       foregroundColor: Colors.white,
@@ -335,7 +335,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              fontFamily: 'Inter',
+              
               color: Color(0xFF0F172A),
             ),
           ),
@@ -346,7 +346,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
             style: TextStyle(
               fontSize: 13,
               color: Color(0xFF64748B),
-              fontFamily: 'Inter',
+              
               height: 1.5,
             ),
           ),
@@ -368,7 +368,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF166534),
-                      fontFamily: 'Inter',
+                      
                       height: 1.4,
                     ),
                   ),

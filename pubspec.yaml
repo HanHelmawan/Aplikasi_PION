@@ -38,7 +38,7 @@ dependencies:
   http: ^1.6.0
   flutter_svg: ^2.2.4
   intl: ^0.19.0
-  google_fonts: ^8.1.0
+  # google_fonts: ^8.1.0
   shimmer: ^3.0.0
   shared_preferences: ^2.2.3
   url_launcher: ^6.3.1
@@ -47,6 +47,7 @@ dependencies:
   cloud_firestore: ^5.6.8
   google_sign_in: ^6.2.2
   cached_network_image: ^3.4.1  # ✅ AUDIT FIX: proper network image caching
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

@@ -176,7 +176,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 item.label,
                 style: TextStyle(
                   fontSize: 9.5,
-                  fontFamily: 'Inter',
+                  
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),
                 ),

@@ -96,12 +96,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Header
                 const Text(
                   'Edit Profil',
-                  style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                  style: TextStyle( fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'Perbarui informasi pribadi Anda',
-                  style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B)),
+                  style: TextStyle( fontSize: 14, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 28),
 
@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         right: 0, bottom: 0,
                         child: GestureDetector(
                           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Ubah foto — segera hadir', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating),
+                            const SnackBar(content: Text('Ubah foto — segera hadir', style: TextStyle()), behavior: SnackBarBehavior.floating),
                           ),
                           child: Container(
                             width: 32, height: 32,
@@ -164,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                      hintText: _isWorkerMode
                         ? 'Contoh: Berpengalaman 5 tahun di bidang kelistrikan...'
                         : 'Ceritakan sedikit tentang diri Anda...',
-                    hintStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF94A3B8), fontSize: 14),
+                    hintStyle: const TextStyle( color: Color(0xFF94A3B8), fontSize: 14),
                     filled: true,
                     fillColor: const Color(0xFFF8FAFC),
                     contentPadding: const EdgeInsets.all(16),
@@ -191,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         setState(() => _userName = _nameCtrl.text.isNotEmpty ? _nameCtrl.text : _userName);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('Profil berhasil diperbarui ✓', style: TextStyle(fontFamily: 'Inter')),
+                            content: const Text('Profil berhasil diperbarui ✓', style: TextStyle()),
                             behavior: SnackBarBehavior.floating,
                             backgroundColor: const Color(0xFF10B981),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(error, style: const TextStyle(fontFamily: 'Inter')),
+                            content: Text(error, style: const TextStyle()),
                             behavior: SnackBarBehavior.floating,
                             backgroundColor: const Color(0xFFEF4444),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static Widget _fieldLabel(String text) => Text(
         text,
         style: const TextStyle(
-          fontFamily: 'Inter',
+          
           fontSize: 13,
           fontWeight: FontWeight.w700,
           color: Color(0xFF334155),
@@ -231,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   InputDecoration _inputDeco(String hint, IconData icon) => InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF94A3B8), fontSize: 14),
+        hintStyle: const TextStyle( color: Color(0xFF94A3B8), fontSize: 14),
         prefixIcon: Icon(icon, size: 20, color: const Color(0xFF94A3B8)),
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
@@ -265,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               automaticallyImplyLeading: false,
               title: const Text(
                 'Profil',
-                style: TextStyle(fontFamily: 'Inter', fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                style: TextStyle( fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
               ),
               actions: [
                 IconButton(
@@ -343,12 +343,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     children: [
                                       Text(
                                         _userName,
-                                        style: const TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                                        style: const TextStyle( fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
                                         _userEmail,
-                                        style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: Colors.white.withValues(alpha: 0.75)),
+                                        style: TextStyle( fontSize: 13, color: Colors.white.withValues(alpha: 0.75)),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 12),
@@ -365,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             children: [
                                               Icon(Icons.verified_user_rounded, size: 13, color: Colors.white),
                                               SizedBox(width: 5),
-                                              Text('KYC Lulus', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                                              Text('KYC Lulus', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                                             ],
                                           ),
                                         )
@@ -382,7 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             children: [
                                               Icon(Icons.pending_rounded, size: 13, color: Colors.white),
                                               SizedBox(width: 5),
-                                              Text('KYC Belum Diverifikasi', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                                              Text('KYC Belum Diverifikasi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                                             ],
                                           ),
                                         ),
@@ -445,12 +445,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Text(
                                   _isWorkerMode ? 'Mode Kerja Aktif' : 'Mode Cari Jasa',
-                                  style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                                  style: const TextStyle( fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
                                   _isWorkerMode ? 'Siap menerima penawaran kerja.' : 'Cari bantuan untuk tugas Anda.',
-                                  style: const TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B)),
+                                  style: const TextStyle( fontSize: 13, color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -501,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         label: 'Pusat Bantuan',
                         subtitle: 'FAQ & kontak dukungan',
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pusat bantuan — segera hadir', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating),
+                          const SnackBar(content: Text('Pusat bantuan — segera hadir', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
                       _MenuItem(
@@ -510,7 +510,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: 'Versi aplikasi & lisensi',
                         trailingText: 'v1.0.3',
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pion Versi 1.0.3', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating),
+                          const SnackBar(content: Text('Pion Versi 1.0.3', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
                     ]),
@@ -532,13 +532,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 6),
             Text(
               value,
-              style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800, color: color),
+              style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: color),
             ),
             const SizedBox(height: 3),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: Color(0xFF94A3B8), height: 1.3),
+              style: const TextStyle( fontSize: 11, color: Color(0xFF94A3B8), height: 1.3),
             ),
           ],
         ),
@@ -566,12 +566,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: BoxDecoration(color: _primaryLight, borderRadius: BorderRadius.circular(14)),
                   child: Icon(e.value.icon, color: _primaryColor, size: 22),
                 ),
-                title: Text(e.value.label, style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                title: Text(e.value.label, style: const TextStyle( fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                 subtitle: e.value.subtitle != null
-                    ? Text(e.value.subtitle!, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF94A3B8)))
+                    ? Text(e.value.subtitle!, style: const TextStyle( fontSize: 12, color: Color(0xFF94A3B8)))
                     : null,
                 trailing: e.value.trailingText != null
-                    ? Text(e.value.trailingText!, style: const TextStyle(fontFamily: 'Inter', fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600))
+                    ? Text(e.value.trailingText!, style: const TextStyle( fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600))
                     : const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 22),
                 onTap: e.value.onTap,
               ),

@@ -75,7 +75,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Future<void> _confirm() async {
     if (_offerPrice == 0) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Masukkan penawaran harga Anda.', style: TextStyle(fontFamily: 'Inter')),
+        content: Text('Masukkan penawaran harga Anda.', style: TextStyle()),
         backgroundColor: Color(0xFFEF4444),
       ));
       return;
@@ -112,7 +112,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (!mounted) return;
       setState(() => _isProcessing = false);
       messenger.showSnackBar(SnackBar(
-        content: Text('Gagal mengirim permintaan: $e', style: const TextStyle(fontFamily: 'Inter')),
+        content: Text('Gagal mengirim permintaan: $e', style: const TextStyle()),
         backgroundColor: const Color(0xFFEF4444),
         behavior: SnackBarBehavior.floating,
       ));
@@ -126,7 +126,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Permintaan berhasil dikirim! ✓', style: TextStyle(fontFamily: 'Inter')),
+        content: const Text('Permintaan berhasil dikirim! ✓', style: TextStyle()),
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xFF10B981),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -144,7 +144,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
-        title: const Text('Konfirmasi Pesanan', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+        title: const Text('Konfirmasi Pesanan', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, )),
         centerTitle: true,
       ),
       body: Container(
@@ -178,7 +178,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       Expanded(
                         child: Text(
                           'Pembayaran Anda aman. Dana ditahan di sistem Escrow Pion hingga pekerjaan selesai.',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF166534), fontFamily: 'Inter', height: 1.4),
+                          style: TextStyle(fontSize: 13, color: Color(0xFF166534),  height: 1.4),
                         ),
                       ),
                     ],
@@ -187,7 +187,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 24),
 
                 // ── Provider ──────────────────────────────────────────────
-                const Text('Penyedia Jasa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                const Text('Penyedia Jasa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -200,9 +200,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.providerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                            Text(widget.providerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                             const SizedBox(height: 2),
-                            Text(widget.category, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                            Text(widget.category, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), )),
                           ],
                         ),
                       ),
@@ -216,7 +216,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           children: [
                             const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
                             const SizedBox(width: 4),
-                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                            Text('4.9', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, )),
                           ],
                         ),
                       ),
@@ -226,7 +226,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 32),
 
                 // ── Service Details ───────────────────────────────────────────
-                const Text('Detail Pekerjaan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                const Text('Detail Pekerjaan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -234,15 +234,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.taskTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                      Text(widget.taskTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _descriptionController,
                         maxLines: 3,
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF475569), fontFamily: 'Inter'),
+                        style: const TextStyle(fontSize: 14, color: Color(0xFF475569), ),
                         decoration: InputDecoration(
                           hintText: 'Tambahkan catatan khusus untuk pekerja...',
-                          hintStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF94A3B8)),
+                          hintStyle: const TextStyle( color: Color(0xFF94A3B8)),
                           filled: true,
                           fillColor: const Color(0xFFF8FAFC),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
@@ -274,7 +274,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   children: [
                                     Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF94A3B8), size: 26),
                                     SizedBox(height: 4),
-                                    Text('Foto', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                                    Text('Foto', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), )),
                                   ],
                                 ),
                               ),
@@ -288,16 +288,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 32),
 
                 // ── Price Offer ───────────────────────────────────────────
-                const Text('Penawaran Harga Anda', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                const Text('Penawaran Harga Anda', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                 const SizedBox(height: 4),
-                const Text('Anda dapat bernegosiasi harga dengan penyedia jasa.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                const Text('Anda dapat bernegosiasi harga dengan penyedia jasa.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), )),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))]),
                   child: Row(
                     children: [
-                      Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                      Text('Rp', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, )),
                       const SizedBox(width: 16),
                       Expanded(
                         child: TextField(
@@ -305,7 +305,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           onChanged: _onPriceChanged,
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), ),
                           decoration: const InputDecoration(
                             hintText: '0',
                             border: InputBorder.none,
@@ -322,7 +322,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 32),
 
                 // ── Price Summary ─────────────────────────────────────────
-                const Text('Rincian Pembayaran', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                const Text('Rincian Pembayaran', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -365,7 +365,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   child: _isProcessing
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                      : const Text('Kirim Permintaan Pekerjaan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Inter')),
+                      : const Text('Kirim Permintaan Pekerjaan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, )),
                 ),
               ),
             ),
@@ -386,12 +386,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             fontSize: 14,
             fontWeight: isNormal ? FontWeight.w500 : FontWeight.w800,
             color: isNormal ? const Color(0xFF64748B) : const Color(0xFF0F172A),
-            fontFamily: 'Inter',
+            
           ),
         ),
       ),
       const SizedBox(width: 12),
-      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : (theme?.primaryColor ?? const Color(0xFF2563EB)), fontFamily: 'Inter')),
+      Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: isNormal ? const Color(0xFF0F172A) : (theme?.primaryColor ?? const Color(0xFF2563EB)), )),
     ],
   );
 }

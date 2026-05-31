@@ -224,7 +224,7 @@ class _RatingScreenState extends State<RatingScreen> {
                   } else {
                     messenger.showSnackBar(
                       SnackBar(
-                        content: Text(error, style: const TextStyle(fontFamily: 'Inter')),
+                        content: Text(error, style: const TextStyle()),
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: const Color(0xFFEF4444),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

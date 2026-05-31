@@ -82,7 +82,7 @@ class WorkerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           workerName,
-                          style: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          style: const TextStyle( fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                         ),
                       ),
                       Container(
@@ -93,14 +93,14 @@ class WorkerCard extends StatelessWidget {
                         ),
                         child: Text(
                           worker['category'] as String,
-                          style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w700, color: Color(worker['categoryIconColor'] as int)),
+                          style: TextStyle( fontSize: 10, fontWeight: FontWeight.w700, color: Color(worker['categoryIconColor'] as int)),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 3),
                   Text(worker['specialty'] as String,
-                      style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B)),
+                      style: const TextStyle( fontSize: 12, color: Color(0xFF64748B)),
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
                   FittedBox(
@@ -110,15 +110,15 @@ class WorkerCard extends StatelessWidget {
                       children: [
                         const Icon(Icons.star_rounded, size: 14, color: Color(0xFFF59E0B)),
                         const SizedBox(width: 3),
-                        Text(worker['rating'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                        Text(worker['rating'] as String, style: const TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                         const SizedBox(width: 12),
                         const Icon(Icons.task_alt_rounded, size: 13, color: Color(0xFF10B981)),
                         const SizedBox(width: 3),
-                        Text('${worker['jobs']} tugas', style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Color(0xFF64748B))),
+                        Text('${worker['jobs']} tugas', style: const TextStyle( fontSize: 12, color: Color(0xFF64748B))),
                         const SizedBox(width: 16),
                         const Icon(Icons.near_me_rounded, size: 13, color: Color(0xFF94A3B8)),
                         const SizedBox(width: 3),
-                        Text(worker['distance'] as String, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
+                        Text(worker['distance'] as String, style: const TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
                       ],
                     ),
                   ),
@@ -145,7 +145,7 @@ class WorkerCard extends StatelessWidget {
                                 children: [
                                   Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF2563EB)),
                                   SizedBox(width: 5),
-                                  Text('Hubungi', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
+                                  Text('Hubungi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
                                 ],
                               ),
                             ),
@@ -168,7 +168,7 @@ class WorkerCard extends StatelessWidget {
                                 children: [
                                   Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
                                   SizedBox(width: 5),
-                                  Text('Lihat Profil', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                                  Text('Lihat Profil', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                                 ],
                               ),
                             ),

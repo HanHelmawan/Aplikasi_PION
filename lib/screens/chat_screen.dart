@@ -112,7 +112,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.call_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating))),
+          IconButton(icon: const Icon(Icons.call_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating))),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert_rounded, color: theme.colorScheme.primary),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -192,7 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.attach_file_rounded, color: Color(0xFF94A3B8)),
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating)),
                 ),
                 const SizedBox(width: 4),
                 Expanded(

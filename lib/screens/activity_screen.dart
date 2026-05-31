@@ -14,11 +14,26 @@ class _ActivityScreenState extends State<ActivityScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   final _store = TaskRequestStore.instance;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _fetchRequests();
+  }
+
+  Future<void> _fetchRequests() async {
+    setState(() => _isLoading = true);
+    try {
+      await _store.fetchRequests(onlyCurrentUser: true);
+    } catch (e) {
+      debugPrint('Error fetching requests: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -90,7 +105,7 @@ class _ActivityScreenState extends State<ActivityScreen>
               title: const Text(
                 'Riwayat',
                 style: TextStyle(
-                  fontFamily: 'Inter',
+                  
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF0F172A),
@@ -99,7 +114,7 @@ class _ActivityScreenState extends State<ActivityScreen>
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0525BB)),
-                  onPressed: () => setState(() {}),
+                  onPressed: _fetchRequests,
                 ),
               ],
               bottom: PreferredSize(
@@ -111,12 +126,12 @@ class _ActivityScreenState extends State<ActivityScreen>
                     labelColor: const Color(0xFF0525BB),
                     unselectedLabelColor: const Color(0xFF94A3B8),
                     labelStyle: const TextStyle(
-                      fontFamily: 'Inter',
+                      
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                     unselectedLabelStyle: const TextStyle(
-                      fontFamily: 'Inter',
+                      
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
                     ),
@@ -204,7 +219,7 @@ class _ActivityScreenState extends State<ActivityScreen>
       child: Text(
         '$count',
         style: TextStyle(
-          fontFamily: 'Inter',
+          
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: color,
@@ -219,6 +234,9 @@ class _ActivityScreenState extends State<ActivityScreen>
     required String emptyTitle,
     required String emptySubtitle,
   }) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF0525BB)));
+    }
     if (items.isEmpty) return _buildEmpty(emptyIcon, emptyTitle, emptySubtitle);
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
@@ -245,7 +263,7 @@ class _ActivityScreenState extends State<ActivityScreen>
           Text(
             title,
             style: const TextStyle(
-              fontFamily: 'Inter',
+              
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: Color(0xFF0F172A),
@@ -258,7 +276,7 @@ class _ActivityScreenState extends State<ActivityScreen>
               subtitle,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Inter',
+                
                 fontSize: 14,
                 color: Color(0xFF64748B),
                 height: 1.6,
@@ -300,7 +318,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                       child: Text(
                         r.title,
                         style: const TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF0F172A),
@@ -319,7 +337,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                       child: Text(
                         r.status.label,
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: statusColor,
@@ -340,7 +358,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                   child: Text(
                     r.category,
                     style: const TextStyle(
-                      fontFamily: 'Inter',
+                      
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF0525BB),
@@ -364,7 +382,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                           ? 'Final: ${_fmtPrice(r.finalPrice!)}'
                           : 'Estimasi: ${_fmtPrice(r.estimatedPrice)}',
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                        
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: r.finalPrice != null
@@ -400,7 +418,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                             Text(
                               r.assignedWorkerName!,
                               style: const TextStyle(
-                                fontFamily: 'Inter',
+                                
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF0F172A),
@@ -409,7 +427,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                             const Text(
                               'Mitra Pion',
                               style: TextStyle(
-                                fontFamily: 'Inter',
+                                
                                 fontSize: 11,
                                 color: Color(0xFF94A3B8),
                               ),
@@ -463,7 +481,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                             children: [
                               Icon(Icons.lock_open_rounded, size: 12, color: Color(0xFF059669)),
                               SizedBox(width: 4),
-                              Text('Dana Cair', style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669))),
+                              Text('Dana Cair', style: TextStyle( fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669))),
                             ],
                           ),
                         ),
@@ -475,7 +493,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                                 ? _fmtPrice(r.finalPrice!)
                                 : _fmtPrice(r.estimatedPrice),
                             style: const TextStyle(
-                              fontFamily: 'Inter',
+                              
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFF0525BB),
@@ -485,7 +503,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                         // Tanggal selesai
                         Text(
                           '${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}',
-                          style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: Color(0xFF94A3B8)),
+                          style: const TextStyle( fontSize: 11, color: Color(0xFF94A3B8)),
                         ),
                       ],
                     ),
@@ -517,7 +535,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                           children: [
                             Icon(Icons.star_rounded, size: 15, color: Color(0xFFF59E0B)),
                             SizedBox(width: 6),
-                            Text('Beri Ulasan untuk Mitra', style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD97706))),
+                            Text('Beri Ulasan untuk Mitra', style: TextStyle( fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD97706))),
                           ],
                         ),
                       ),
@@ -534,7 +552,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                   Text(
                     '#${r.id}',
                     style: const TextStyle(
-                      fontFamily: 'Inter',
+                      
                       fontSize: 11,
                       color: Color(0xFFCBD5E1),
                     ),
@@ -543,7 +561,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                   Text(
                     '${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}',
                     style: const TextStyle(
-                      fontFamily: 'Inter',
+                      
                       fontSize: 11,
                       color: Color(0xFF94A3B8),
                     ),
@@ -564,7 +582,7 @@ class _ActivityScreenState extends State<ActivityScreen>
             child: Text(
               text,
               style: const TextStyle(
-                fontFamily: 'Inter',
+                
                 fontSize: 12,
                 color: Color(0xFF64748B),
               ),
@@ -595,7 +613,7 @@ class _ActivityScreenState extends State<ActivityScreen>
               Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Inter',
+                  
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF0525BB),

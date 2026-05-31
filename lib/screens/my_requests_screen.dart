@@ -12,6 +12,26 @@ class MyRequestsScreen extends StatefulWidget {
 
 class _MyRequestsScreenState extends State<MyRequestsScreen> {
   final _store = TaskRequestStore.instance;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMyRequests();
+  }
+
+  Future<void> _fetchMyRequests() async {
+    setState(() => _isLoading = true);
+    try {
+      await _store.fetchRequests(onlyCurrentUser: true);
+    } catch (e) {
+      debugPrint('Error fetching task requests: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   String _fmtPrice(double v) {
     if (v <= 0) return 'Belum ditentukan';
@@ -50,11 +70,11 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Riwayat Permintaan',
-            style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 20, color: Color(0xFF0F172A))),
+            style: TextStyle(fontWeight: FontWeight.w800,  fontSize: 20, color: Color(0xFF0F172A))),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Color(0xFF2563EB)),
-            onPressed: () => setState(() {}),
+            onPressed: _fetchMyRequests,
           ),
         ],
       ),
@@ -67,7 +87,9 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             stops: [0.3, 1.0],
           ),
         ),
-        child: requests.isEmpty ? _buildEmpty() : ListView.builder(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF2563EB)))
+            : requests.isEmpty ? _buildEmpty() : ListView.builder(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
           itemCount: requests.length,
           itemBuilder: (_, i) => _buildCard(requests[i]),
@@ -87,14 +109,14 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
         ),
         const SizedBox(height: 24),
         const Text('Belum Ada Riwayat',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
         const SizedBox(height: 10),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 48),
           child: Text(
             'Permintaan yang Anda buat akan muncul di sini.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.6, fontFamily: 'Inter'),
+            style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.6, ),
           ),
         ),
       ],
@@ -123,14 +145,14 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             children: [
               Expanded(
                 child: Text(r.title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter'),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), ),
                     maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
               const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: statusColor.withValues(alpha: 0.3))),
-                child: Text(r.status.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor, fontFamily: 'Inter')),
+                child: Text(r.status.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor, )),
               ),
             ],
           ),
@@ -140,7 +162,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
-            child: Text(r.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+            child: Text(r.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), )),
           ),
           const SizedBox(height: 10),
 
@@ -148,13 +170,13 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           Row(children: [
             const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF94A3B8)),
             const SizedBox(width: 6),
-            Text(r.scheduledAt, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter')),
+            Text(r.scheduledAt, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), )),
           ]),
           const SizedBox(height: 4),
           Row(children: [
             const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFF94A3B8)),
             const SizedBox(width: 6),
-            Expanded(child: Text(r.location, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+            Expanded(child: Text(r.location, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), ), overflow: TextOverflow.ellipsis)),
           ]),
           const SizedBox(height: 4),
           FittedBox(
@@ -164,11 +186,11 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               const Icon(Icons.monetization_on_rounded, size: 13, color: Color(0xFF16A34A)),
               const SizedBox(width: 6),
               Text('Estimasi: ${_fmtPrice(r.estimatedPrice)}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), fontFamily: 'Inter')),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF16A34A), )),
               if (r.finalPrice != null) ...[
                 const Text(' → ', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
                 Text('Final: ${_fmtPrice(r.finalPrice!)}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), )),
               ],
             ]),
           ),
@@ -190,8 +212,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(r.assignedWorkerName!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontFamily: 'Inter')),
-                  const Text('Mitra Pion', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                  Text(r.assignedWorkerName!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), )),
+                  const Text('Mitra Pion', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), )),
                 ],
               )),
               // Tracking button for active jobs
@@ -209,7 +231,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                     children: [
                       Icon(Icons.gps_fixed_rounded, size: 14, color: Color(0xFF2563EB)),
                       SizedBox(width: 4),
-                      Text('Lacak', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), fontFamily: 'Inter')),
+                      Text('Lacak', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB), )),
                     ],
                   ),
                 ),
@@ -221,7 +243,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           const Divider(height: 1, color: Color(0xFFF1F5F9)),
           const SizedBox(height: 10),
           Row(children: [
-            Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1), fontFamily: 'Inter')),
+            Text('#${r.id}', style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1), )),
             const Spacer(),
             if (r.status == RequestStatus.menunggu)
               TextButton.icon(
@@ -230,15 +252,15 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      title: const Text('Batalkan Tugas?', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w800)),
+                      title: const Text('Batalkan Tugas?', style: TextStyle( fontWeight: FontWeight.w800)),
                       content: const Text(
                         'Tugas ini akan dibatalkan dan tidak dapat dikembalikan. Yakin ingin membatalkan?',
-                        style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B), height: 1.5),
+                        style: TextStyle( fontSize: 14, color: Color(0xFF64748B), height: 1.5),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('Tidak', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                          child: const Text('Tidak', style: TextStyle( fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(ctx, true),
@@ -247,7 +269,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                             foregroundColor: Colors.white,
                             shape: const StadiumBorder(),
                           ),
-                          child: const Text('Ya, Batalkan', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
+                          child: const Text('Ya, Batalkan', style: TextStyle( fontWeight: FontWeight.w700)),
                         ),
                       ],
                     ),
@@ -260,7 +282,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                   }
                 },
                 icon: const Icon(Icons.cancel_outlined, size: 14, color: Color(0xFFEF4444)),
-                label: const Text('Batalkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFEF4444), fontFamily: 'Inter')),
+                label: const Text('Batalkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFEF4444), )),
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
                   minimumSize: Size.zero,
@@ -269,7 +291,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               )
             else
               Text('${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), )),
           ]),
         ],
       ),

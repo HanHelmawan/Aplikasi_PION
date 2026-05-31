@@ -61,7 +61,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
     final raw = double.tryParse(_offerController.text.replaceAll('.', '').replaceAll(',', '')) ?? 0;
     if (raw <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Masukkan harga penawaran Anda.', style: TextStyle(fontFamily: 'Inter')),
+        content: Text('Masukkan harga penawaran Anda.', style: TextStyle()),
         behavior: SnackBarBehavior.floating,
       ));
       return;
@@ -76,7 +76,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
     TaskRequestStore.instance.updateRequest(ditawar);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Penawaran ${_fmtNum(raw)} dikirim ke pengguna.', style: const TextStyle(fontFamily: 'Inter')),
+      content: Text('Penawaran ${_fmtNum(raw)} dikirim ke pengguna.', style: const TextStyle()),
       behavior: SnackBarBehavior.floating,
       backgroundColor: Theme.of(context).primaryColor,
     ));
@@ -115,7 +115,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Detail & Negosiasi',
-            style: TextStyle(fontWeight: FontWeight.w800, fontFamily: 'Inter', fontSize: 18, color: Color(0xFF0F172A))),
+            style: TextStyle(fontWeight: FontWeight.w800,  fontSize: 18, color: Color(0xFF0F172A))),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -150,7 +150,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Theme.of(context).primaryColor,
-                            fontFamily: 'Inter',
+                            
                           ),
                         ),
                       ),
@@ -158,12 +158,12 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(color: const Color(0xFFFFFBEB), borderRadius: BorderRadius.circular(12)),
-                        child: const Text('Menunggu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFD97706), fontFamily: 'Inter')),
+                        child: const Text('Menunggu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFD97706), )),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(req.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                  Text(req.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   const SizedBox(height: 10),
                   _metaRow(Icons.access_time_rounded, req.scheduledAt),
                   const SizedBox(height: 6),
@@ -197,10 +197,10 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Harga Estimasi Pengguna', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), fontFamily: 'Inter')),
+                  const Text('Harga Estimasi Pengguna', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), )),
                   const SizedBox(height: 4),
                   Text(req.estimatedPrice > 0 ? _fmt : 'Belum ditentukan',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor, )),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -208,7 +208,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _acceptUserPrice,
                       icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                      label: const Text('Terima Harga Ini', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                      label: const Text('Terima Harga Ini', style: TextStyle(fontWeight: FontWeight.w700, )),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF16A34A),
                         foregroundColor: Colors.white,
@@ -227,9 +227,9 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Atau Ajukan Penawaran Harga', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontFamily: 'Inter')),
+                  const Text('Atau Ajukan Penawaran Harga', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
                   const SizedBox(height: 4),
-                  const Text('Masukkan harga yang Anda tawarkan. Pengguna akan dikonfirmasi.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter')),
+                  const Text('Masukkan harga yang Anda tawarkan. Pengguna akan dikonfirmasi.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), )),
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
@@ -247,14 +247,14 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                             color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text('Rp', style: TextStyle(fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
+                          child: Text('Rp', style: TextStyle(fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, )),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
                             controller: _offerController,
                             keyboardType: TextInputType.number,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'Inter'),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, ),
                             decoration: const InputDecoration(
                               hintText: '0',
                               hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
@@ -273,7 +273,7 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _submitOffer,
                       icon: const Icon(Icons.send_rounded, size: 18),
-                      label: const Text('Kirim Penawaran', style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+                      label: const Text('Kirim Penawaran', style: TextStyle(fontWeight: FontWeight.w700, )),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
@@ -306,6 +306,6 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
   Widget _metaRow(IconData icon, String text) => Row(children: [
     Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
     const SizedBox(width: 6),
-    Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Inter'), overflow: TextOverflow.ellipsis)),
+    Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), ), overflow: TextOverflow.ellipsis)),
   ]);
 }

@@ -15,18 +15,16 @@ service cloud.firestore {
     }
 
     // ── Task Requests Collection ──────────────────────────────────────────────
-    // User hanya bisa membaca/menulis task_requests miliknya sendiri (userId match).
+    // Pembacaan dan update diizinkan untuk semua user terautentikasi agar pekerja bisa melihat dan mengambil tugas.
     match /task_requests/{docId} {
-      // Baca: hanya jika userId di dokumen sama dengan UID user yang login
-      allow read: if request.auth != null
-        && resource.data.userId == request.auth.uid;
+      allow read, update: if request.auth != null;
 
       // Buat baru: pastikan userId yang diisi adalah UID sendiri (tidak bisa impersonate)
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid;
 
-      // Update/hapus: hanya pemilik task
-      allow update, delete: if request.auth != null
+      // Hapus: hanya pemilik task
+      allow delete: if request.auth != null
         && resource.data.userId == request.auth.uid;
     }
 

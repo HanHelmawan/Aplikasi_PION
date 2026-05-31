@@ -148,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
                       const Text(
                         'Pion',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 48,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
@@ -162,7 +162,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Text(
                         'Jasa Hiperlokal di Sekitarmu',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                           color: Colors.white.withValues(alpha: 0.75),
@@ -193,7 +193,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       'Memuat aplikasi...',
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                        
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.5),
                       ),

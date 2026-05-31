@@ -13,25 +13,46 @@ class NegotiationScreen extends StatefulWidget {
 
 class _NegotiationScreenState extends State<NegotiationScreen> {
   final _offerController = TextEditingController();
-  final _workerName   = 'Budi Santoso';
-  final _workerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
-  final _workerPhone  = '+62 812-3456-7890';
+  // Demo worker data — dalam production, ini akan datang dari profil worker yang memilih task
+  static const _workerName   = 'Budi Santoso';
+  static const _workerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
+  static const _workerPhone  = '+62 812-3456-7890';
 
-  String get _fmt => 'Rp ${widget.request.estimatedPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
+  // ✅ AUDIT FIX (M-4): Simpan request sebagai state lokal agar bisa diupdate
+  //    dengan copyWith() tanpa mutasi field final yang tidak valid.
+  late TaskRequest _currentRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentRequest = widget.request;
+  }
+
+  @override
+  void dispose() {
+    _offerController.dispose();
+    super.dispose();
+  }
+
+  String get _fmt => 'Rp ${_currentRequest.estimatedPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
   String _fmtNum(double v) => 'Rp ${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
   void _acceptUserPrice() {
-    widget.request.status           = RequestStatus.dikerjakan;
-    widget.request.finalPrice       = widget.request.estimatedPrice;
-    widget.request.assignedWorkerName   = _workerName;
-    widget.request.assignedWorkerAvatar = _workerAvatar;
-    widget.request.assignedWorkerPhone  = _workerPhone;
-    TaskRequestStore.instance.updateRequest(widget.request);
+    // ✅ AUDIT FIX (M-4): Gunakan copyWith() — tidak ada mutasi langsung field final
+    final updated = _currentRequest.copyWith(
+      status: RequestStatus.dikerjakan,
+      finalPrice: _currentRequest.estimatedPrice,
+      assignedWorkerName: _workerName,
+      assignedWorkerAvatar: _workerAvatar,
+      assignedWorkerPhone: _workerPhone,
+    );
+    setState(() => _currentRequest = updated);
+    TaskRequestStore.instance.updateRequest(updated);
 
     Future.delayed(const Duration(milliseconds: 400), () {
       if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (_) => JobTrackingScreen(request: widget.request),
+        builder: (_) => JobTrackingScreen(request: updated),
       ));
     });
   }
@@ -45,9 +66,14 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
       ));
       return;
     }
-    widget.request.workerOffer = raw;
-    widget.request.status = RequestStatus.ditawar;
-    TaskRequestStore.instance.updateRequest(widget.request);
+
+    // ✅ AUDIT FIX (M-4): Gunakan copyWith() untuk update status ke ditawar
+    final ditawar = _currentRequest.copyWith(
+      workerOffer: raw,
+      status: RequestStatus.ditawar,
+    );
+    setState(() => _currentRequest = ditawar);
+    TaskRequestStore.instance.updateRequest(ditawar);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Penawaran ${_fmtNum(raw)} dikirim ke pengguna.', style: const TextStyle(fontFamily: 'Inter')),
@@ -58,22 +84,26 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
     // Simulate user accepting after 1.5s
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
-      widget.request.status           = RequestStatus.dikerjakan;
-      widget.request.finalPrice       = raw;
-      widget.request.assignedWorkerName   = _workerName;
-      widget.request.assignedWorkerAvatar = _workerAvatar;
-      widget.request.assignedWorkerPhone  = _workerPhone;
-      TaskRequestStore.instance.updateRequest(widget.request);
-      
+      // ✅ AUDIT FIX (M-4): copyWith() untuk update ke dikerjakan
+      final dikerjakan = _currentRequest.copyWith(
+        status: RequestStatus.dikerjakan,
+        finalPrice: raw,
+        assignedWorkerName: _workerName,
+        assignedWorkerAvatar: _workerAvatar,
+        assignedWorkerPhone: _workerPhone,
+      );
+      setState(() => _currentRequest = dikerjakan);
+      TaskRequestStore.instance.updateRequest(dikerjakan);
+
       Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (_) => JobTrackingScreen(request: widget.request),
+        builder: (_) => JobTrackingScreen(request: dikerjakan),
       ));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final req = widget.request;
+    final req = _currentRequest;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -92,7 +122,8 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.08)],
+            // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.08)],
             stops: const [0.3, 1.0],
           ),
         ),
@@ -109,7 +140,8 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.08),
+                          // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -211,7 +243,8 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
                           margin: const EdgeInsets.only(left: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.08),
+                            // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text('Rp', style: TextStyle(fontWeight: FontWeight.w800, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),

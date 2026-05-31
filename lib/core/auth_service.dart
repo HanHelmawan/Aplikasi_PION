@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import '../models/task_request.dart'; // for TaskRequestStore.clear()
 
 class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -131,6 +132,11 @@ class AuthService {
           'name': doc['name'] ?? firebaseUser.displayName ?? 'Pengguna',
           'email': firebaseUser.email ?? '',
           'isWorkerMode': doc['isWorkerMode'] ?? false,
+          'phone': doc.data()?['phone'] ?? '',
+          'bio': doc.data()?['bio'] ?? '',
+          // ✅ AUDIT FIX (L-5/L-6): Tambahkan avatarUrl dan kycPassed
+          'avatarUrl': doc.data()?['avatarUrl'] ?? '',
+          'kycPassed': doc.data()?['kycPassed'] ?? false,
         };
       }
     } catch (e) {
@@ -149,6 +155,9 @@ class AuthService {
   // ── Logout ────────────────────────────────────────────────────────────────
 
   static Future<void> logout() async {
+    // ✅ AUDIT FIX (Group E): Bersihkan data store sebelum logout
+    //    agar data user sebelumnya tidak terlihat oleh user berikutnya di device yang sama
+    TaskRequestStore.instance.clear();
     await _auth.signOut();
     await _googleSignIn.signOut();
     // NOTE: We intentionally keep location preferences so users

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/task_request.dart';
 import '../core/theme.dart';
 
@@ -14,6 +16,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final _priceController  = TextEditingController();
 
   bool _isProcessing = false;
+  bool _isSubmitting = false;
   final List<_TagItem> _tags = [];
   String _whenLabel = 'Sesegera mungkin';
   String _whereLabel = 'Lokasi Saat Ini';
@@ -83,15 +86,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     setState(() => _photoUrls.add('https://picsum.photos/seed/${_photoUrls.length + 1}/200/200'));
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_issueController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mohon deskripsikan masalah Anda.'), backgroundColor: Color(0xFFDC2626)));
       return;
     }
     final rawPrice = double.tryParse(_priceController.text.replaceAll('.', '').replaceAll(',', '')) ?? 0;
 
+    setState(() => _isSubmitting = true);
+
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
     final request = TaskRequest(
-      id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+      id: FirebaseFirestore.instance.collection('task_requests').doc().id,
+      userId: uid,
       title: _issueController.text.trim(),
       category: _tags.isNotEmpty ? _tags.first.label : 'Umum',
       location: _whereLabel,
@@ -100,17 +107,36 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       photoUrls: List.from(_photoUrls),
       createdAt: DateTime.now(),
     );
-    TaskRequestStore.instance.add(request);
 
-    // Return to home and show confirmation
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Permintaan berhasil dikirim! Cek riwayat di Profil.', style: TextStyle(fontFamily: 'Inter')),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xFF16A34A),
-      ),
-    );
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await TaskRequestStore.instance.add(request);
+      
+      setState(() => _isSubmitting = false);
+      
+      // Return to home and show confirmation
+      navigator.popUntil((route) => route.isFirst);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Permintaan berhasil dikirim! Cek riwayat di Profil.', style: TextStyle(fontFamily: 'Inter')),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Color(0xFF16A34A),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengirim permintaan: $e', style: const TextStyle(fontFamily: 'Inter')),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -298,8 +324,17 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             SizedBox(
               width: double.infinity, height: 56,
               child: ElevatedButton(
-                onPressed: _submit,
-                child: const Text('Lanjutkan'),
+                onPressed: _isSubmitting ? null : _submit,
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : const Text('Lanjutkan'),
               ),
             ),
           ],

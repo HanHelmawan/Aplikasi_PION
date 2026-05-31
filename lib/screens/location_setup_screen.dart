@@ -83,7 +83,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: Theme.of(ctx).primaryColor.withOpacity(0.08),
+                color: Theme.of(ctx).primaryColor.withValues(alpha: 0.08), // ✅ AUDIT FIX (L-1)
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -255,8 +255,8 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                   shape: BoxShape.circle,
                                   gradient: RadialGradient(
                                     colors: [
-                                      Theme.of(context).primaryColor.withOpacity(0.12),
-                                      Theme.of(context).primaryColor.withOpacity(0.02),
+                                      Theme.of(context).primaryColor.withValues(alpha: 0.12), // ✅ AUDIT FIX (L-1)
+                                      Theme.of(context).primaryColor.withValues(alpha: 0.02),
                                     ],
                                   ),
                                 ),
@@ -266,7 +266,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                 width: 140,
                                 height: 140,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor.withOpacity(0.08),
+                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.08), // ✅ AUDIT FIX (L-1)
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -330,11 +330,11 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                             borderRadius: BorderRadius.circular(16),
                             color: _gpsGranted
                                 ? const Color(0xFFD1FAE5)
-                                : (Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08)),
+                                : (Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08)), // ✅ AUDIT FIX (L-1)
                             border: Border.all(
                               color: _gpsGranted
                                   ? const Color(0xFF10B981)
-                                  : Theme.of(context).primaryColor.withOpacity(0.3),
+                                  : Theme.of(context).primaryColor.withValues(alpha: 0.3), // ✅ AUDIT FIX (L-1)
                               width: 1.5,
                             ),
                           ),
@@ -350,7 +350,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               decoration: BoxDecoration(
                                 color: _gpsGranted
                                     ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                    : Theme.of(context).primaryColor.withOpacity(0.1),
+                                    : Theme.of(context).primaryColor.withValues(alpha: 0.1), // ✅ AUDIT FIX (L-1)
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -496,7 +496,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               disabledBackgroundColor: const Color(0xFFE2E8F0),
                               shape: const StadiumBorder(),
                               elevation: _selectedCity != null ? 8 : 0,
-                              shadowColor: Theme.of(context).primaryColor.withOpacity(0.25),
+                              shadowColor: Theme.of(context).primaryColor.withValues(alpha: 0.25), // ✅ AUDIT FIX (L-1)
                             ),
                             child: _isLoading
                                 ? const SizedBox(

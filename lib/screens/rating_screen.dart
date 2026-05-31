@@ -6,8 +6,10 @@ class RatingScreen extends StatefulWidget {
   final String workerName;
   final String workerAvatar;
   final String taskTitle;
+  final String taskId;
   const RatingScreen({
     super.key,
+    required this.taskId,
     this.workerName = 'Mitra Pion',
     this.workerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
     this.taskTitle = 'Tugas Selesai',
@@ -209,7 +211,7 @@ class _RatingScreenState extends State<RatingScreen> {
                   final navigator = Navigator.of(context);
                   final messenger = ScaffoldMessenger.of(context);
                   final error = await AuthService.submitRating(
-                    taskId: DateTime.now().millisecondsSinceEpoch.toString(),
+                    taskId: widget.taskId,
                     workerName: widget.workerName,
                     rating: _rating,
                     tags: List.from(_selected),

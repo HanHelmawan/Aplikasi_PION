@@ -34,7 +34,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
     }
   }
 
-  Color _statusBg(RequestStatus s) => _statusColor(s).withOpacity(0.1);
+  Color _statusBg(RequestStatus s) => _statusColor(s).withValues(alpha: 0.1); // ✅ AUDIT FIX (L-1)
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: statusColor.withOpacity(0.3))),
+                decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: statusColor.withValues(alpha: 0.3))),
                 child: Text(r.status.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor, fontFamily: 'Inter')),
               ),
             ],
@@ -253,8 +253,10 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                     ),
                   );
                   if (confirmed == true) {
-                    setState(() => r.status = RequestStatus.dibatalkan);
-                    TaskRequestStore.instance.updateRequest(r);
+                    // ✅ AUDIT FIX (M-5): Gunakan copyWith() — tidak ada mutasi field final
+                    final cancelled = r.copyWith(status: RequestStatus.dibatalkan);
+                    await TaskRequestStore.instance.updateRequest(cancelled);
+                    if (mounted) setState(() {});
                   }
                 },
                 icon: const Icon(Icons.cancel_outlined, size: 14, color: Color(0xFFEF4444)),

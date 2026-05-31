@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../main.dart';
 import '../core/auth_service.dart';
 import 'register_screen.dart';
@@ -17,7 +18,16 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _passwordVisible = false;
   bool _isLoading = false;
 
+  // ✅ AUDIT FIX (H-5): Rate limiting lokal — max 3 percobaan, cooldown 30 detik
+  int _failedAttempts = 0;
+  int _cooldownSeconds = 0;
+  Timer? _cooldownTimer;
+
+  bool get _isCoolingDown => _cooldownSeconds > 0;
+
   void _login() async {
+    if (_isCoolingDown) return; // Blokir selama cooldown
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -39,7 +49,14 @@ class _LoginScreenState extends State<LoginScreen> {
       email,
       password,
       onError: (msg) {
-        if (mounted) _showSnackBar(msg);
+        if (mounted) {
+          _showSnackBar(msg);
+          // ✅ AUDIT FIX (H-5): Hitung percobaan gagal, aktifkan cooldown bila perlu
+          _failedAttempts++;
+          if (_failedAttempts >= 3) {
+            _startCooldown();
+          }
+        }
       },
     );
 
@@ -47,8 +64,25 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (user != null) {
+      _failedAttempts = 0; // Reset saat berhasil login
       _navigateAfterLogin(user);
     }
+  }
+
+  /// Mulai cooldown 30 detik setelah terlalu banyak percobaan gagal
+  void _startCooldown() {
+    _cooldownTimer?.cancel();
+    setState(() => _cooldownSeconds = 30);
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() {
+        _cooldownSeconds--;
+        if (_cooldownSeconds <= 0) {
+          t.cancel();
+          _failedAttempts = 0; // Reset setelah cooldown selesai
+        }
+      });
+    });
   }
 
   void _loginWithGoogle() async {
@@ -122,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _cooldownTimer?.cancel(); // ✅ AUDIT FIX (H-5): Cancel timer saat widget di-dispose
     super.dispose();
   }
 
@@ -222,13 +257,17 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: (_isLoading || _isCoolingDown) ? null : _login,
                   child: _isLoading
                       ? const SizedBox(
                           width: 24, height: 24,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                         )
-                      : const Text('Masuk'),
+                      // ✅ AUDIT FIX (H-5): Tampilkan countdown saat cooldown aktif
+                      : _isCoolingDown
+                          ? Text('Coba lagi dalam $_cooldownSeconds detik',
+                              style: const TextStyle(fontFamily: 'Inter', fontSize: 14))
+                          : const Text('Masuk'),
                 ),
               ),
               const SizedBox(height: 24),

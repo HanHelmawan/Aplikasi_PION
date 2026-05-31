@@ -57,7 +57,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.12)], // ✅ AUDIT FIX (L-1)
             stops: const [0.3, 1.0],
           ),
         ),
@@ -75,12 +75,12 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                 child: Row(
                   children: [
                     Expanded(child: _statItem('${_store.requests.length}', 'Permintaan\nMasuk')),
-                    Container(width: 1, height: 36, color: Colors.white.withOpacity(0.3)),
+                    Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.3)), // ✅ AUDIT FIX (L-1)
                     Expanded(child: _statItem(
                       '${_store.requests.where((r) => r.status == RequestStatus.menunggu).length}',
                       'Belum\nDitangani',
                     )),
-                    Container(width: 1, height: 36, color: Colors.white.withOpacity(0.3)),
+                    Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.3)), // ✅ AUDIT FIX (L-1)
                     Expanded(child: _statItem('0', 'Sedang\nDikerjakan')),
                   ],
                 ),
@@ -109,7 +109,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: selected ? Theme.of(context).primaryColor : const Color(0xFFE2E8F0)),
                         boxShadow: selected
-                            ? [BoxShadow(color: Theme.of(context).primaryColor.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 3))]
+                            ? [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 3))] // ✅ AUDIT FIX (L-1)
                             : [],
                       ),
                       child: Text(
@@ -144,7 +144,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
     children: [
       Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, fontFamily: 'Inter')),
       const SizedBox(height: 2),
-      Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.8), fontFamily: 'Inter')),
+      Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8), fontFamily: 'Inter')), // ✅ AUDIT FIX (L-1)
     ],
   );
 
@@ -154,7 +154,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
       children: [
         Container(
           width: 120, height: 120,
-          decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08), shape: BoxShape.circle), // ✅ AUDIT FIX (L-1)
           child: Icon(Icons.inbox_rounded, size: 56, color: Theme.of(context).primaryColor),
         ),
         const SizedBox(height: 24),
@@ -239,7 +239,7 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
               // Category
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)), // ✅ AUDIT FIX (L-1)
                 child: Text(r.category, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).primaryColor, fontFamily: 'Inter')),
               ),
               const SizedBox(height: 12),

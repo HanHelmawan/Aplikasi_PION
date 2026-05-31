@@ -488,7 +488,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           scrollDirection: Axis.horizontal,
                           clipBehavior: Clip.none,
                           itemCount: 2,
-                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          separatorBuilder: (_, _) => const SizedBox(width: 16),
                           itemBuilder: (buildCtx, i) {
                             final w = _nearbyWorkers[i];
                             return FeaturedProviderCard(
@@ -535,7 +535,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: filteredWorkers.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (buildCtx, i) => WorkerCard(
                           worker: filteredWorkers[i],
                           dummyProvider: _dummyProvider,

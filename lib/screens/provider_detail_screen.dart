@@ -250,7 +250,8 @@ class ProviderDetailScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle(fontFamily: 'Inter')), behavior: SnackBarBehavior.floating)),
                           style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                          child: const Text('Semua (128)', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                          // ✅ AUDIT FIX (L-8): Gunakan jumlah ulasan dinamis dari data provider
+                          child: Text('Semua (${provider.reviews.length})', style: const TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontFamily: 'Inter')),
                         ),
                       ],
                     ),
@@ -357,9 +358,10 @@ class ProviderDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [

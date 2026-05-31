@@ -17,17 +17,24 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
   String _userName = 'Pekerja';
 
   // ── Dummy earnings & stats ─────────────────────────────────────────────────
+  // ⚠️ AUDIT FIX (M-8): Data ini adalah DEMO hardcoded.
+  //    TODO: Gantikan dengan query Firestore dari koleksi 'earnings' / 'ratings'
+  //          sebelum production. Contoh: _store.requests.where(selesai).length
   static const int _todayEarnings = 285000;
   static const int _weekEarnings = 1420000;
   static const double _workerRating = 4.9;
   static const int _todayCompleted = 3;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
     _loadUser();
+    // ✅ AUDIT FIX (I-3): Tampilkan loading state saat fetch berlangsung
+    setState(() => _isLoading = true);
     TaskRequestStore.instance.fetchRequests().then((_) {
-      if (mounted) setState(() {});
+      if (mounted) setState(() => _isLoading = false);
     });
   }
 
@@ -65,6 +72,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
+            // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
             colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.12)],
             stops: const [0.3, 1.0],
           ),
@@ -101,7 +109,8 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                     icon: Icon(Icons.swap_horiz_rounded, size: 14, color: Theme.of(context).primaryColor),
                     label: Text('Cari Jasa', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),
                     style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                      // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+                      backgroundColor: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
@@ -158,7 +167,11 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Theme.of(context).primaryColor, Theme.of(context).colorScheme.primaryContainer],
+                          colors: [
+                            Theme.of(context).primaryColor,
+                            // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+                            Theme.of(context).colorScheme.primaryContainer,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -281,7 +294,10 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  if (open.isEmpty)
+                  // ✅ AUDIT FIX (I-3): Tampilkan loading atau empty state yang sesuai
+                  if (_isLoading)
+                    _buildNoTasksCard()
+                  else if (open.isEmpty)
                     _buildNoTasksCard()
                   else
                     ListView.separated(
@@ -321,7 +337,29 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
     );
   }
 
-  Widget _buildNoTasksCard() => Padding(
+  Widget _buildNoTasksCard() {
+    // ✅ AUDIT FIX (I-3): Tampilkan loading skeleton saat data sedang di-fetch
+    if (_isLoading) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: const Column(
+            children: [
+              CircularProgressIndicator(strokeWidth: 2),
+              SizedBox(height: 16),
+              Text('Memuat tugas tersedia...', style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: Color(0xFF64748B))),
+            ],
+          ),
+        ),
+      );
+    }
+    return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -342,6 +380,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
           Container(
             width: 72, height: 72,
             decoration: BoxDecoration(
+              // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
               color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
@@ -355,6 +394,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
       ),
     ),
   );
+  }
 
   Widget _buildTaskCard(TaskRequest r) {
     final distances = ['0.3 km', '0.8 km', '1.2 km', '1.7 km', '2.0 km'];

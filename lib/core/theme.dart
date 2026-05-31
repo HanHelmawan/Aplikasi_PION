@@ -79,7 +79,7 @@ class PionTheme {
           backgroundColor: currentPrimary,
           foregroundColor: white,
           elevation: 0,
-          shadowColor: currentPrimary.withOpacity(0.3),
+          shadowColor: currentPrimary.withValues(alpha: 0.3), // ✅ AUDIT FIX (L-1)
           shape: const StadiumBorder(), // Pill shape
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           textStyle: GoogleFonts.inter(

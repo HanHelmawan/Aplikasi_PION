@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/theme.dart';
 import '../models/task_request.dart';
 import 'my_requests_screen.dart';
@@ -82,9 +84,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    // Create a new TaskRequest and add it to the shared store
+    // ✅ AUDIT FIX (H-6, M-7): Gunakan userId dari Firebase Auth dan tambahkan
+    //    error handling untuk Firestore write failure.
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
     final newRequest = TaskRequest(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: FirebaseFirestore.instance.collection('task_requests').doc().id,
+      userId: uid,
       title: widget.taskTitle,
       description: _descriptionController.text.trim(),
       category: widget.category,
@@ -93,16 +98,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       estimatedPrice: _offerPrice.toDouble(),
       photoUrls: List.from(_photos),
       status: RequestStatus.menunggu,
+      createdAt: DateTime.now(), // ✅ required field
     );
-    TaskRequestStore.instance.addRequest(newRequest);
+
+    // ✅ AUDIT FIX: Capture context-dependent objects before async gap
+    //    (use_build_context_synchronously lint)
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await TaskRequestStore.instance.addRequest(newRequest);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      messenger.showSnackBar(SnackBar(
+        content: Text('Gagal mengirim permintaan: $e', style: const TextStyle(fontFamily: 'Inter')),
+        backgroundColor: const Color(0xFFEF4444),
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
 
     setState(() => _isProcessing = false);
-    Navigator.pushAndRemoveUntil(
-      context,
+    navigator.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MyRequestsScreen()),
       (route) => route.isFirst,
     );
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: const Text('Permintaan berhasil dikirim! ✓', style: TextStyle(fontFamily: 'Inter')),
         behavior: SnackBarBehavior.floating,
@@ -130,7 +152,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.12)], // ✅ AUDIT FIX (L-1)
             stops: const [0.3, 1.0],
           ),
         ),
@@ -187,7 +209,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                          color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08), // ✅ AUDIT FIX (L-1)
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(

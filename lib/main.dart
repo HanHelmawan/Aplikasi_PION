@@ -15,6 +15,14 @@ import 'screens/worker_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ AUDIT FIX (I-2): Global error handler untuk uncaught Flutter errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Dalam production, kirim ke Firebase Crashlytics:
+    // FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    FlutterError.presentError(details); // tetap tampilkan di debug mode
+  };
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -105,7 +113,8 @@ class _MainNavigationState extends State<MainNavigation> {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: theme.primaryColor.withOpacity(0.08),
+                // ✅ AUDIT FIX (L-1): withOpacity → withValues(alpha:)
+                color: theme.primaryColor.withValues(alpha: 0.08),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),

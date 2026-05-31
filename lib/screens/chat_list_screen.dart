@@ -95,7 +95,7 @@ class _ChatListScreenState extends State<ChatListScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.08)],
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.08)], // ✅ AUDIT FIX (L-1)
             stops: const [0.3, 1.0],
           ),
         ),

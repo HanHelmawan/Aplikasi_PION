@@ -498,6 +498,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                         context,
                         MaterialPageRoute(
                           builder: (ctx) => RatingScreen(
+                            taskId: r.id,
                             workerName: r.assignedWorkerName ?? 'Mitra Pion',
                             workerAvatar: r.assignedWorkerAvatar ?? '',
                             taskTitle: r.title,

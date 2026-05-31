@@ -180,6 +180,7 @@ class TaskRequestStore {
           .set(r.toMap());
     } catch (e) {
       debugPrint('Firestore error adding task request: $e'); // ✅ AUDIT FIX: debugPrint
+      rethrow;
     }
   }
 
@@ -200,6 +201,7 @@ class TaskRequestStore {
           .update(r.toMap());
     } catch (e) {
       debugPrint('Firestore error updating task request: $e'); // ✅ AUDIT FIX: debugPrint
+      rethrow;
     }
   }
 

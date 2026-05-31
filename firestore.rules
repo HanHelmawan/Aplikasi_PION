@@ -1,0 +1,49 @@
+rules_version = '2';
+
+// ✅ AUDIT FIX (C-3): Firestore Security Rules
+// Hanya pemilik data yang bisa membaca/menulis data miliknya.
+// Tidak ada akses anonim, tidak ada akses lintas user.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Users Collection ─────────────────────────────────────────────────────
+    // Setiap user hanya bisa membaca dan mengupdate profil miliknya sendiri.
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // ── Task Requests Collection ──────────────────────────────────────────────
+    // User hanya bisa membaca/menulis task_requests miliknya sendiri (userId match).
+    match /task_requests/{docId} {
+      // Baca: hanya jika userId di dokumen sama dengan UID user yang login
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+
+      // Buat baru: pastikan userId yang diisi adalah UID sendiri (tidak bisa impersonate)
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+
+      // Update/hapus: hanya pemilik task
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ── Ratings Collection ────────────────────────────────────────────────────
+    // User bisa membuat rating, tapi hanya membaca rating miliknya sendiri.
+    match /ratings/{ratingId} {
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      // Update/delete tidak diizinkan untuk menjaga integritas ulasan
+      allow update, delete: if false;
+    }
+
+    // ── Default: tolak semua akses yang tidak didefinisikan di atas ───────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

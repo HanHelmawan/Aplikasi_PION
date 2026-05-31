@@ -126,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
               }
               if (v == 'rate') {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => RatingScreen(
+                  taskId: widget.request?.id ?? '',
                   workerName: widget.providerName,
                   workerAvatar: widget.providerAvatar,
                   taskTitle: widget.request?.title ?? 'Pekerjaan',

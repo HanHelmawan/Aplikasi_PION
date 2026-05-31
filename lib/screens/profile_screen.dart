@@ -18,10 +18,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late bool _isWorkerMode;
   String _userName = '';
   String _userEmail = '';
+  // ✅ AUDIT FIX (L-5/L-6): Simpan avatarUrl dan kycPassed dari Firestore
+  String _userAvatarUrl = '';
+  bool _kycPassed = false;
   bool _isLoadingUser = true;
 
   Color get _primaryColor => Theme.of(context).primaryColor;
-  Color get _primaryLight => Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08);
+  Color get _primaryLight => Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08); // ✅ AUDIT FIX (L-1)
 
   // Editable fields (local state)
   final _nameCtrl = TextEditingController();
@@ -41,6 +44,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _userName = user?['name'] ?? 'Pengguna Pion';
         _userEmail = user?['email'] ?? '-';
+        // ✅ AUDIT FIX (L-5/L-6): Ambil avatarUrl dan kycPassed dari Firestore
+        _userAvatarUrl = user?['avatarUrl'] ?? '';
+        _kycPassed = user?['kycPassed'] ?? false;
         _nameCtrl.text = _userName;
         _phoneCtrl.text = user?['phone'] ?? '';
         _bioCtrl.text = user?['bio'] ?? '';
@@ -103,9 +109,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: Stack(
                     children: [
-                      const PionAvatar(
+                      PionAvatar(
                         radius: 44,
-                        url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
+                        url: _userAvatarUrl,
                       ),
                       Positioned(
                         right: 0, bottom: 0,
@@ -246,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, _primaryColor.withOpacity(0.08)],
+            colors: [Colors.white, _primaryColor.withValues(alpha: 0.08)], // ✅ AUDIT FIX (L-1)
             stops: const [0.3, 1.0],
           ),
         ),
@@ -290,12 +296,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [_primaryColor, _primaryColor.withOpacity(0.8)],
+                          colors: [_primaryColor, _primaryColor.withValues(alpha: 0.8)], // ✅ AUDIT FIX (L-1)
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [BoxShadow(color: _primaryColor.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 8))],
+                        boxShadow: [BoxShadow(color: _primaryColor.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))], // ✅ AUDIT FIX (L-1)
                       ),
                       child: _isLoadingUser
                           ? const SizedBox(
@@ -308,7 +314,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   children: [
                                     PionAvatar(
                                       radius: 38,
-                                      url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
+                                      // ✅ AUDIT FIX (L-5): Gunakan avatarUrl dari Firestore
+                                      url: _userAvatarUrl,
                                       borderWidth: 3,
                                       borderColor: Colors.white.withValues(alpha: 0.5),
                                     ),
@@ -345,21 +352,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 12),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(20),
+                                      // ✅ AUDIT FIX (L-6): Hanya tampilkan badge KYC jika benar-benar lulus
+                                      if (_kycPassed)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.verified_user_rounded, size: 13, color: Colors.white),
+                                              SizedBox(width: 5),
+                                              Text('KYC Lulus', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.pending_rounded, size: 13, color: Colors.white),
+                                              SizedBox(width: 5),
+                                              Text('KYC Belum Diverifikasi', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                                            ],
+                                          ),
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(Icons.verified_user_rounded, size: 13, color: Colors.white),
-                                            const SizedBox(width: 5),
-                                            const Text('KYC Lulus', style: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-                                          ],
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),

@@ -75,7 +75,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                     children: [
                       Container(
                         width: 44, height: 44,
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)), // ✅ AUDIT FIX (L-1)
                         child: Icon(_steps[_step].icon, color: Colors.white, size: 22),
                       ),
                       const SizedBox(width: 12),
@@ -87,7 +87,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                                 style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800, fontFamily: 'Inter')),
                             const SizedBox(height: 2),
                             Text(_steps[_step].desc,
-                                style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12, fontFamily: 'Inter'), maxLines: 2),
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontFamily: 'Inter'), maxLines: 2), // ✅ AUDIT FIX (L-1)
                           ],
                         ),
                       ),
@@ -99,14 +99,14 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: (_step + 1) / _steps.length,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2), // ✅ AUDIT FIX (L-1)
                       valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                       minHeight: 8,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text('Langkah ${_step + 1} dari ${_steps.length}',
-                      style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12, fontFamily: 'Inter')),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontFamily: 'Inter')), // ✅ AUDIT FIX (L-1)
                 ],
               ),
             ),
@@ -217,7 +217,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                         ),
                       ],
                     );
-                  }).toList(),
+                  }), // ✅ AUDIT FIX: removed unnecessary .toList() inside spread
                 ],
               ),
             ),
@@ -268,10 +268,14 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      widget.request.status = RequestStatus.selesai;
-                      TaskRequestStore.instance.updateRequest(widget.request);
+                      // ✅ AUDIT FIX (M-5): Gunakan copyWith() — tidak ada mutasi field final
+                      final updated = widget.request.copyWith(
+                        status: RequestStatus.selesai,
+                      );
+                      TaskRequestStore.instance.updateRequest(updated);
                       Navigator.pushReplacement(context, MaterialPageRoute(
                         builder: (_) => RatingScreen(
+                          taskId: req.id,
                           workerName: req.assignedWorkerName ?? 'Worker',
                           workerAvatar: req.assignedWorkerAvatar ?? '',
                           taskTitle: req.title,

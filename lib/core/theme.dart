@@ -89,7 +89,7 @@ class PionTheme {
         ).copyWith(
           elevation: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) return 0;
-            return 8; // Soft shadow when idle
+            return 8;
           }),
         ),
       ),
@@ -209,7 +209,7 @@ class PionImage extends StatelessWidget {
         return Container(
           width: width,
           height: height,
-          color: fallbackColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+          color: fallbackColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
           child: Icon(
             Icons.broken_image_rounded,
             color: Theme.of(context).primaryColor,
@@ -271,7 +271,7 @@ class PionAvatar extends StatelessWidget {
           return Container(
             width: radius * 2,
             height: radius * 2,
-            color: Theme.of(context).primaryColor.withOpacity(0.08),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
             child: Icon(
               Icons.person_rounded,
               color: Theme.of(context).primaryColor,

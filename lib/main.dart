@@ -51,17 +51,23 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  // Tab order: Beranda (0) | Riwayat (1) | [FAB] | Pesan (2) | Profil (3)
-  List<Widget> get _pages => [
-    widget.isWorkerMode
-        ? const WorkerHomeScreen()
-        : HomeSeekerScreen(isWorkerMode: false),
-    widget.isWorkerMode
-        ? const JobBoardScreen()
-        : const ActivityScreen(),
-    const ChatListScreen(),
-    ProfileScreen(isWorkerMode: widget.isWorkerMode),
-  ];
+  // ✅ AUDIT FIX: _pages dipindah ke initState() agar tidak dibuat ulang setiap rebuild
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      widget.isWorkerMode
+          ? const WorkerHomeScreen()
+          : HomeSeekerScreen(isWorkerMode: false),
+      widget.isWorkerMode
+          ? const JobBoardScreen()
+          : const ActivityScreen(),
+      const ChatListScreen(),
+      ProfileScreen(isWorkerMode: widget.isWorkerMode),
+    ];
+  }
 
   // Nav item config: index 0,1 left of FAB; 2,3 right of FAB
   static const _navItems = [

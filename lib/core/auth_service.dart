@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -10,6 +11,13 @@ class AuthService {
 
   static const String _locationSetupDoneKey = 'pion_location_setup_done';
   static const String _savedLocationKey = 'pion_saved_location';
+
+  // ✅ AUDIT FIX: Cache SharedPreferences instance untuk menghindari multiple init
+  static SharedPreferences? _prefs;
+  static Future<SharedPreferences> get _sharedPrefs async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
 
   // ── Register ──────────────────────────────────────────────────────────────
 
@@ -125,7 +133,10 @@ class AuthService {
           'isWorkerMode': doc['isWorkerMode'] ?? false,
         };
       }
-    } catch (_) {}
+    } catch (e) {
+      // ✅ AUDIT FIX: Log error, jangan telan diam-diam
+      debugPrint('AuthService.getCurrentUser error: $e');
+    }
 
     return {
       'uid': firebaseUser.uid,
@@ -139,12 +150,12 @@ class AuthService {
 
   static Future<void> logout() async {
     await _auth.signOut();
-    await _googleSignIn.signOut(); // also sign out from Google
+    await _googleSignIn.signOut();
     // NOTE: We intentionally keep location preferences so users
     // don't have to re-setup location on every login.
   }
 
-  // ── Google Sign-In ─────────────────────────────────────────────
+  // ── Google Sign-In ─────────────────────────────────────────────────────────
 
   /// Signs in with a Google account.
   /// Returns the user data map on success, or null if cancelled/failed.
@@ -168,28 +179,25 @@ class AuthService {
       final firebaseUser = userCredential.user!;
       final uid = firebaseUser.uid;
 
-      // Check if this is a new user; create their Firestore doc if so
-      final doc = await _firestore.collection('users').doc(uid).get();
-      if (!doc.exists) {
-        await _firestore.collection('users').doc(uid).set({
-          'name': firebaseUser.displayName ?? googleUser.displayName ?? 'Pengguna',
-          'email': firebaseUser.email ?? '',
-          'isWorkerMode': false,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
+      // ✅ AUDIT FIX: Gunakan set(merge:true) = upsert, hanya baca sekali (bukan 2x)
+      await _firestore.collection('users').doc(uid).set({
+        'name': firebaseUser.displayName ?? googleUser.displayName ?? 'Pengguna',
+        'email': firebaseUser.email ?? '',
+        'isWorkerMode': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
-      // Fetch the latest Firestore data to return
-      final freshDoc = await _firestore.collection('users').doc(uid).get();
+      final doc = await _firestore.collection('users').doc(uid).get();
       return {
         'uid': uid,
-        'name': freshDoc.exists
-            ? (freshDoc['name'] ?? firebaseUser.displayName ?? 'Pengguna')
+        'name': doc.exists
+            ? (doc['name'] ?? firebaseUser.displayName ?? 'Pengguna')
             : (firebaseUser.displayName ?? 'Pengguna'),
         'email': firebaseUser.email ?? '',
-        'isWorkerMode': freshDoc.exists ? (freshDoc['isWorkerMode'] ?? false) : false,
+        'isWorkerMode': doc.exists ? (doc['isWorkerMode'] ?? false) : false,
       };
     } catch (e) {
+      debugPrint('AuthService.loginWithGoogle error: $e');
       onError?.call('Gagal masuk dengan Google. Coba lagi.');
       return null;
     }
@@ -217,6 +225,7 @@ class AuthService {
       });
       return null; // success
     } catch (e) {
+      debugPrint('AuthService.updateProfile error: $e');
       return 'Gagal memperbarui profil. Coba lagi.';
     }
   }
@@ -247,6 +256,7 @@ class AuthService {
       });
       return null; // success
     } catch (e) {
+      debugPrint('AuthService.submitRating error: $e');
       return 'Gagal mengirim ulasan. Coba lagi.';
     }
   }
@@ -261,11 +271,12 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'user-not-found':
-          return 'Email tidak terdaftar.';
+          // ✅ AUDIT FIX: Tidak mengkonfirmasi keberadaan user (User Enumeration fix)
+          return null; // Perlakukan seperti sukses agar tidak bocorkan info user
         case 'invalid-email':
           return 'Format email tidak valid.';
         default:
-          return 'Gagal mengirim email: ${e.message}';
+          return 'Gagal mengirim email reset. Coba lagi.';
       }
     }
   }
@@ -274,25 +285,26 @@ class AuthService {
 
   /// Returns true if the user has NOT yet completed the location setup flow.
   static Future<bool> isFirstLogin() async {
-    final prefs = await SharedPreferences.getInstance();
+    // ✅ AUDIT FIX: Gunakan cached SharedPreferences
+    final prefs = await _sharedPrefs;
     return !(prefs.getBool(_locationSetupDoneKey) ?? false);
   }
 
   /// Call this once the user completes (or skips) the location setup screen.
   static Future<void> markLocationSetupDone() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _sharedPrefs;
     await prefs.setBool(_locationSetupDoneKey, true);
   }
 
   /// Saves the user's chosen city/area name (e.g., "Jakarta Selatan").
   static Future<void> saveLocation(String cityName) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _sharedPrefs;
     await prefs.setString(_savedLocationKey, cityName);
   }
 
   /// Returns the previously saved city/area name, or null if not set.
   static Future<String?> getSavedLocation() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _sharedPrefs;
     return prefs.getString(_savedLocationKey);
   }
 }

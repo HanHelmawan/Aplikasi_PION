@@ -26,6 +26,13 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // ✅ AUDIT FIX: Validasi format email sebelum mengirim ke Firebase
+    final emailRegex = RegExp(r'^[\w-.]+@[\w-]+(\.[\w-]+)*\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showSnackBar('Format email tidak valid');
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     final user = await AuthService.login(

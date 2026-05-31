@@ -65,7 +65,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withOpacity(0.12)],
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.12)],
             stops: const [0.3, 1.0],
           ),
         ),
@@ -426,7 +426,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -447,7 +447,7 @@ class _WorkerHomeScreenState extends State<WorkerHomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withOpacity(0.08),
+                    color: Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(r.category, style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w700, color: Theme.of(context).primaryColor)),

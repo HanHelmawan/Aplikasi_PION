@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../main.dart';
 import '../core/auth_service.dart';
 import '../screens/select_provider_screen.dart';
@@ -6,27 +7,10 @@ import '../screens/provider_detail_screen.dart';
 import '../widgets/worker_card.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/featured_provider_card.dart';
+import '../widgets/kyc_verification_sheet.dart';
+import '../widgets/worker_onboarding_sheet.dart';
 
-// Top-level dummy provider for demo navigation
-final _dummyProvider = ProviderData(
-  name: 'Budi Santoso',
-  title: 'Spesialis Pipa & Ledeng',
-  avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-  rating: 4.9,
-  tasksCompleted: 142,
-  bio: 'Berpengalaman lebih dari 8 tahun di bidang perpipaan dan instalasi air. Siap membantu masalah kebocoran, instalasi pipa baru, hingga renovasi kamar mandi.',
-  skills: ['Instalasi Pipa', 'Perbaikan Keran', 'Water Heater', 'Renovasi KM'],
-  reviews: const [
-    ProviderReview(
-      reviewerName: 'Andi Setiawan',
-      reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-      timeAgo: '3 hari lalu',
-      rating: 5.0,
-      text: 'Sangat profesional! Pipa bocor langsung teratasi dalam 1 jam. Recommended banget!',
-    ),
-  ],
-  category: 'Ledeng',
-);
+
 
 class HomeSeekerScreen extends StatefulWidget {
   final bool isWorkerMode;
@@ -45,7 +29,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-  static const List<Map<String, dynamic>> _nearbyWorkers = [
+  static final List<Map<String, dynamic>> _nearbyWorkers = [
     {
       'name': 'Budi Santoso',
       'specialty': 'Spesialis Pipa & Ledeng',
@@ -57,6 +41,18 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       'category': 'Ledeng',
       'categoryColor': 0xFFFFFBEB,
       'categoryIconColor': 0xFFD97706,
+      'bio': 'Berpengalaman lebih dari 8 tahun di bidang perpipaan dan instalasi air. Siap membantu masalah kebocoran, instalasi pipa baru, hingga renovasi kamar mandi.',
+      'skills': ['Instalasi Pipa', 'Perbaikan Keran', 'Water Heater', 'Renovasi KM', 'Saluran Mampet'],
+      'problems': ['bocor', 'pipa bocor', 'keran rusak', 'wc mampet', 'wastafel tersumbat', 'ledeng', 'air mampet', 'pasang pipa', 'instalasi air', 'tandon bocor', 'pompa air', 'pipa pecah'],
+      'reviews': const [
+        ProviderReview(
+          reviewerName: 'Andi Setiawan',
+          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
+          timeAgo: '3 hari lalu',
+          rating: 5.0,
+          text: 'Sangat profesional! Pipa bocor langsung teratasi dalam 1 jam. Recommended banget!',
+        ),
+      ],
     },
     {
       'name': 'Andi Pratama',
@@ -69,6 +65,18 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       'category': 'Listrik',
       'categoryColor': 0xFFFEF2F2,
       'categoryIconColor': 0xFFDC2626,
+      'bio': 'Teknisi listrik bersertifikat dengan keahlian instalasi baru, perbaikan arus pendek (konsleting), pemasangan panel listrik, dan lampu rumah.',
+      'skills': ['Instalasi Listrik', 'Cari Korsleting', 'Pasang Lampu', 'Perbaikan Panel', 'Grounding'],
+      'problems': ['konslet', 'mati lampu', 'pasang lampu', 'kabel putus', 'instalasi listrik', 'sekring', 'pasang stopkontak', 'tambah daya', 'kabel terbakar', 'saklar rusak'],
+      'reviews': const [
+        ProviderReview(
+          reviewerName: 'Budi Santoso',
+          reviewerAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+          timeAgo: '5 hari lalu',
+          rating: 5.0,
+          text: 'Pekerjaan rapi sekali, langsung ketemu masalah konslet di atap rumah. Terima kasih mas!',
+        ),
+      ],
     },
     {
       'name': 'Siti Aminah',
@@ -81,6 +89,18 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       'category': 'Kebersihan',
       'categoryColor': 0xFFF0FDF4,
       'categoryIconColor': 0xFF16A34A,
+      'bio': 'Penyedia jasa kebersihan rumah profesional dan tepercaya. Menyediakan layanan pembersihan harian, deep cleaning, setrika, serta pembersihan AC.',
+      'skills': ['Deep Cleaning', 'Setrika Baju', 'Sapu & Pel', 'Desinfeksi', 'Bersih Dapur'],
+      'problems': ['sapu', 'pel', 'bersih rumah', 'setrika baju', 'cuci piring', 'cuci pakaian', 'sedot debu', 'bersih kamar', 'asisten rumah tangga', 'harian', 'kotor', 'debu', 'sapu rumah'],
+      'reviews': const [
+        ProviderReview(
+          reviewerName: 'Eka Wijaya',
+          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
+          timeAgo: '2 hari lalu',
+          rating: 4.8,
+          text: 'Siti sangat rajin dan sopan. Rumah bersih mengkilap setelah ditinggal seharian.',
+        ),
+      ],
     },
     {
       'name': 'Rudi Hartono',
@@ -93,6 +113,42 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       'category': 'Elektronik',
       'categoryColor': 0xFFEFF6FF,
       'categoryIconColor': 0xFF2563EB,
+      'bio': 'Spesialis perbaikan dan pemeliharaan AC serta barang elektronik rumah tangga seperti mesin cuci, kulkas, dan televisi.',
+      'skills': ['Cuci AC', 'Isi Freon AC', 'Servis Mesin Cuci', 'Reparasi TV', 'Kulkas'],
+      'problems': ['ac panas', 'cuci ac', 'ac bocor', 'servis tv', 'mesin cuci rusak', 'kulkas tidak dingin', 'freon ac', 'elektronik', 'bongkar pasang ac', 'kipas angin', 'ac mati'],
+      'reviews': const [
+        ProviderReview(
+          reviewerName: 'Roni Hermawan',
+          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
+          timeAgo: '1 minggu lalu',
+          rating: 4.7,
+          text: 'AC kamar yang tadinya panas sekarang langsung dingin seperti baru. Pengerjaan cepat!',
+        ),
+      ],
+    },
+    {
+      'name': 'Ahmad Wijaya',
+      'specialty': 'Tukang Kayu & Furniture',
+      'rating': '4.9',
+      'jobs': '112',
+      'distance': '1.8 km',
+      'isOnline': true,
+      'imageUrl': 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=200&auto=format&fit=crop',
+      'category': 'Pertukangan',
+      'categoryColor': 0xFFFFFBEB,
+      'categoryIconColor': 0xFF92400E,
+      'bio': 'Ahli pertukangan kayu untuk renovasi furniture, pintu macet, pembuatan lemari kustom, kitchen set, serta pemasangan lantai kayu.',
+      'skills': ['Reparasi Furniture', 'Pembuatan Lemari', 'Kusen Pintu', 'Pasang HPL', 'Rak Dinding'],
+      'problems': ['lemari rusak', 'pintu macet', 'pasang engsel', 'bikin meja', 'pertukangan', 'kayu', 'kusen', 'perbaikan atap', 'genteng bocor', 'kursi patah', 'meja goyang'],
+      'reviews': const [
+        ProviderReview(
+          reviewerName: 'Dewi Lestari',
+          reviewerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100&auto=format&fit=crop',
+          timeAgo: '4 hari lalu',
+          rating: 5.0,
+          text: 'Lemari pakaian saya yang engselnya rusak sekarang sudah diperbaiki dengan sangat kokoh. Sangat recommended.',
+        ),
+      ],
     },
   ];
 
@@ -130,30 +186,201 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
     _loadUserData();
   }
 
+  bool _kycPassed = false;
+  bool _hasWorkerProfile = false;
+  List<Map<String, dynamic>> _firestoreWorkers = [];
+
   Future<void> _loadUserData() async {
     final user = await AuthService.getCurrentUser();
     final location = await AuthService.getSavedLocation();
+    final dbWorkers = await AuthService.getAllWorkers();
+    
+    final mapped = dbWorkers.map((w) => _mapFirestoreUserToWorker(w)).toList();
+
     if (mounted) {
       setState(() {
         _currentLocation = location ?? 'Pilih Lokasi';
         _userName = user?['name'] ?? 'Pengguna';
+        _kycPassed = user?['kycPassed'] ?? false;
+        _hasWorkerProfile = user?['workerProfile'] != null;
+        _firestoreWorkers = mapped;
       });
     }
   }
 
+  void _startKycFlow() {
+    showKycVerificationSheet(
+      context,
+      userName: _userName,
+      onCompleted: () {
+        _loadUserData();
+        showWorkerOnboardingSheet(
+          context,
+          userName: _userName,
+          onCompleted: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: true)),
+              (route) => false,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showKycWarningDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFEF3C7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.gpp_maybe_rounded,
+                size: 34,
+                color: Color(0xFFD97706),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Verifikasi KYC Diperlukan',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Untuk menjaga keamanan komunitas Pion, Anda harus menyelesaikan verifikasi identitas (KYC) terlebih dahulu sebelum dapat mengaktifkan Mode Kerja.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.nunitoSans(
+                fontSize: 14,
+                color: const Color(0xFF475569),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFF94A3B8)),
+            child: Text('Nanti Saja', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _startKycFlow();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: Text('Verifikasi Sekarang', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
+    );
+  }
+
   List<Map<String, dynamic>> get _filteredWorkers {
-    var workers = _nearbyWorkers.toList();
+    final allWorkers = [..._firestoreWorkers, ..._nearbyWorkers];
+    var workers = allWorkers.toList();
+    // Prioritaskan pencarian text secara global agar pencarian nama mitra
+    // atau permasalahan/pekerjaan dapat mencakup seluruh kategori.
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      return workers.where((w) =>
+          (w['name'] as String).toLowerCase().contains(q) ||
+          (w['specialty'] as String).toLowerCase().contains(q) ||
+          (w['category'] as String).toLowerCase().contains(q) ||
+          ((w['problems'] as List<String>?) ?? []).any((p) => p.toLowerCase().contains(q))).toList();
+    }
     if (_selectedCategory != null) {
       workers = workers.where((w) => (w['category'] as String) == _selectedCategory).toList();
     }
-    if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      workers = workers.where((w) =>
-          (w['name'] as String).toLowerCase().contains(q) ||
-          (w['specialty'] as String).toLowerCase().contains(q) ||
-          (w['category'] as String).toLowerCase().contains(q)).toList();
-    }
     return workers;
+  }
+
+  ProviderData _getProviderData(Map<String, dynamic> w) {
+    return ProviderData(
+      name: w['name'] as String,
+      title: w['specialty'] as String,
+      avatarUrl: w['imageUrl'] as String,
+      rating: double.tryParse(w['rating'] as String) ?? 5.0,
+      tasksCompleted: int.tryParse(w['jobs'] as String) ?? 0,
+      bio: w['bio'] as String? ?? 'Penyedia jasa profesional yang terverifikasi di Pion.',
+      skills: List<String>.from(w['skills'] as List? ?? []),
+      category: w['category'] as String,
+      reviews: List<ProviderReview>.from(w['reviews'] as List? ?? []),
+    );
+  }
+
+  Map<String, dynamic> _mapFirestoreUserToWorker(Map<String, dynamic> userData) {
+    final profile = userData['workerProfile'] as Map<String, dynamic>? ?? {};
+    final category = profile['category'] ?? 'Umum';
+    
+    int categoryColor = 0xFFEFF6FF;
+    int categoryIconColor = 0xFF2563EB;
+    
+    final catLower = category.toString().toLowerCase();
+    if (catLower.contains('perbaikan')) {
+      categoryColor = 0xFFEFF6FF;
+      categoryIconColor = 0xFF2563EB;
+    } else if (catLower.contains('kebersihan')) {
+      categoryColor = 0xFFF0FDF4;
+      categoryIconColor = 0xFF16A34A;
+    } else if (catLower.contains('listrik')) {
+      categoryColor = 0xFFFEF2F2;
+      categoryIconColor = 0xFFDC2626;
+    } else if (catLower.contains('ledeng')) {
+      categoryColor = 0xFFFFFBEB;
+      categoryIconColor = 0xFFD97706;
+    } else if (catLower.contains('ac') || catLower.contains('elektronik')) {
+      categoryColor = 0xFFEFF6FF;
+      categoryIconColor = 0xFF0284C7;
+    } else if (catLower.contains('taman')) {
+      categoryColor = 0xFFF0FDF4;
+      categoryIconColor = 0xFF15803D;
+    } else if (catLower.contains('keamanan')) {
+      categoryColor = 0xFFF5F3FF;
+      categoryIconColor = 0xFF7C3AED;
+    }
+    
+    return {
+      'uid': userData['uid'],
+      'name': userData['name'] ?? 'Pekerja Pion',
+      'specialty': profile['specialty'] ?? 'Penyedia Jasa',
+      'rating': (profile['rating'] ?? 5.0).toString(),
+      'jobs': (profile['jobsCompleted'] ?? 0).toString(),
+      'distance': '0.5 km',
+      'isOnline': profile['isOnline'] ?? true,
+      'imageUrl': userData['avatarUrl'] != null && userData['avatarUrl'].toString().isNotEmpty
+          ? userData['avatarUrl']
+          : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
+      'category': category,
+      'categoryColor': categoryColor,
+      'categoryIconColor': categoryIconColor,
+      'bio': profile['bio'] ?? '',
+      'skills': List<String>.from(profile['skills'] ?? []),
+      'problems': List<String>.from(profile['problems'] ?? []),
+    };
   }
 
   void _showLocationSheet() {
@@ -342,7 +569,29 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: TextButton.icon(
-                    onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: true)), (route) => false),
+                    onPressed: () {
+                      if (!_kycPassed) {
+                        _showKycWarningDialog();
+                      } else if (!_hasWorkerProfile) {
+                        showWorkerOnboardingSheet(
+                          context,
+                          userName: _userName,
+                          onCompleted: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: true)),
+                              (route) => false,
+                            );
+                          },
+                        );
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MainNavigation(isWorkerMode: true)),
+                          (route) => false,
+                        );
+                      }
+                    },
                     icon: const Icon(Icons.swap_horiz_rounded, size: 14, color: Color(0xFF2563EB)),
                     label: const Text('Mode Kerja', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
                     style: TextButton.styleFrom(backgroundColor: const Color(0xFFEFF6FF), padding: const EdgeInsets.symmetric(horizontal: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
@@ -498,7 +747,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                               jobs: w['jobs'] as String,
                               imageUrl: w['imageUrl'] as String,
                               isVerified: true,
-                              provider: _dummyProvider,
+                              provider: _getProviderData(w),
                             );
                           },
                         ),
@@ -536,10 +785,13 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: filteredWorkers.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (buildCtx, i) => WorkerCard(
-                          worker: filteredWorkers[i],
-                          dummyProvider: _dummyProvider,
-                        ),
+                        itemBuilder: (buildCtx, i) {
+                          final worker = filteredWorkers[i];
+                          return WorkerCard(
+                            worker: worker,
+                            dummyProvider: _getProviderData(worker),
+                          );
+                        },
                       ),
 
                     const SizedBox(height: 60),

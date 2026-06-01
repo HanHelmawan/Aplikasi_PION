@@ -71,18 +71,45 @@ class _ChatListScreenState extends State<ChatListScreen>
     super.dispose();
   }
 
+  List<Map<String, dynamic>> _getMergedChats() {
+    final list = <Map<String, dynamic>>[];
+    list.addAll(_chats);
+
+    final requests = TaskRequestStore.instance.requests;
+    for (var r in requests) {
+      if (r.assignedWorkerName != null && r.assignedWorkerName!.isNotEmpty) {
+        if (!list.any((c) => c['name'] == r.assignedWorkerName)) {
+          list.add({
+            'name': r.assignedWorkerName!,
+            'message': r.status == RequestStatus.selesai 
+                ? 'Pekerjaan selesai: ${r.title}'
+                : 'Pekerjaan aktif: ${r.title}',
+            'time': '${r.createdAt.hour.toString().padLeft(2, '0')}:${r.createdAt.minute.toString().padLeft(2, '0')}',
+            'unread': 0,
+            'isOnline': r.status == RequestStatus.dikerjakan,
+            'isDone': r.status == RequestStatus.selesai,
+            'avatarUrl': r.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+            'request': r,
+          });
+        }
+      }
+    }
+    return list;
+  }
+
   List<Map<String, dynamic>> get _filtered {
+    final allChats = _getMergedChats();
     switch (_filterIndex) {
       case 1:
-        return _chats.where((c) => c['isOnline'] as bool).toList();
+        return allChats.where((c) => c['isOnline'] as bool).toList();
       case 2:
-        return _chats.where((c) => c['isDone'] as bool).toList();
+        return allChats.where((c) => c['isDone'] as bool).toList();
       default:
-        return _chats;
+        return allChats;
     }
   }
 
-  int get _onlineCount => _chats.where((c) => c['isOnline'] as bool).length;
+  int get _onlineCount => _getMergedChats().where((c) => c['isOnline'] as bool).length;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +215,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                         height: 28,
                         width: 56,
                         child: Stack(
-                          children: _chats
+                          children: _getMergedChats()
                               .where((c) => c['isOnline'] as bool)
                               .toList()
                               .asMap()
@@ -295,11 +322,15 @@ class _ChatListScreenState extends State<ChatListScreen>
     return InkWell(
       onTap: () {
         TaskRequest? matchedReq;
-        try {
-          matchedReq = TaskRequestStore.instance.requests.firstWhere(
-            (r) => r.assignedWorkerName == chat['name'] || (chat['name'] == 'Budi Santoso' && r.status == RequestStatus.dikerjakan),
-          );
-        } catch (_) {}
+        if (chat['request'] != null) {
+          matchedReq = chat['request'] as TaskRequest;
+        } else {
+          try {
+            matchedReq = TaskRequestStore.instance.requests.firstWhere(
+              (r) => r.assignedWorkerName == chat['name'] || (chat['name'] == 'Budi Santoso' && r.status == RequestStatus.dikerjakan),
+            );
+          } catch (_) {}
+        }
 
         Navigator.push(
           context,

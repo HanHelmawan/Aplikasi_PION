@@ -46,3 +46,6 @@ app.*.map.json
 
 # Keys and Secrets
 mcp.json
+*.env
+google-services.json
+GoogleService-Info.plist

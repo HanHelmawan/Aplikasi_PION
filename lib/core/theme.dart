@@ -224,39 +224,51 @@ class PionImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget img = Image.network(
-      url,
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          width: width,
-          height: height,
-          color: fallbackColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
-          child: Icon(
-            Icons.broken_image_rounded,
-            color: Theme.of(context).primaryColor,
-            size: width != null ? (width! > 48 ? 32 : 20) : 24,
-          ),
-        );
-      },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Container(
-          width: width,
-          height: height,
-          color: const Color(0xFFF8FAFC),
-          child: const Center(
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+    final bool hasValidUrl = url.isNotEmpty && url.startsWith('http');
+    Widget img = hasValidUrl
+        ? Image.network(
+            url,
+            width: width,
+            height: height,
+            fit: fit,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: width,
+                height: height,
+                color: fallbackColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
+                child: Icon(
+                  Icons.broken_image_rounded,
+                  color: Theme.of(context).primaryColor,
+                  size: width != null ? (width! > 48 ? 32 : 20) : 24,
+                ),
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                width: width,
+                height: height,
+                color: const Color(0xFFF8FAFC),
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              );
+            },
+          )
+        : Container(
+            width: width,
+            height: height,
+            color: fallbackColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08),
+            child: Icon(
+              Icons.broken_image_rounded,
+              color: Theme.of(context).primaryColor,
+              size: width != null ? (width! > 48 ? 32 : 20) : 24,
             ),
-          ),
-        );
-      },
-    );
+          );
 
     if (borderRadius > 0) {
       img = ClipRRect(
@@ -285,40 +297,52 @@ class PionAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasValidUrl = url.isNotEmpty && url.startsWith('http');
     Widget avatar = ClipOval(
-      child: Image.network(
-        url,
-        width: radius * 2,
-        height: radius * 2,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: radius * 2,
-            height: radius * 2,
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-            child: Icon(
-              Icons.person_rounded,
-              color: Theme.of(context).primaryColor,
-              size: radius * 1.1,
-            ),
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            width: radius * 2,
-            height: radius * 2,
-            color: const Color(0xFFF8FAFC),
-            child: const Center(
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 1.5),
+      child: hasValidUrl
+          ? Image.network(
+              url,
+              width: radius * 2,
+              height: radius * 2,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: radius * 2,
+                  height: radius * 2,
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: Theme.of(context).primaryColor,
+                    size: radius * 1.1,
+                  ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  width: radius * 2,
+                  height: radius * 2,
+                  color: const Color(0xFFF8FAFC),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 1.5),
+                    ),
+                  ),
+                );
+              },
+            )
+          : Container(
+              width: radius * 2,
+              height: radius * 2,
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+              child: Icon(
+                Icons.person_rounded,
+                color: Theme.of(context).primaryColor,
+                size: radius * 1.1,
               ),
             ),
-          );
-        },
-      ),
     );
 
     if (borderWidth > 0) {

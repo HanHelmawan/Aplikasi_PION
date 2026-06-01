@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../models/task_request.dart';
 import 'active_task_screen.dart';
-import 'job_tracking_screen.dart';
 import 'rating_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -118,11 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             onSelected: (v) {
               if (v == 'active') {
-                if (widget.request != null) {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => JobTrackingScreen(request: widget.request!)));
-                } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ActiveTaskScreen()));
-                }
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveTaskScreen(request: widget.request)));
               }
               if (v == 'rate') {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => RatingScreen(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../main.dart';
 import '../core/auth_service.dart';
 import '../core/url_helper.dart';
 import '../core/theme.dart';
+import '../widgets/kyc_verification_sheet.dart';
+import '../widgets/worker_onboarding_sheet.dart';
 import 'login_screen.dart';
 import 'activity_screen.dart';
 
@@ -21,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ✅ AUDIT FIX (L-5/L-6): Simpan avatarUrl dan kycPassed dari Firestore
   String _userAvatarUrl = '';
   bool _kycPassed = false;
+  Map<String, dynamic>? _workerProfile;
   bool _isLoadingUser = true;
 
   Color get _primaryColor => Theme.of(context).primaryColor;
@@ -47,12 +51,115 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // ✅ AUDIT FIX (L-5/L-6): Ambil avatarUrl dan kycPassed dari Firestore
         _userAvatarUrl = user?['avatarUrl'] ?? '';
         _kycPassed = user?['kycPassed'] ?? false;
+        _workerProfile = user?['workerProfile'];
         _nameCtrl.text = _userName;
         _phoneCtrl.text = user?['phone'] ?? '';
         _bioCtrl.text = user?['bio'] ?? '';
         _isLoadingUser = false;
       });
     }
+  }
+
+  void _startKycFlow() {
+    showKycVerificationSheet(
+      context,
+      userName: _nameCtrl.text.trim().isNotEmpty ? _nameCtrl.text.trim() : 'Pengguna Pion',
+      onCompleted: () {
+        setState(() {
+          _kycPassed = true;
+        });
+        if (_workerProfile == null) {
+          showWorkerOnboardingSheet(
+            context,
+            userName: _userName,
+            onCompleted: () {
+              _loadUser();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (ctx) => const MainNavigation(isWorkerMode: true)),
+                (route) => false,
+              );
+            },
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (ctx) => const MainNavigation(isWorkerMode: true)),
+            (route) => false,
+          );
+        }
+      },
+    );
+  }
+
+  void _showKycWarningDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFEF3C7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.gpp_maybe_rounded,
+                size: 34,
+                color: Color(0xFFD97706),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Verifikasi KYC Diperlukan',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Untuk menjaga keamanan komunitas Pion, Anda harus menyelesaikan verifikasi identitas (KYC) terlebih dahulu sebelum dapat mengaktifkan Mode Kerja.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.nunitoSans(
+                fontSize: 14,
+                color: const Color(0xFF475569),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFF94A3B8)),
+            child: Text('Nanti Saja', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _startKycFlow();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: Text('Verifikasi Sekarang', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
+    );
   }
 
   @override
@@ -370,20 +477,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         )
                                       else
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                                          ),
-                                          child: const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.pending_rounded, size: 13, color: Colors.white),
-                                              SizedBox(width: 5),
-                                              Text('KYC Belum Diverifikasi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
-                                            ],
+                                        GestureDetector(
+                                          onTap: _startKycFlow,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(20),
+                                              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.pending_rounded, size: 13, color: Colors.white),
+                                                SizedBox(width: 5),
+                                                Text('KYC Belum Diverifikasi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                     ],
@@ -455,19 +565,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                           ),
-                          Switch(
+                           Switch(
                             value: _isWorkerMode,
                             activeThumbColor: colorScheme.primary,
-                            onChanged: (v) => Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (ctx) => MainNavigation(isWorkerMode: v)),
-                              (route) => false,
-                            ),
+                            onChanged: (v) {
+                              if (v && !_kycPassed) {
+                                _showKycWarningDialog();
+                              } else if (v && _workerProfile == null) {
+                                showWorkerOnboardingSheet(
+                                  context,
+                                  userName: _userName,
+                                  onCompleted: () {
+                                    _loadUser();
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (ctx) => const MainNavigation(isWorkerMode: true)),
+                                      (route) => false,
+                                    );
+                                  },
+                                );
+                              } else {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (ctx) => MainNavigation(isWorkerMode: v)),
+                                  (route) => false,
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 12),
+
+                    if (_isWorkerMode && _workerProfile != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: const [BoxShadow(color: Color(0x060F172A), blurRadius: 12, offset: Offset(0, 4))],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: _primaryLight,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(Icons.badge_rounded, color: _primaryColor, size: 20),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Profil Jasa Pekerja',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF0F172A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _workerBioItem('Kategori Utama', _workerProfile!['category'] ?? '-'),
+                            _workerBioItem('Spesialisasi', _workerProfile!['specialty'] ?? '-'),
+                            _workerBioItem('Deskripsi / Bio', _workerProfile!['bio'] ?? '-'),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Layanan Jasa & Keahlian',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF475569),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_workerProfile!['skills'] != null && (_workerProfile!['skills'] as List).isNotEmpty)
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: (_workerProfile!['skills'] as List).map((skill) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                                    ),
+                                    child: Text(
+                                      skill.toString(),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: _primaryColor,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              )
+                            else
+                              const Text('-', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
 
                     // ── Menu Akun ──────────────────────────────────────────────
                     _menuSection([
@@ -520,6 +727,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _workerBioItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF334155),
+            ),
+          ),
+        ],
       ),
     );
   }

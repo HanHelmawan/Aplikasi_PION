@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'chat_screen.dart';
 import '../main.dart'; // To navigate back home safely
 import '../core/theme.dart';
+import '../models/task_request.dart';
 
 class ActiveTaskScreen extends StatelessWidget {
-  const ActiveTaskScreen({super.key});
+  final TaskRequest? request;
+
+  const ActiveTaskScreen({super.key, this.request});
 
   @override
   Widget build(BuildContext context) {
@@ -99,13 +102,19 @@ class ActiveTaskScreen extends StatelessWidget {
                   // Provider Info
                   Row(
                     children: [
-                      const PionAvatar(radius: 28, url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop'),
+                      PionAvatar(
+                        radius: 28,
+                        url: request?.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Budi Santoso', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                            Text(
+                              request?.assignedWorkerName ?? 'Budi Santoso',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                            ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
@@ -117,7 +126,10 @@ class ActiveTaskScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10)),
-                                  child: Text('Spesialis Pipa', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: colorScheme.primary)),
+                                  child: Text(
+                                    request?.category ?? 'Spesialis Pipa',
+                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: colorScheme.primary),
+                                  ),
                                 ),
                               ],
                             ),
@@ -126,7 +138,17 @@ class ActiveTaskScreen extends StatelessWidget {
                       ),
                       // Chat Icon
                       GestureDetector(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen())),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              providerName: request?.assignedWorkerName ?? 'Budi Santoso',
+                              providerAvatar: request?.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+                              isOnline: true,
+                              request: request,
+                            ),
+                          ),
+                        ),
                         child: Container(
                           width: 48, height: 48,
                           decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle, boxShadow: [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))]),
@@ -146,16 +168,31 @@ class ActiveTaskScreen extends StatelessWidget {
                         Container(
                           width: 48, height: 48,
                           decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                          child: const Icon(Icons.electric_moped_rounded, color: Color(0xFF0F172A)),
+                          child: Icon(
+                            request?.status == RequestStatus.dikerjakan
+                                ? Icons.build_rounded
+                                : Icons.electric_moped_rounded,
+                            color: const Color(0xFF0F172A),
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text('Menuju ke lokasi Anda', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                              SizedBox(height: 4),
-                              Text('Estimasi tiba dalam 12 menit (2.4 km)', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                            children: [
+                              Text(
+                                request?.status == RequestStatus.dikerjakan
+                                    ? 'Pekerjaan sedang dikerjakan'
+                                    : 'Menuju ke lokasi Anda',
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                request?.status == RequestStatus.dikerjakan
+                                    ? 'Pekerjaan sedang berlangsung'
+                                    : 'Estimasi tiba dalam 12 menit (2.4 km)',
+                                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                              ),
                             ],
                           ),
                         ),

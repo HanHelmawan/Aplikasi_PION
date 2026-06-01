@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/task_request.dart';
 import 'negotiation_screen.dart';
 
@@ -13,6 +15,38 @@ class JobBoardScreen extends StatefulWidget {
 
 class _JobBoardScreenState extends State<JobBoardScreen> {
   final _store = TaskRequestStore.instance;
+  StreamSubscription<QuerySnapshot>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // Realtime snapshot listener to automatically sync all tasks and overview data
+    _subscription = FirebaseFirestore.instance
+        .collection('task_requests')
+        .snapshots()
+        .listen((snapshot) {
+      final loaded = snapshot.docs
+          .map((doc) => TaskRequest.fromMap(doc.id, doc.data()))
+          .toList();
+
+      // Sort by creation date descending (latest first)
+      loaded.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // Sync with in-memory store
+      _store.requests.clear();
+      _store.requests.addAll(loaded);
+
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
 
   String _selectedFilter = 'Semua';
   final _filters = ['Semua', 'Perbaikan', 'Kebersihan', 'Listrik', 'Ledeng', 'Umum'];
@@ -74,14 +108,26 @@ class _JobBoardScreenState extends State<JobBoardScreen> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(child: _statItem('${_store.requests.length}', 'Permintaan\nMasuk')),
+                    Expanded(
+                      child: _statItem(
+                        '${items.where((r) => r.status == RequestStatus.menunggu || r.status == RequestStatus.ditawar || r.status == RequestStatus.dikerjakan).length}',
+                        'Permintaan\nMasuk',
+                      ),
+                    ),
                     Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.3)), // ✅ AUDIT FIX (L-1)
-                    Expanded(child: _statItem(
-                      '${_store.requests.where((r) => r.status == RequestStatus.menunggu).length}',
-                      'Belum\nDitangani',
-                    )),
+                    Expanded(
+                      child: _statItem(
+                        '${items.where((r) => r.status == RequestStatus.menunggu).length}',
+                        'Belum\nDitangani',
+                      ),
+                    ),
                     Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.3)), // ✅ AUDIT FIX (L-1)
-                    Expanded(child: _statItem('0', 'Sedang\nDikerjakan')),
+                    Expanded(
+                      child: _statItem(
+                        '${items.where((r) => r.status == RequestStatus.dikerjakan).length}',
+                        'Sedang\nDikerjakan',
+                      ),
+                    ),
                   ],
                 ),
               ),

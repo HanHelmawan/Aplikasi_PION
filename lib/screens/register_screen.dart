@@ -17,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
   bool _isLoading = false;
-  bool _isWorkerMode = false;
+  final bool _isWorkerMode = false;
 
   void _register() async {
     final name = _nameController.text.trim();
@@ -26,6 +26,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showSnackBar('Harap lengkapi semua data');
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w-.]+@[\w-]+(\.[\w-]+)*\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showSnackBar('Format email tidak valid');
       return;
     }
 
@@ -170,29 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // ── Role ──────────────────────────────────────────────
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: CheckboxListTile(
-                  value: _isWorkerMode,
-                  onChanged: (val) => setState(() => _isWorkerMode = val ?? false),
-                  title: const Text(
-                    'Daftar sebagai Pekerja (Worker)',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  subtitle: const Text(
-                    'Pilih ini jika kamu ingin menawarkan jasa',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                  ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
-              ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 12),
 
               // ── Register Button ────────────────────────────────────
               SizedBox(

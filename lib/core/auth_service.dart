@@ -137,6 +137,7 @@ class AuthService {
           // ✅ AUDIT FIX (L-5/L-6): Tambahkan avatarUrl dan kycPassed
           'avatarUrl': doc.data()?['avatarUrl'] ?? '',
           'kycPassed': doc.data()?['kycPassed'] ?? false,
+          'workerProfile': doc.data()?['workerProfile'],
         };
       }
     } catch (e) {
@@ -152,14 +153,26 @@ class AuthService {
     };
   }
 
-  // ── Logout ────────────────────────────────────────────────────────────────
-
   static Future<void> logout() async {
     // ✅ AUDIT FIX (Group E): Bersihkan data store sebelum logout
     //    agar data user sebelumnya tidak terlihat oleh user berikutnya di device yang sama
-    TaskRequestStore.instance.clear();
-    await _auth.signOut();
-    await _googleSignIn.signOut();
+    try {
+      TaskRequestStore.instance.clear();
+    } catch (e) {
+      debugPrint('Error clearing store during logout: $e');
+    }
+    
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      debugPrint('Error signing out of Firebase Auth: $e');
+    }
+    
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('Error signing out of Google Sign-In: $e');
+    }
     // NOTE: We intentionally keep location preferences so users
     // don't have to re-setup location on every login.
   }
@@ -239,6 +252,62 @@ class AuthService {
     }
   }
 
+  // ── Verify KYC (Mock) ──────────────────────────────────────────────────────
+
+  /// Mock/Simulate KYC verification by setting kycPassed = true in Firestore
+  static Future<String?> verifyKyc() async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return 'Anda belum masuk.';
+
+    try {
+      await _firestore.collection('users').doc(firebaseUser.uid).update({
+        'kycPassed': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return null; // success
+    } catch (e) {
+      debugPrint('AuthService.verifyKyc error: $e');
+      return 'Gagal memverifikasi KYC. Coba lagi.';
+    }
+  }
+
+  // ── Update Worker Profile ──────────────────────────────────────────────────
+
+  /// Saves or updates the worker's service profile in Firestore.
+  static Future<String?> updateWorkerProfile({
+    required String category,
+    required String specialty,
+    required String bio,
+    required List<String> skills,
+    required List<String> problems,
+    required bool isOnline,
+  }) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return 'Anda belum masuk.';
+
+    try {
+      await _firestore.collection('users').doc(firebaseUser.uid).update({
+        'isWorkerMode': true,
+        'workerProfile': {
+          'category': category,
+          'specialty': specialty,
+          'bio': bio,
+          'skills': skills,
+          'problems': problems,
+          'isOnline': isOnline,
+          'rating': 5.0,
+          'jobsCompleted': 0,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return null; // success
+    } catch (e) {
+      debugPrint('AuthService.updateWorkerProfile error: $e');
+      return 'Gagal menyimpan profil pekerja. Coba lagi.';
+    }
+  }
+
   // ── Submit Rating ─────────────────────────────────────────────────────────
 
   /// Submits a worker rating to Firestore.
@@ -315,5 +384,23 @@ class AuthService {
   static Future<String?> getSavedLocation() async {
     final prefs = await _sharedPrefs;
     return prefs.getString(_savedLocationKey);
+  }
+
+  /// Retrieves all users who are registered as workers (have isWorkerMode = true)
+  static Future<List<Map<String, dynamic>>> getAllWorkers() async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .where('isWorkerMode', isEqualTo: true)
+          .get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['uid'] = doc.id;
+        return data;
+      }).toList();
+    } catch (e) {
+      debugPrint('AuthService.getAllWorkers error: $e');
+      return [];
+    }
   }
 }

@@ -3,8 +3,11 @@ import '../core/theme.dart';
 import '../models/task_request.dart';
 import 'active_task_screen.dart';
 import 'rating_screen.dart';
+import '../core/auth_service.dart';
+import '../core/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
+  final String? providerId;
   final String providerName;
   final String providerAvatar;
   final bool isOnline;
@@ -12,6 +15,7 @@ class ChatScreen extends StatefulWidget {
 
   const ChatScreen({
     super.key,
+    this.providerId,
     this.providerName = 'Budi Santoso',
     this.providerAvatar = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
     this.isOnline = true,
@@ -26,23 +30,56 @@ class _ChatScreenState extends State<ChatScreen> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
-  final List<_Message> _messages = [
-    _Message(text: 'Halo! Saya Budi, saya melihat permintaan Anda tentang perbaikan pipa.', isMe: false, time: '10:32'),
-    _Message(text: 'Bisa ceritakan lebih detail? Apakah pipa bocor atau tersumbat?', isMe: false, time: '10:32'),
-    _Message(text: 'Halo Budi! Pipa di kamar mandi bocor, air menetes dari sambungan pipa.', isMe: true, time: '10:35'),
-    _Message(text: 'Sudah berapa lama? Dan apakah ada kerusakan di sekitarnya?', isMe: false, time: '10:36'),
-    _Message(text: 'Baru sejak kemarin. Belum ada kerusakan besar, tapi cukup mengganggu.', isMe: true, time: '10:38'),
-    _Message(text: 'Baik, saya bisa datang hari ini jam 2 siang. Estimasi pengerjaan 1-2 jam.', isMe: false, time: '10:40'),
-  ];
+  String _myName = 'Pengguna';
+  String _myAvatar = '';
 
-  void _sendMessage() {
+  bool get _isMockMode => widget.providerId == null || widget.providerId!.startsWith('mock_');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSenderInfo();
+    MockChatStore.instance.addListener(_onMockChatStoreChanged);
+  }
+
+  void _onMockChatStoreChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _loadSenderInfo() async {
+    final user = await AuthService.getCurrentUser();
+    if (mounted) {
+      setState(() {
+        _myName = user?['name'] ?? 'Pengguna';
+        _myAvatar = user?['avatarUrl'] ?? '';
+      });
+    }
+  }
+
+  void _sendMessage() async {
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _messages.add(_Message(text: text, isMe: true, time: _timeNow()));
-    });
+
+    if (_isMockMode) {
+      MockChatStore.instance.addMessage(widget.providerName, text, true);
+    } else {
+      await ChatService.sendMessage(
+        recipientId: widget.providerId!,
+        recipientName: widget.providerName,
+        recipientAvatar: widget.providerAvatar,
+        senderName: _myName,
+        senderAvatar: _myAvatar,
+        text: text,
+      );
+    }
     _inputController.clear();
-    Future.delayed(const Duration(milliseconds: 100), () {
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 150), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -53,15 +90,11 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  String _timeNow() {
-    final now = DateTime.now();
-    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    MockChatStore.instance.removeListener(_onMockChatStoreChanged);
     super.dispose();
   }
 
@@ -155,25 +188,73 @@ class _ChatScreenState extends State<ChatScreen> {
 
           // ── Messages ──────────────────────────────────────────────────────
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              itemCount: _messages.length,
-              itemBuilder: (_, i) {
-                final msg = _messages[i];
-                final showDate = i == 0;
-                return Column(
-                  children: [
-                    if (showDate)
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: Text('Hari ini', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
-                      ),
-                    _buildBubble(msg, theme),
-                  ],
-                );
-              },
-            ),
+            child: _isMockMode
+                ? Builder(
+                    builder: (context) {
+                      final mockMsgs = MockChatStore.instance.getMessages(widget.providerName);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                        }
+                      });
+                      return ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        itemCount: mockMsgs.length,
+                        itemBuilder: (_, i) {
+                          final msg = mockMsgs[i];
+                          final showDate = i == 0;
+                          return Column(
+                            children: [
+                              if (showDate)
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 20),
+                                  child: Text('Hari ini', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
+                                ),
+                              _buildBubble(msg.text, msg.isMe, msg.time, theme),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  )
+                : StreamBuilder<List<ChatMessage>>(
+                    stream: ChatService.listenToMessages(widget.providerId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final list = snapshot.data ?? [];
+                      // Scroll to bottom when new message arrives
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                        }
+                      });
+                      
+                      return ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        itemCount: list.length,
+                        itemBuilder: (_, i) {
+                          final msg = list[i];
+                          final showDate = i == 0;
+                          final timeStr = '${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}';
+                          final isMe = msg.senderId == ChatService.currentUserId;
+                          return Column(
+                            children: [
+                              if (showDate)
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 20),
+                                  child: Text('Hari ini', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
+                                ),
+                              _buildBubble(msg.text, isMe, timeStr, theme),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
 
           // ── Input ─────────────────────────────────────────────────────────
@@ -232,41 +313,41 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildBubble(_Message msg, ThemeData theme) {
+  Widget _buildBubble(String text, bool isMe, String time, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: msg.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!msg.isMe) ...[
+          if (!isMe) ...[
             PionAvatar(radius: 16, url: widget.providerAvatar),
             const SizedBox(width: 12),
           ],
           Column(
-            crossAxisAlignment: msg.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               Container(
                 constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: msg.isMe ? theme.colorScheme.primary : Colors.white,
+                  color: isMe ? theme.colorScheme.primary : Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(20),
                     topRight: const Radius.circular(20),
-                    bottomLeft: Radius.circular(msg.isMe ? 20 : 4),
-                    bottomRight: Radius.circular(msg.isMe ? 4 : 20),
+                    bottomLeft: Radius.circular(isMe ? 20 : 4),
+                    bottomRight: Radius.circular(isMe ? 4 : 20),
                   ),
-                  border: msg.isMe ? null : Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: msg.isMe ? [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))] : null,
+                  border: isMe ? null : Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: isMe ? [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))] : null,
                 ),
                 child: Text(
-                  msg.text,
-                  style: TextStyle(fontSize: 14, color: msg.isMe ? Colors.white : const Color(0xFF0F172A), height: 1.5),
+                  text,
+                  style: TextStyle(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF0F172A), height: 1.5),
                 ),
               ),
               const SizedBox(height: 6),
-              Text(msg.time, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
+              Text(time, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
             ],
           ),
         ],

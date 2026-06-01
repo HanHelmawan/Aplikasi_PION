@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/task_request.dart';
 import 'chat_screen.dart';
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/chat_service.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -54,6 +57,11 @@ class _ChatListScreenState extends State<ChatListScreen>
     },
   ];
 
+  List<Map<String, dynamic>> _firestoreChats = [];
+  StreamSubscription? _chatRoomsSubscription;
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -63,33 +71,116 @@ class _ChatListScreenState extends State<ChatListScreen>
     )..repeat(reverse: true);
     _pulseAnim = Tween<double>(begin: 0.5, end: 1.0)
         .animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _initChatRoomsListener();
+    MockChatStore.instance.addListener(_onMockChatStoreChanged);
+  }
+
+  void _onMockChatStoreChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _initChatRoomsListener() {
+    // Set a tiny delay so Auth service is ready
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final myId = ChatService.currentUserId;
+      if (myId.isEmpty) return;
+
+      _chatRoomsSubscription = ChatService.listenToChatRooms().listen((snapshot) {
+        final List<Map<String, dynamic>> loaded = [];
+        for (var doc in snapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>?;
+          if (data == null) continue;
+
+          final participants = List<String>.from(data['participants'] ?? []);
+          final recipientId = participants.firstWhere((id) => id != myId, orElse: () => '');
+          if (recipientId.isEmpty) continue;
+
+          final recipientData = data['user_$recipientId'] as Map<String, dynamic>? ?? {};
+          final recipientName = recipientData['name'] ?? 'Pengguna Pion';
+          final recipientAvatar = recipientData['avatarUrl'] ?? '';
+
+          final lastMsg = data['lastMessage'] as Map<String, dynamic>? ?? {};
+          final lastText = lastMsg['text'] ?? '';
+          final ts = lastMsg['timestamp'];
+
+          String timeStr = 'Baru saja';
+          if (ts is Timestamp) {
+            final date = ts.toDate();
+            timeStr = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+          }
+
+          loaded.add({
+            'name': recipientName,
+            'message': lastText,
+            'time': timeStr,
+            'unread': 0,
+            'isOnline': true,
+            'isDone': false,
+            'avatarUrl': recipientAvatar.isNotEmpty ? recipientAvatar : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+            'providerId': recipientId,
+          });
+        }
+        if (mounted) {
+          setState(() {
+            _firestoreChats = loaded;
+          });
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
+    _chatRoomsSubscription?.cancel();
+    _searchController.dispose();
+    MockChatStore.instance.removeListener(_onMockChatStoreChanged);
     super.dispose();
   }
 
   List<Map<String, dynamic>> _getMergedChats() {
     final list = <Map<String, dynamic>>[];
-    list.addAll(_chats);
+    list.addAll(_firestoreChats);
+
+    for (var c in _chats) {
+      if (!list.any((activeChat) => activeChat['name'] == c['name'])) {
+        final name = c['name'] as String;
+        final lastMsg = MockChatStore.instance.getLastMessage(name, c['message'] as String);
+        final lastTime = MockChatStore.instance.getLastTime(name, c['time'] as String);
+        list.add({
+          ...c,
+          'message': lastMsg,
+          'time': lastTime,
+          'providerId': 'mock_${name.replaceAll(' ', '_')}',
+        });
+      }
+    }
 
     final requests = TaskRequestStore.instance.requests;
     for (var r in requests) {
       if (r.assignedWorkerName != null && r.assignedWorkerName!.isNotEmpty) {
         if (!list.any((c) => c['name'] == r.assignedWorkerName)) {
+          final name = r.assignedWorkerName!;
+          final defaultMsg = r.status == RequestStatus.selesai 
+              ? 'Pekerjaan selesai: ${r.title}'
+              : 'Pekerjaan aktif: ${r.title}';
+          final defaultTime = '${r.createdAt.hour.toString().padLeft(2, '0')}:${r.createdAt.minute.toString().padLeft(2, '0')}';
+          
+          final lastMsg = MockChatStore.instance.getLastMessage(name, defaultMsg);
+          final lastTime = MockChatStore.instance.getLastTime(name, defaultTime);
+
           list.add({
-            'name': r.assignedWorkerName!,
-            'message': r.status == RequestStatus.selesai 
-                ? 'Pekerjaan selesai: ${r.title}'
-                : 'Pekerjaan aktif: ${r.title}',
-            'time': '${r.createdAt.hour.toString().padLeft(2, '0')}:${r.createdAt.minute.toString().padLeft(2, '0')}',
+            'name': name,
+            'message': lastMsg,
+            'time': lastTime,
             'unread': 0,
             'isOnline': r.status == RequestStatus.dikerjakan,
             'isDone': r.status == RequestStatus.selesai,
             'avatarUrl': r.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
             'request': r,
+            'providerId': 'mock_${name.replaceAll(' ', '_')}',
           });
         }
       }
@@ -99,14 +190,29 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   List<Map<String, dynamic>> get _filtered {
     final allChats = _getMergedChats();
+    List<Map<String, dynamic>> statusFiltered;
     switch (_filterIndex) {
       case 1:
-        return allChats.where((c) => c['isOnline'] as bool).toList();
+        statusFiltered = allChats.where((c) => c['isOnline'] as bool).toList();
+        break;
       case 2:
-        return allChats.where((c) => c['isDone'] as bool).toList();
+        statusFiltered = allChats.where((c) => c['isDone'] as bool).toList();
+        break;
       default:
-        return allChats;
+        statusFiltered = allChats;
+        break;
     }
+
+    if (_isSearching && _searchController.text.isNotEmpty) {
+      final query = _searchController.text.toLowerCase();
+      return statusFiltered.where((c) {
+        final name = (c['name'] as String).toLowerCase();
+        final msg = (c['message'] as String).toLowerCase();
+        return name.contains(query) || msg.contains(query);
+      }).toList();
+    }
+
+    return statusFiltered;
   }
 
   int get _onlineCount => _getMergedChats().where((c) => c['isOnline'] as bool).length;
@@ -133,24 +239,57 @@ class _ChatListScreenState extends State<ChatListScreen>
               elevation: 0,
               pinned: true,
               automaticallyImplyLeading: false,
-              title: const Text(
-                'Pesan',
-                style: TextStyle(
-                  
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
+              title: _isSearching
+                  ? TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A),
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Cari nama atau pesan...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+                        border: InputBorder.none,
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: Color(0xFF64748B)),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (val) {
+                        setState(() {});
+                      },
+                    )
+                  : const Text(
+                      'Pesan',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.search_rounded, color: Theme.of(context).primaryColor),
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Cari pesan — segera hadir', style: TextStyle()),
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                  icon: Icon(
+                    _isSearching ? Icons.close_rounded : Icons.search_rounded,
+                    color: Theme.of(context).primaryColor,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      if (_isSearching) {
+                        _isSearching = false;
+                        _searchController.clear();
+                      } else {
+                        _isSearching = true;
+                      }
+                    });
+                  },
                 ),
                 const SizedBox(width: 8),
               ],
@@ -336,6 +475,7 @@ class _ChatListScreenState extends State<ChatListScreen>
           context,
           MaterialPageRoute(
             builder: (ctx) => ChatScreen(
+              providerId: chat['providerId'] as String?,
               providerName: chat['name'] as String,
               providerAvatar: chat['avatarUrl'] as String,
               isOnline: chat['isOnline'] as bool,

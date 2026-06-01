@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'core/theme.dart';
 import 'core/config_reader.dart';
@@ -12,6 +13,9 @@ import 'screens/create_task_screen.dart';
 import 'screens/job_board_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/worker_home_screen.dart';
+import 'core/chat_service.dart';
+import 'screens/chat_screen.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +66,9 @@ class _MainNavigationState extends State<MainNavigation> {
   // ✅ AUDIT FIX: _pages dipindah ke initState() agar tidak dibuat ulang setiap rebuild
   late final List<Widget> _pages;
 
+  StreamSubscription? _chatSubscription;
+  final DateTime _startTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +82,99 @@ class _MainNavigationState extends State<MainNavigation> {
       const ChatListScreen(),
       ProfileScreen(isWorkerMode: widget.isWorkerMode),
     ];
+    _initChatNotificationListener();
+  }
+
+  void _initChatNotificationListener() {
+    // Set a tiny delay soFirebaseAuth has time to initialize if needed
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final myId = ChatService.currentUserId;
+      if (myId.isEmpty) return;
+
+      _chatSubscription = ChatService.listenToChatRooms().listen((snapshot) {
+        for (var doc in snapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>?;
+          if (data == null) continue;
+
+          final lastMsg = data['lastMessage'] as Map<String, dynamic>?;
+          if (lastMsg == null) continue;
+
+          final senderId = lastMsg['senderId'] as String?;
+          final text = lastMsg['text'] as String?;
+          final ts = lastMsg['timestamp'];
+
+          if (senderId == null || text == null || senderId == myId) continue;
+
+          DateTime messageTime;
+          if (ts is Timestamp) {
+            messageTime = ts.toDate();
+          } else {
+            continue;
+          }
+
+          // Only notify if message was sent after user launched/navigated to this screen
+          final diff = messageTime.difference(_startTime).inMilliseconds;
+          final secondsAgo = DateTime.now().difference(messageTime).inSeconds;
+
+          if (diff > 0 && secondsAgo < 5) {
+            final senderData = data['user_$senderId'] as Map<String, dynamic>? ?? {};
+            final senderName = senderData['name'] ?? 'Pengguna Pion';
+            final senderAvatar = senderData['avatarUrl'] ?? '';
+
+            if (mounted) {
+              // Dismiss existing snackbars to avoid queuing delay
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundImage: senderAvatar.isNotEmpty ? NetworkImage(senderAvatar) : null,
+                        child: senderAvatar.isEmpty ? const Icon(Icons.person, size: 18) : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(senderName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                            const SizedBox(height: 2),
+                            Text(text, style: const TextStyle(fontSize: 12, color: Colors.white70), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: const Color(0xFF1E293B),
+                  duration: const Duration(seconds: 4),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  action: SnackBarAction(
+                    label: 'Buka',
+                    textColor: const Color(0xFF3B82F6),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => ChatScreen(
+                            providerId: senderId,
+                            providerName: senderName,
+                            providerAvatar: senderAvatar,
+                            isOnline: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }
+          }
+        }
+      });
+    });
   }
 
   // Nav item config: index 0,1 left of FAB; 2,3 right of FAB
@@ -84,6 +184,12 @@ class _MainNavigationState extends State<MainNavigation> {
     _NavItem(icon: Icons.chat_bubble_rounded, outlineIcon: Icons.chat_bubble_outline_rounded, label: 'Pesan'),
     _NavItem(icon: Icons.person_rounded, outlineIcon: Icons.person_outline_rounded, label: 'Profil'),
   ];
+
+  @override
+  void dispose() {
+    _chatSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

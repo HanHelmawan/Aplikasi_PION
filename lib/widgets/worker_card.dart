@@ -130,6 +130,7 @@ class WorkerCard extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () => Navigator.push(context, MaterialPageRoute(
                             builder: (ctx) => ChatScreen(
+                              providerId: worker['uid'] ?? 'mock_${workerName.replaceAll(' ', '_')}',
                               providerName: workerName,
                               providerAvatar: workerAvatar,
                               isOnline: isOnline,

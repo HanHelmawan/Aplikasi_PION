@@ -142,7 +142,6 @@ class _WorkerOnboardingSheetState extends State<WorkerOnboardingSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final primaryColor = const Color(0xFF3B82F6);
 
     return Container(

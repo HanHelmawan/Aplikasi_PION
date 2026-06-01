@@ -144,6 +144,7 @@ class _JobTrackingScreenState extends State<JobTrackingScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ChatScreen(
+                          providerId: 'mock_${(req.assignedWorkerName ?? "Worker").replaceAll(" ", "_")}',
                           providerName: req.assignedWorkerName ?? 'Worker',
                           providerAvatar: req.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
                           isOnline: true,

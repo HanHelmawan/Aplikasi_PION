@@ -22,6 +22,7 @@ class ProviderReview {
 }
 
 class ProviderData {
+  final String? uid;
   final String name;
   final String title;
   final String avatarUrl;
@@ -35,6 +36,7 @@ class ProviderData {
   final String? price;
 
   const ProviderData({
+    this.uid,
     required this.name,
     required this.title,
     required this.avatarUrl,
@@ -285,6 +287,7 @@ class ProviderDetailScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (ctx) => ChatScreen(
+                          providerId: provider.uid ?? 'mock_${provider.name.replaceAll(' ', '_')}',
                           providerName: provider.name,
                           providerAvatar: provider.avatarUrl,
                           isOnline: true,

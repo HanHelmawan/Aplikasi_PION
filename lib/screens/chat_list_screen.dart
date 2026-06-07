@@ -18,48 +18,10 @@ class _ChatListScreenState extends State<ChatListScreen>
   late final Animation<double> _pulseAnim;
   int _filterIndex = 0; // 0=Semua, 1=Aktif, 2=Selesai
 
-  static const List<Map<String, dynamic>> _chats = [
-    {
-      'name': 'Budi Santoso',
-      'message': 'Baik, saya akan segera meluncur ke lokasi.',
-      'time': '10:42',
-      'unread': 2,
-      'isOnline': true,
-      'isDone': false,
-      'avatarUrl': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-    },
-    {
-      'name': 'Siti Aminah',
-      'message': 'Terima kasih! Tugas sudah saya selesaikan.',
-      'time': 'Kemarin',
-      'unread': 0,
-      'isOnline': false,
-      'isDone': true,
-      'avatarUrl': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop',
-    },
-    {
-      'name': 'Andi Pratama',
-      'message': 'Apakah ada tambahan alat yang perlu dibawa?',
-      'time': 'Senin',
-      'unread': 0,
-      'isOnline': true,
-      'isDone': false,
-      'avatarUrl': 'https://images.unsplash.com/photo-1600868620786-641e737119b4?q=80&w=200&auto=format&fit=crop',
-    },
-    {
-      'name': 'Rudi Hartono',
-      'message': 'Harga sudah kami sepakati ya, terima kasih.',
-      'time': 'Minggu',
-      'unread': 0,
-      'isOnline': false,
-      'isDone': true,
-      'avatarUrl': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
-    },
-  ];
-
   List<Map<String, dynamic>> _firestoreChats = [];
   StreamSubscription? _chatRoomsSubscription;
   bool _isSearching = false;
+  bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -72,20 +34,16 @@ class _ChatListScreenState extends State<ChatListScreen>
     _pulseAnim = Tween<double>(begin: 0.5, end: 1.0)
         .animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
     _initChatRoomsListener();
-    MockChatStore.instance.addListener(_onMockChatStoreChanged);
-  }
-
-  void _onMockChatStoreChanged() {
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   void _initChatRoomsListener() {
     // Set a tiny delay so Auth service is ready
     Future.delayed(const Duration(milliseconds: 500), () {
       final myId = ChatService.currentUserId;
-      if (myId.isEmpty) return;
+      if (myId.isEmpty) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
 
       _chatRoomsSubscription = ChatService.listenToChatRooms().listen((snapshot) {
         final List<Map<String, dynamic>> loaded = [];
@@ -108,25 +66,76 @@ class _ChatListScreenState extends State<ChatListScreen>
           String timeStr = 'Baru saja';
           if (ts is Timestamp) {
             final date = ts.toDate();
-            timeStr = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+            final now = DateTime.now();
+            final diff = now.difference(date);
+            if (diff.inDays == 0) {
+              timeStr = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+            } else if (diff.inDays == 1) {
+              timeStr = 'Kemarin';
+            } else if (diff.inDays < 7) {
+              const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+              timeStr = days[date.weekday - 1];
+            } else {
+              timeStr = '${date.day}/${date.month}';
+            }
           }
+
+          // Unread count untuk user saat ini
+          final unread = (data['unread_$myId'] as int?) ?? 0;
 
           loaded.add({
             'name': recipientName,
             'message': lastText,
             'time': timeStr,
-            'unread': 0,
+            'unread': unread,
             'isOnline': true,
             'isDone': false,
-            'avatarUrl': recipientAvatar.isNotEmpty ? recipientAvatar : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
+            'avatarUrl': recipientAvatar.isNotEmpty
+                ? recipientAvatar
+                : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
             'providerId': recipientId,
           });
         }
+
+        // Juga tambahkan chat dari TaskRequestStore (worker yang sudah ditetapkan)
+        final requests = TaskRequestStore.instance.requests;
+        for (var r in requests) {
+          if (r.assignedWorkerName != null &&
+              r.assignedWorkerName!.isNotEmpty &&
+              !loaded.any((c) => c['providerId'] == (r.assignedWorkerPhone ?? r.assignedWorkerName))) {
+            // Hanya tampilkan jika belum ada di Firestore chats
+            if (!loaded.any((c) => c['name'] == r.assignedWorkerName)) {
+              final defaultMsg = r.status == RequestStatus.selesai
+                  ? 'Pekerjaan selesai: ${r.title}'
+                  : 'Pekerjaan aktif: ${r.title}';
+              final defaultTime =
+                  '${r.createdAt.hour.toString().padLeft(2, '0')}:${r.createdAt.minute.toString().padLeft(2, '0')}';
+
+              loaded.add({
+                'name': r.assignedWorkerName!,
+                'message': defaultMsg,
+                'time': defaultTime,
+                'unread': 0,
+                'isOnline': r.status == RequestStatus.dikerjakan,
+                'isDone': r.status == RequestStatus.selesai,
+                'avatarUrl': r.assignedWorkerAvatar ??
+                    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
+                'request': r,
+                'providerId': null, // Worker belum terdaftar di Firestore auth
+              });
+            }
+          }
+        }
+
         if (mounted) {
           setState(() {
             _firestoreChats = loaded;
+            _isLoading = false;
           });
         }
+      }, onError: (e) {
+        debugPrint('ChatListScreen stream error: $e');
+        if (mounted) setState(() => _isLoading = false);
       });
     });
   }
@@ -136,70 +145,20 @@ class _ChatListScreenState extends State<ChatListScreen>
     _pulseController.dispose();
     _chatRoomsSubscription?.cancel();
     _searchController.dispose();
-    MockChatStore.instance.removeListener(_onMockChatStoreChanged);
     super.dispose();
   }
 
-  List<Map<String, dynamic>> _getMergedChats() {
-    final list = <Map<String, dynamic>>[];
-    list.addAll(_firestoreChats);
-
-    for (var c in _chats) {
-      if (!list.any((activeChat) => activeChat['name'] == c['name'])) {
-        final name = c['name'] as String;
-        final lastMsg = MockChatStore.instance.getLastMessage(name, c['message'] as String);
-        final lastTime = MockChatStore.instance.getLastTime(name, c['time'] as String);
-        list.add({
-          ...c,
-          'message': lastMsg,
-          'time': lastTime,
-          'providerId': 'mock_${name.replaceAll(' ', '_')}',
-        });
-      }
-    }
-
-    final requests = TaskRequestStore.instance.requests;
-    for (var r in requests) {
-      if (r.assignedWorkerName != null && r.assignedWorkerName!.isNotEmpty) {
-        if (!list.any((c) => c['name'] == r.assignedWorkerName)) {
-          final name = r.assignedWorkerName!;
-          final defaultMsg = r.status == RequestStatus.selesai 
-              ? 'Pekerjaan selesai: ${r.title}'
-              : 'Pekerjaan aktif: ${r.title}';
-          final defaultTime = '${r.createdAt.hour.toString().padLeft(2, '0')}:${r.createdAt.minute.toString().padLeft(2, '0')}';
-          
-          final lastMsg = MockChatStore.instance.getLastMessage(name, defaultMsg);
-          final lastTime = MockChatStore.instance.getLastTime(name, defaultTime);
-
-          list.add({
-            'name': name,
-            'message': lastMsg,
-            'time': lastTime,
-            'unread': 0,
-            'isOnline': r.status == RequestStatus.dikerjakan,
-            'isDone': r.status == RequestStatus.selesai,
-            'avatarUrl': r.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-            'request': r,
-            'providerId': 'mock_${name.replaceAll(' ', '_')}',
-          });
-        }
-      }
-    }
-    return list;
-  }
-
   List<Map<String, dynamic>> get _filtered {
-    final allChats = _getMergedChats();
     List<Map<String, dynamic>> statusFiltered;
     switch (_filterIndex) {
       case 1:
-        statusFiltered = allChats.where((c) => c['isOnline'] as bool).toList();
+        statusFiltered = _firestoreChats.where((c) => c['isOnline'] as bool).toList();
         break;
       case 2:
-        statusFiltered = allChats.where((c) => c['isDone'] as bool).toList();
+        statusFiltered = _firestoreChats.where((c) => c['isDone'] as bool).toList();
         break;
       default:
-        statusFiltered = allChats;
+        statusFiltered = _firestoreChats;
         break;
     }
 
@@ -215,7 +174,7 @@ class _ChatListScreenState extends State<ChatListScreen>
     return statusFiltered;
   }
 
-  int get _onlineCount => _getMergedChats().where((c) => c['isOnline'] as bool).length;
+  int get _onlineCount => _firestoreChats.where((c) => c['isOnline'] as bool).length;
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +187,7 @@ class _ChatListScreenState extends State<ChatListScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.08)], // ✅ AUDIT FIX (L-1)
+            colors: [Colors.white, Theme.of(context).primaryColor.withValues(alpha: 0.08)],
             stops: const [0.3, 1.0],
           ),
         ),
@@ -342,7 +301,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         '$_onlineCount kontak sedang aktif',
                         style: const TextStyle(
-                          
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF059669),
@@ -354,11 +312,12 @@ class _ChatListScreenState extends State<ChatListScreen>
                         height: 28,
                         width: 56,
                         child: Stack(
-                          children: _getMergedChats()
+                          children: _firestoreChats
                               .where((c) => c['isOnline'] as bool)
                               .toList()
                               .asMap()
                               .entries
+                              .take(3)
                               .map((e) => Positioned(
                                     left: e.key * 18.0,
                                     child: Container(
@@ -381,13 +340,15 @@ class _ChatListScreenState extends State<ChatListScreen>
 
               // ── Chat List ─────────────────────────────────────────────────
               Expanded(
-                child: filtered.isEmpty
-                    ? _buildEmpty()
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(top: 8, bottom: 80),
-                        itemCount: filtered.length,
-                        itemBuilder: (ctx, i) => _chatItem(filtered[i]),
-                      ),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : filtered.isEmpty
+                        ? _buildEmpty()
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(top: 8, bottom: 80),
+                            itemCount: filtered.length,
+                            itemBuilder: (ctx, i) => _chatItem(filtered[i]),
+                          ),
               ),
             ],
           ),
@@ -423,7 +384,6 @@ class _ChatListScreenState extends State<ChatListScreen>
             Text(
               label,
               style: TextStyle(
-                
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: isSelected ? Colors.white : const Color(0xFF64748B),
@@ -446,10 +406,10 @@ class _ChatListScreenState extends State<ChatListScreen>
             ),
             const SizedBox(height: 20),
             const Text('Belum Ada Pesan',
-                style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
             const SizedBox(height: 8),
             const Text('Pesan dari mitra akan muncul di sini',
-                style: TextStyle( fontSize: 14, color: Color(0xFF64748B))),
+                style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
           ],
         ),
       );
@@ -466,23 +426,28 @@ class _ChatListScreenState extends State<ChatListScreen>
         } else {
           try {
             matchedReq = TaskRequestStore.instance.requests.firstWhere(
-              (r) => r.assignedWorkerName == chat['name'] || (chat['name'] == 'Budi Santoso' && r.status == RequestStatus.dikerjakan),
+              (r) => r.assignedWorkerName == chat['name'],
             );
           } catch (_) {}
         }
+
+        final providerId = chat['providerId'] as String?;
 
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (ctx) => ChatScreen(
-              providerId: chat['providerId'] as String?,
+              providerId: providerId,
               providerName: chat['name'] as String,
               providerAvatar: chat['avatarUrl'] as String,
               isOnline: chat['isOnline'] as bool,
               request: matchedReq,
             ),
           ),
-        );
+        ).then((_) {
+          // Refresh setelah kembali agar unread count diperbarui
+          setState(() {});
+        });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -523,7 +488,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         chat['name'] as String,
                         style: TextStyle(
-                          
                           fontSize: 16,
                           fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w700,
                           color: const Color(0xFF0F172A),
@@ -532,7 +496,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                       Text(
                         chat['time'] as String,
                         style: TextStyle(
-                          
                           fontSize: 12,
                           fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                           color: unread > 0 ? Theme.of(context).primaryColor : const Color(0xFF94A3B8),
@@ -549,7 +512,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            
                             fontSize: 14,
                             fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
                             color: unread > 0 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
@@ -567,7 +529,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                           child: Text(
                             '$unread',
                             style: const TextStyle(
-                              
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,

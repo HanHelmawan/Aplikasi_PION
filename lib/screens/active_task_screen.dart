@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'chat_screen.dart';
 import '../main.dart'; // To navigate back home safely
 import '../core/theme.dart';
@@ -8,6 +9,30 @@ class ActiveTaskScreen extends StatelessWidget {
   final TaskRequest? request;
 
   const ActiveTaskScreen({super.key, this.request});
+
+  Future<void> _makePhoneCall(BuildContext context, String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    try {
+      if (await canLaunchUrl(launchUri)) {
+        await launchUrl(launchUri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Tidak dapat membuka dialer telepon'), behavior: SnackBarBehavior.floating),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal melakukan panggilan: $e'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +243,10 @@ class ActiveTaskScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating)),
+                          onPressed: () {
+                            final phone = request?.assignedWorkerPhone ?? '081234567890';
+                            _makePhoneCall(context, phone);
+                          },
                           child: const Text('Telepon'),
                         ),
                       ),

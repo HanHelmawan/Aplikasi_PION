@@ -283,26 +283,36 @@ class ProviderDetailScreen extends StatelessWidget {
                 SizedBox(
                   height: 56,
                   child: OutlinedButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (ctx) => ChatScreen(
-                          providerId: provider.uid ?? 'mock_${provider.name.replaceAll(' ', '_')}',
-                          providerName: provider.name,
-                          providerAvatar: provider.avatarUrl,
-                          isOnline: true,
-                        ),
-                      ),
-                    ),
+                    onPressed: provider.uid != null
+                        ? () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (ctx) => ChatScreen(
+                                  providerId: provider.uid,
+                                  providerName: provider.name,
+                                  providerAvatar: provider.avatarUrl,
+                                  isOnline: true,
+                                ),
+                              ),
+                            )
+                        : () => ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Mitra ini belum terdaftar di Pion. Hubungi via nomor telepon.'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            ),
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                     label: const FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text('Hubungi', style: TextStyle( fontWeight: FontWeight.w700, fontSize: 14)),
+                      child: Text('Hubungi',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2563EB),
                       side: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                     ),
                   ),

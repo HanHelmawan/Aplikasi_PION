@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import '../core/auth_service.dart';
 import 'provider_detail_screen.dart';
+import 'chat_screen.dart';
 
-class SelectProviderScreen extends StatelessWidget {
+class SelectProviderScreen extends StatefulWidget {
   const SelectProviderScreen({super.key});
+
+  @override
+  State<SelectProviderScreen> createState() => _SelectProviderScreenState();
+}
+
+class _SelectProviderScreenState extends State<SelectProviderScreen> {
+  List<Map<String, dynamic>> _workers = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWorkers();
+  }
+
+  Future<void> _loadWorkers() async {
+    setState(() => _isLoading = true);
+    try {
+      final workers = await AuthService.getAllWorkers();
+      if (mounted) {
+        setState(() {
+          _workers = workers;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('SelectProviderScreen._loadWorkers error: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +51,10 @@ class SelectProviderScreen extends StatelessWidget {
         ),
         title: const Text('Pilih Penyedia'),
         actions: [
-          IconButton(icon: const Icon(Icons.tune_rounded), onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur sedang dalam tahap perbaikan', style: TextStyle()), behavior: SnackBarBehavior.floating))),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: _loadWorkers,
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -35,93 +70,188 @@ class SelectProviderScreen extends StatelessWidget {
             stops: [0.3, 1.0],
           ),
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header ───────────────────────────────────────────────────────
-            const Text(
-              '5 profesional siap membantu',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Pilih mitra terbaik yang sesuai dengan kebutuhan Anda.',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-            ),
-            const SizedBox(height: 28),
-
-            // ── Provider Cards ────────────────────────────────────────────────
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // Responsive Wrap acts as a neat grid that doesn't force vertical heights.
-                final isWide = constraints.maxWidth > 600;
-                final cardWidth = isWide ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth;
-                
-                return Wrap(
-                  spacing: 24,
-                  runSpacing: 24,
-                  children: _buildCards(context).map((c) => SizedBox(width: cardWidth, child: c)).toList(),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _workers.isEmpty
+                ? _buildEmpty(context)
+                : RefreshIndicator(
+                    onRefresh: _loadWorkers,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_workers.length} profesional siap membantu',
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0F172A)),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Pilih mitra terbaik yang sesuai dengan kebutuhan Anda.',
+                            style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 28),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isWide = constraints.maxWidth > 600;
+                              final cardWidth = isWide
+                                  ? (constraints.maxWidth - 24) / 2
+                                  : constraints.maxWidth;
+                              return Wrap(
+                                spacing: 24,
+                                runSpacing: 24,
+                                children: _workers
+                                    .map((w) => SizedBox(
+                                          width: cardWidth,
+                                          child: _buildCard(context, w),
+                                        ))
+                                    .toList(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
       ),
     );
   }
 
-  List<Widget> _buildCards(BuildContext context) => [
-    _buildCard(context, name: 'Budi Santoso', category: 'Spesialis Instalasi & Pipa', tags: ['#AhliAir', '#TepatWaktu'], rating: 4.9, reviews: 128, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCZMqpSGrSJ4udn_WZzCN5Dz39RyaXM9RReqz42aEH1RaCYdMLb0ZnPpCCBXwjaAdEqbzeQBHLBQy4_UENmvw8P6ypARh_5jj5y4dLdy9HIU3xx8QZ3H482aVgOxR6V6A0VD3_8zfa_1XQZxperSeBfrpiT1zA1m4fTo9Fi5gQ3x_zH4x6mxe5wGfVUec_37zYdJyL9Tx2Mo_Qa2FvuWYPWA3wjG_B7C3fY3bntI_Jd1cts9vnIiFXvcdSiy1o0O0YfjMhW1CuKjSS', responseTime: '< 10 menit', successRate: '98%'),
-    _buildCard(context, name: 'Siti Aminah', category: 'Layanan Kebersihan Pro', tags: ['#BersihKilat', '#Ramah'], rating: 4.8, reviews: 94, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsGG3QZiqbGXWHdn2njMLBETpASlOqE4tN-9Aq3db5ObZlGcIvwejiqm8tOrad6Vs8FvurttLHQmMA_VJ8abkaE2aPcHqJjUGzDXmKHBWl86V17r_Vyv_oku2Lj8Ucd7eeJ9QtoJSseRNzaW50lR_K_oVjHp6eGmnU7sYPRoYy6-Nbttk1uLeaEfm0Pyv6BaM3FdPcD2JdZQwWpe917BPPPdzu6JPcCpo6X4xmpPXt17a_HlpKoXps9zBjJzaOfSmrMxvY_SW_u3rz', responseTime: '< 15 menit', successRate: '96%'),
-    _buildCard(context, name: 'Andi Pratama', category: 'Ahli Listrik & Elektronik', tags: ['#SolusiCepat', '#Aman'], rating: 5.0, reviews: 76, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtHKokFpO_dEk7PxGBLgrfBeQBPIaro37Ovz2a1b9HnEJNrP7anJZR4jRvv65Z3XnxvgDsX3J0d9GfvZX9VcNIHvdqWQ3zXFBOqQuYZn0oc_jMLBq-FKeQFsASAiJBSs7XeChnORw60RolofIFDjqG6uZn1m_QC9ptV464hL2uIVA4CNjNf99uY45Re4DLNEZl3egBvKwQ0HrO9oXBBt7VRBrBx2Clw4Lh_JITs4ry2PSmLPDU1R8Sm7Dlga9qT-Xo4QjV25v1-eM5', responseTime: '< 5 menit', successRate: '100%'),
-    _buildCard(context, name: 'Ahmad Wijaya', category: 'Tukang Kebun', tags: ['#PeralatanLengkap', '#Hijau'], rating: 4.7, reviews: 53, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCZMqpSGrSJ4udn_WZzCN5Dz39RyaXM9RReqz42aEH1RaCYdMLb0ZnPpCCBXwjaAdEqbzeQBHLBQy4_UENmvw8P6ypARh_5jj5y4dLdy9HIU3xx8QZ3H482aVgOxR6V6A0VD3_8zfa_1XQZxperSeBfrpiT1zA1m4fTo9Fi5gQ3x_zH4x6mxe5wGfVUec_37zYdJyL9Tx2Mo_Qa2FvuWYPWA3wjG_B7C3fY3bntI_Jd1cts9vnIiFXvcdSiy1o0O0YfjMhW1CuKjSS', responseTime: '< 30 menit', successRate: '94%'),
-    _buildCard(context, name: 'Rina Amelia', category: 'Servis AC', tags: ['#DinginSekejap', '#Garansi'], rating: 4.9, reviews: 111, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBsGG3QZiqbGXWHdn2njMLBETpASlOqE4tN-9Aq3db5ObZlGcIvwejiqm8tOrad6Vs8FvurttLHQmMA_VJ8abkaE2aPcHqJjUGzDXmKHBWl86V17r_Vyv_oku2Lj8Ucd7eeJ9QtoJSseRNzaW50lR_K_oVjHp6eGmnU7sYPRoYy6-Nbttk1uLeaEfm0Pyv6BaM3FdPcD2JdZQwWpe917BPPPdzu6JPcCpo6X4xmpPXt17a_HlpKoXps9zBjJzaOfSmrMxvY_SW_u3rz', responseTime: '< 10 menit', successRate: '99%'),
-  ];
+  Widget _buildEmpty(BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEEF0FF),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.people_outline_rounded,
+                  size: 48, color: Color(0xFF0525BB)),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Belum Ada Mitra Tersedia',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A)),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                'Mitra profesional akan muncul di sini setelah mendaftar.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _loadWorkers,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Muat Ulang'),
+            ),
+          ],
+        ),
+      );
 
-  Widget _buildCard(BuildContext context, {
-    required String name,
-    required String category,
-    required List<String> tags,
-    required double rating,
-    required int reviews,
-    required String imageUrl,
-    required String responseTime,
-    required String successRate,
-  }) {
+  Widget _buildCard(BuildContext context, Map<String, dynamic> worker) {
     final theme = Theme.of(context);
-    
+    final profile = worker['workerProfile'] as Map<String, dynamic>? ?? {};
+    final uid = worker['uid'] as String?;
+    final name = worker['name'] as String? ?? 'Pekerja Pion';
+    final specialty = profile['specialty'] as String? ?? 'Penyedia Jasa';
+    final category = profile['category'] as String? ?? 'Umum';
+    final rating = (profile['rating'] as num?)?.toDouble() ?? 5.0;
+    final jobsCompleted = (profile['jobsCompleted'] as int?) ?? 0;
+    final avatarUrl = (worker['avatarUrl'] as String?)?.isNotEmpty == true
+        ? worker['avatarUrl'] as String
+        : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop';
+    final bio = profile['bio'] as String? ??
+        'Profesional berpengalaman di bidangnya. Siap membantu kebutuhan Anda.';
+    final skills = List<String>.from(profile['skills'] as List? ?? []);
+    final isOnline = profile['isOnline'] as bool? ?? false;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))],
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x0A0F172A), blurRadius: 16, offset: Offset(0, 4))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Avatar + Verified ──────────────────────────────────────────────
+          // ── Avatar + Online Status ───────────────────────────────────────
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(imageUrl, width: 64, height: 64, fit: BoxFit.cover),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      avatarUrl,
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, url, err) => Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEF0FF),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.person_rounded,
+                            size: 32, color: Color(0xFF0525BB)),
+                      ),
+                    ),
+                  ),
+                  if (isOnline)
+                    Positioned(
+                      right: 2,
+                      bottom: 2,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: const Color(0xFFEEF0FF), borderRadius: BorderRadius.circular(20)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                    color: const Color(0xFFEEF0FF),
+                    borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.verified_rounded, color: theme.colorScheme.primary, size: 14),
+                    Icon(Icons.verified_rounded,
+                        color: theme.colorScheme.primary, size: 14),
                     const SizedBox(width: 4),
-                    Text('Terverifikasi', style: TextStyle(color: theme.colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w700, )),
+                    Text('Terverifikasi',
+                        style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -129,66 +259,156 @@ class SelectProviderScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // ── Name & Category ────────────────────────────────────────────────
-          Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), )),
+          // ── Name & Category ─────────────────────────────────────────────
+          Text(name,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A))),
           const SizedBox(height: 4),
-          Text(category, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), )),
+          Text(specialty,
+              style:
+                  const TextStyle(fontSize: 14, color: Color(0xFF64748B))),
           const SizedBox(height: 12),
 
-          // ── Stats ─────────────────────────────────────────────────────────
+          // ── Stats ───────────────────────────────────────────────────────
           Row(
             children: [
               const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
               const SizedBox(width: 4),
-              Text(rating.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), )),
+              Text(rating.toStringAsFixed(1),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A))),
               const SizedBox(width: 12),
-              const Icon(Icons.flash_on_rounded, color: Color(0xFFF59E0B), size: 16),
+              const Icon(Icons.task_alt_rounded,
+                  color: Color(0xFF10B981), size: 16),
               const SizedBox(width: 4),
-              Flexible(child: Text(responseTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), ), overflow: TextOverflow.ellipsis)),
-              const SizedBox(width: 12),
-              const Icon(Icons.thumb_up_rounded, color: Color(0xFF10B981), size: 14),
-              const SizedBox(width: 4),
-              Flexible(child: Text(successRate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A), ), overflow: TextOverflow.ellipsis)),
+              Flexible(
+                  child: Text('$jobsCompleted selesai',
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F172A)),
+                      overflow: TextOverflow.ellipsis)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // ── Tags ───────────────────────────────────────────────────────────
-          Wrap(
-            spacing: 8, runSpacing: 8,
-            children: tags.map((t) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
-              child: Text(t, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
-            )).toList(),
-          ),
-          const SizedBox(height: 24),
-
-          // ── Button ─────────────────────────────────────────────────────────
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ProviderDetailScreen(
-                  provider: ProviderData(
-                    name: name,
-                    title: category,
-                    avatarUrl: imageUrl,
-                    rating: rating,
-                    tasksCompleted: reviews,
-                    bio: 'Profesional berpengalaman di bidangnya. Berkomitmen memberikan solusi cepat, andal, dan aman. Sudah terverifikasi dan diasuransikan.',
-                    skills: tags,
-                    reviews: [
-                      ProviderReview(reviewerName: 'Sarah J.', reviewerAvatar: 'https://i.pravatar.cc/150?img=5', timeAgo: '2 hari lalu', rating: 5, text: 'Sangat efisien dan profesional!'),
-                    ],
-                    category: category,
-                  ),
-                )),
-              ),
-              child: const Text('Pilih Penyedia'),
+          // ── Category chip ───────────────────────────────────────────────
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEF0FF),
+              borderRadius: BorderRadius.circular(20),
             ),
+            child: Text(category,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.primary)),
+          ),
+          if (skills.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: skills
+                  .take(3)
+                  .map((s) => Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Text(s,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF475569))),
+                      ))
+                  .toList(),
+            ),
+          ],
+          const SizedBox(height: 20),
+
+          // ── Action Buttons ──────────────────────────────────────────────
+          Row(
+            children: [
+              // Hubungi (Chat)
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: uid != null
+                        ? () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChatScreen(
+                                  providerId: uid,
+                                  providerName: name,
+                                  providerAvatar: avatarUrl,
+                                  isOnline: isOnline,
+                                ),
+                              ),
+                            )
+                        : null,
+                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
+                    label: const Text('Chat',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.primary,
+                      side: BorderSide(color: theme.colorScheme.primary),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Lihat Detail
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProviderDetailScreen(
+                          provider: ProviderData(
+                            uid: uid,
+                            name: name,
+                            title: specialty,
+                            avatarUrl: avatarUrl,
+                            rating: rating,
+                            tasksCompleted: jobsCompleted,
+                            bio: bio,
+                            skills: skills,
+                            reviews: const [],
+                            category: category,
+                          ),
+                        ),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: const Text('Detail',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

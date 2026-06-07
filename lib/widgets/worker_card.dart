@@ -128,14 +128,26 @@ class WorkerCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(
-                            builder: (ctx) => ChatScreen(
-                              providerId: worker['uid'] ?? 'mock_${workerName.replaceAll(' ', '_')}',
-                              providerName: workerName,
-                              providerAvatar: workerAvatar,
-                              isOnline: isOnline,
-                            ),
-                          )),
+                          onTap: () {
+                              final uid = worker['uid'] as String?;
+                              if (uid != null) {
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (ctx) => ChatScreen(
+                                    providerId: uid,
+                                    providerName: workerName,
+                                    providerAvatar: workerAvatar,
+                                    isOnline: isOnline,
+                                  ),
+                                ));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Mitra ini belum terdaftar di Pion. Hubungi via telepon.'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                             decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),

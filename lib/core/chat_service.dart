@@ -56,7 +56,7 @@ class ChatService {
     return list.join('_');
   }
 
-  /// Mengirim pesan baru ke Firestore
+  /// Mengirim pesan baru ke Firestore dan meng-increment unread count penerima
   static Future<void> sendMessage({
     required String recipientId,
     required String recipientName,
@@ -67,15 +67,15 @@ class ChatService {
   }) async {
     final myId = currentUserId;
     if (myId.isEmpty) return;
-    
+
     final chatRoomId = getChatRoomId(myId, recipientId);
-    
+
     final messageRef = _firestore
         .collection('chats')
         .doc(chatRoomId)
         .collection('messages')
         .doc();
-        
+
     try {
       await _firestore.runTransaction((transaction) async {
         // 1. Tambah pesan baru
@@ -84,8 +84,8 @@ class ChatService {
           'text': text,
           'timestamp': FieldValue.serverTimestamp(),
         });
-        
-        // 2. Perbarui ringkasan ruang obrolan (lastMessage)
+
+        // 2. Perbarui ringkasan ruang obrolan (lastMessage) dan unread count penerima
         transaction.set(_firestore.collection('chats').doc(chatRoomId), {
           'lastMessage': {
             'text': text,
@@ -102,6 +102,8 @@ class ChatService {
             'name': recipientName,
             'avatarUrl': recipientAvatar,
           },
+          // Increment unread count untuk penerima
+          'unread_$recipientId': FieldValue.increment(1),
         }, SetOptions(merge: true));
       });
     } catch (e) {
@@ -109,13 +111,65 @@ class ChatService {
     }
   }
 
+  /// Menandai semua pesan sudah dibaca oleh user saat ini (reset unread count)
+  static Future<void> markMessagesRead(String recipientId) async {
+    final myId = currentUserId;
+    if (myId.isEmpty) return;
+
+    final chatRoomId = getChatRoomId(myId, recipientId);
+    try {
+      await _firestore.collection('chats').doc(chatRoomId).update({
+        'unread_$myId': 0,
+      });
+    } catch (e) {
+      // Dokumen mungkin belum ada, abaikan error ini
+      debugPrint('ChatService.markMessagesRead: $e');
+    }
+  }
+
+  /// Stream unread count untuk satu chatroom tertentu (untuk tampilan di dalam chat list item)
+  static Stream<int> listenUnreadCount(String recipientId) {
+    final myId = currentUserId;
+    if (myId.isEmpty) return const Stream.empty();
+
+    final chatRoomId = getChatRoomId(myId, recipientId);
+    return _firestore
+        .collection('chats')
+        .doc(chatRoomId)
+        .snapshots()
+        .map((doc) {
+          if (!doc.exists) return 0;
+          final data = doc.data();
+          return (data?['unread_$myId'] as int?) ?? 0;
+        });
+  }
+
+  /// Stream total unread count dari semua chatroom milik user (untuk badge di bottom nav)
+  static Stream<int> listenTotalUnread() {
+    final myId = currentUserId;
+    if (myId.isEmpty) return const Stream.empty();
+
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: myId)
+        .snapshots()
+        .map((snapshot) {
+          int total = 0;
+          for (final doc in snapshot.docs) {
+            final data = doc.data();
+            total += (data['unread_$myId'] as int?) ?? 0;
+          }
+          return total;
+        });
+  }
+
   /// Mendengarkan pesan dalam ruang obrolan secara realtime
   static Stream<List<ChatMessage>> listenToMessages(String recipientId) {
     final myId = currentUserId;
     if (myId.isEmpty) return const Stream.empty();
-    
+
     final chatRoomId = getChatRoomId(myId, recipientId);
-    
+
     return _firestore
         .collection('chats')
         .doc(chatRoomId)
@@ -133,80 +187,11 @@ class ChatService {
   static Stream<QuerySnapshot> listenToChatRooms() {
     final myId = currentUserId;
     if (myId.isEmpty) return const Stream.empty();
-    
+
     return _firestore
         .collection('chats')
         .where('participants', arrayContains: myId)
         .orderBy('updatedAt', descending: true)
         .snapshots();
-  }
-}
-
-class MockChatMessage {
-  final String text;
-  final bool isMe;
-  final String time;
-
-  MockChatMessage({
-    required this.text,
-    required this.isMe,
-    required this.time,
-  });
-}
-
-class MockChatStore extends ChangeNotifier {
-  MockChatStore._();
-  static final MockChatStore instance = MockChatStore._();
-
-  final Map<String, List<MockChatMessage>> _chatsHistory = {};
-
-  List<MockChatMessage> getMessages(String providerName) {
-    if (!_chatsHistory.containsKey(providerName)) {
-      if (providerName == 'Budi Santoso') {
-        _chatsHistory[providerName] = [
-          MockChatMessage(text: 'Halo! Saya Budi, saya melihat permintaan Anda tentang perbaikan pipa.', isMe: false, time: '10:32'),
-          MockChatMessage(text: 'Bisa ceritakan lebih detail? Apakah pipa bocor atau tersumbat?', isMe: false, time: '10:32'),
-          MockChatMessage(text: 'Halo Budi! Pipa di kamar mandi bocor, air menetes dari sambungan pipa.', isMe: true, time: '10:35'),
-          MockChatMessage(text: 'Sudah berapa lama? Dan apakah ada kerusakan di sekitarnya?', isMe: false, time: '10:36'),
-          MockChatMessage(text: 'Baru sejak kemarin. Belum ada kerusakan besar, tapi cukup mengganggu.', isMe: true, time: '10:38'),
-          MockChatMessage(text: 'Baik, saya bisa datang hari ini jam 2 siang. Estimasi pengerjaan 1-2 jam.', isMe: false, time: '10:40'),
-        ];
-      } else if (providerName == 'Siti Aminah') {
-        _chatsHistory[providerName] = [
-          MockChatMessage(text: 'Terima kasih! Tugas sudah saya selesaikan.', isMe: false, time: 'Kemarin'),
-        ];
-      } else if (providerName == 'Andi Pratama') {
-        _chatsHistory[providerName] = [
-          MockChatMessage(text: 'Apakah ada tambahan alat yang perlu dibawa?', isMe: false, time: 'Senin'),
-        ];
-      } else if (providerName == 'Rudi Hartono') {
-        _chatsHistory[providerName] = [
-          MockChatMessage(text: 'Harga sudah kami sepakati ya, terima kasih.', isMe: false, time: 'Minggu'),
-        ];
-      } else {
-        _chatsHistory[providerName] = [];
-      }
-    }
-    return _chatsHistory[providerName]!;
-  }
-
-  void addMessage(String providerName, String text, bool isMe) {
-    final now = DateTime.now();
-    final timeStr = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    final msg = MockChatMessage(text: text, isMe: isMe, time: timeStr);
-    getMessages(providerName).add(msg);
-    notifyListeners();
-  }
-
-  String getLastMessage(String providerName, String defaultMsg) {
-    final msgs = getMessages(providerName);
-    if (msgs.isEmpty) return defaultMsg;
-    return msgs.last.text;
-  }
-
-  String getLastTime(String providerName, String defaultTime) {
-    final msgs = getMessages(providerName);
-    if (msgs.isEmpty) return defaultTime;
-    return msgs.last.time;
   }
 }

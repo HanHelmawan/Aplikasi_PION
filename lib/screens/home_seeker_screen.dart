@@ -29,128 +29,6 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-  static final List<Map<String, dynamic>> _nearbyWorkers = [
-    {
-      'name': 'Budi Santoso',
-      'specialty': 'Spesialis Pipa & Ledeng',
-      'rating': '4.9',
-      'jobs': '142',
-      'distance': '0.8 km',
-      'isOnline': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-      'category': 'Ledeng',
-      'categoryColor': 0xFFFFFBEB,
-      'categoryIconColor': 0xFFD97706,
-      'bio': 'Berpengalaman lebih dari 8 tahun di bidang perpipaan dan instalasi air. Siap membantu masalah kebocoran, instalasi pipa baru, hingga renovasi kamar mandi.',
-      'skills': ['Instalasi Pipa', 'Perbaikan Keran', 'Water Heater', 'Renovasi KM', 'Saluran Mampet'],
-      'problems': ['bocor', 'pipa bocor', 'keran rusak', 'wc mampet', 'wastafel tersumbat', 'ledeng', 'air mampet', 'pasang pipa', 'instalasi air', 'tandon bocor', 'pompa air', 'pipa pecah'],
-      'reviews': const [
-        ProviderReview(
-          reviewerName: 'Andi Setiawan',
-          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-          timeAgo: '3 hari lalu',
-          rating: 5.0,
-          text: 'Sangat profesional! Pipa bocor langsung teratasi dalam 1 jam. Recommended banget!',
-        ),
-      ],
-    },
-    {
-      'name': 'Andi Pratama',
-      'specialty': 'Ahli Listrik & Kelistrikan',
-      'rating': '5.0',
-      'jobs': '89',
-      'distance': '1.2 km',
-      'isOnline': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
-      'category': 'Listrik',
-      'categoryColor': 0xFFFEF2F2,
-      'categoryIconColor': 0xFFDC2626,
-      'bio': 'Teknisi listrik bersertifikat dengan keahlian instalasi baru, perbaikan arus pendek (konsleting), pemasangan panel listrik, dan lampu rumah.',
-      'skills': ['Instalasi Listrik', 'Cari Korsleting', 'Pasang Lampu', 'Perbaikan Panel', 'Grounding'],
-      'problems': ['konslet', 'mati lampu', 'pasang lampu', 'kabel putus', 'instalasi listrik', 'sekring', 'pasang stopkontak', 'tambah daya', 'kabel terbakar', 'saklar rusak'],
-      'reviews': const [
-        ProviderReview(
-          reviewerName: 'Budi Santoso',
-          reviewerAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-          timeAgo: '5 hari lalu',
-          rating: 5.0,
-          text: 'Pekerjaan rapi sekali, langsung ketemu masalah konslet di atap rumah. Terima kasih mas!',
-        ),
-      ],
-    },
-    {
-      'name': 'Siti Aminah',
-      'specialty': 'Kebersihan Rumah & AC',
-      'rating': '4.8',
-      'jobs': '211',
-      'distance': '1.5 km',
-      'isOnline': false,
-      'imageUrl': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop',
-      'category': 'Kebersihan',
-      'categoryColor': 0xFFF0FDF4,
-      'categoryIconColor': 0xFF16A34A,
-      'bio': 'Penyedia jasa kebersihan rumah profesional dan tepercaya. Menyediakan layanan pembersihan harian, deep cleaning, setrika, serta pembersihan AC.',
-      'skills': ['Deep Cleaning', 'Setrika Baju', 'Sapu & Pel', 'Desinfeksi', 'Bersih Dapur'],
-      'problems': ['sapu', 'pel', 'bersih rumah', 'setrika baju', 'cuci piring', 'cuci pakaian', 'sedot debu', 'bersih kamar', 'asisten rumah tangga', 'harian', 'kotor', 'debu', 'sapu rumah'],
-      'reviews': const [
-        ProviderReview(
-          reviewerName: 'Eka Wijaya',
-          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-          timeAgo: '2 hari lalu',
-          rating: 4.8,
-          text: 'Siti sangat rajin dan sopan. Rumah bersih mengkilap setelah ditinggal seharian.',
-        ),
-      ],
-    },
-    {
-      'name': 'Rudi Hartono',
-      'specialty': 'Servis AC & Elektronik',
-      'rating': '4.7',
-      'jobs': '67',
-      'distance': '2.1 km',
-      'isOnline': false,
-      'imageUrl': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
-      'category': 'Elektronik',
-      'categoryColor': 0xFFEFF6FF,
-      'categoryIconColor': 0xFF2563EB,
-      'bio': 'Spesialis perbaikan dan pemeliharaan AC serta barang elektronik rumah tangga seperti mesin cuci, kulkas, dan televisi.',
-      'skills': ['Cuci AC', 'Isi Freon AC', 'Servis Mesin Cuci', 'Reparasi TV', 'Kulkas'],
-      'problems': ['ac panas', 'cuci ac', 'ac bocor', 'servis tv', 'mesin cuci rusak', 'kulkas tidak dingin', 'freon ac', 'elektronik', 'bongkar pasang ac', 'kipas angin', 'ac mati'],
-      'reviews': const [
-        ProviderReview(
-          reviewerName: 'Roni Hermawan',
-          reviewerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-          timeAgo: '1 minggu lalu',
-          rating: 4.7,
-          text: 'AC kamar yang tadinya panas sekarang langsung dingin seperti baru. Pengerjaan cepat!',
-        ),
-      ],
-    },
-    {
-      'name': 'Ahmad Wijaya',
-      'specialty': 'Tukang Kayu & Furniture',
-      'rating': '4.9',
-      'jobs': '112',
-      'distance': '1.8 km',
-      'isOnline': true,
-      'imageUrl': 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=200&auto=format&fit=crop',
-      'category': 'Pertukangan',
-      'categoryColor': 0xFFFFFBEB,
-      'categoryIconColor': 0xFF92400E,
-      'bio': 'Ahli pertukangan kayu untuk renovasi furniture, pintu macet, pembuatan lemari kustom, kitchen set, serta pemasangan lantai kayu.',
-      'skills': ['Reparasi Furniture', 'Pembuatan Lemari', 'Kusen Pintu', 'Pasang HPL', 'Rak Dinding'],
-      'problems': ['lemari rusak', 'pintu macet', 'pasang engsel', 'bikin meja', 'pertukangan', 'kayu', 'kusen', 'perbaikan atap', 'genteng bocor', 'kursi patah', 'meja goyang'],
-      'reviews': const [
-        ProviderReview(
-          reviewerName: 'Dewi Lestari',
-          reviewerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100&auto=format&fit=crop',
-          timeAgo: '4 hari lalu',
-          rating: 5.0,
-          text: 'Lemari pakaian saya yang engselnya rusak sekarang sudah diperbaiki dengan sangat kokoh. Sangat recommended.',
-        ),
-      ],
-    },
-  ];
 
   // ✅ AUDIT FIX: Hapus duplikasi _categories/_allCategories — gunakan satu list
   static const List<Map<String, dynamic>> _allCategories = [
@@ -300,10 +178,8 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
   }
 
   List<Map<String, dynamic>> get _filteredWorkers {
-    final allWorkers = [..._firestoreWorkers, ..._nearbyWorkers];
-    var workers = allWorkers.toList();
-    // Prioritaskan pencarian text secara global agar pencarian nama mitra
-    // atau permasalahan/pekerjaan dapat mencakup seluruh kategori.
+    var workers = _firestoreWorkers.toList();
+    // Pencarian global mencakup nama, spesialisasi, kategori, dan daftar masalah
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       return workers.where((w) =>
@@ -320,6 +196,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
   ProviderData _getProviderData(Map<String, dynamic> w) {
     return ProviderData(
+      uid: w['uid'] as String?,
       name: w['name'] as String,
       title: w['specialty'] as String,
       avatarUrl: w['imageUrl'] as String,
@@ -731,27 +608,48 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      SizedBox(
-                        height: 210,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          clipBehavior: Clip.none,
-                          itemCount: 2,
-                          separatorBuilder: (_, _) => const SizedBox(width: 16),
-                          itemBuilder: (buildCtx, i) {
-                            final w = _nearbyWorkers[i];
-                            return FeaturedProviderCard(
-                              name: w['name'] as String,
-                              specialty: w['specialty'] as String,
-                              rating: w['rating'] as String,
-                              jobs: w['jobs'] as String,
-                              imageUrl: w['imageUrl'] as String,
-                              isVerified: true,
-                              provider: _getProviderData(w),
-                            );
-                          },
+                      if (_firestoreWorkers.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.people_outline_rounded, size: 28, color: Color(0xFF94A3B8)),
+                              SizedBox(width: 12),
+                              Text(
+                                'Belum ada mitra terdaftar',
+                                style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        SizedBox(
+                          height: 210,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            clipBehavior: Clip.none,
+                            itemCount: _firestoreWorkers.take(2).length,
+                            separatorBuilder: (_, index) => const SizedBox(width: 16),
+                            itemBuilder: (buildCtx, i) {
+                              final w = _firestoreWorkers[i];
+                              return FeaturedProviderCard(
+                                name: w['name'] as String,
+                                specialty: w['specialty'] as String,
+                                rating: w['rating'] as String,
+                                jobs: w['jobs'] as String,
+                                imageUrl: w['imageUrl'] as String,
+                                isVerified: true,
+                                provider: _getProviderData(w),
+                              );
+                            },
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 12),
                     ],
 

@@ -38,3 +38,7 @@
     public static int w(...);
     public static int e(...);
 }
+
+# Google Play Core (deferred components)
+-dontwarn com.google.android.play.core.**
+

@@ -711,13 +711,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SnackBar(content: Text('Pusat bantuan — segera hadir', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
-                      _MenuItem(
+                       _MenuItem(
                         icon: Icons.info_outline_rounded,
                         label: 'Tentang Pion',
                         subtitle: 'Versi aplikasi & lisensi',
-                        trailingText: 'v1.0.3',
+                        trailingText: 'v1.1.0',
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pion Versi 1.0.3', style: TextStyle()), behavior: SnackBarBehavior.floating),
+                          const SnackBar(content: Text('Pion Versi 1.1.0', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
                     ]),

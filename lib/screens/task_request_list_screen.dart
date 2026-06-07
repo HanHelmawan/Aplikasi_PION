@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/task_request.dart';
 import '../core/theme.dart';
 import 'negotiation_screen.dart';
@@ -198,19 +199,25 @@ class _TaskRequestListScreenState extends State<TaskRequestListScreen> {
       );
 
   Widget _buildCard(TaskRequest r) {
-    // Generate a fake user name from the id for display
-    final userNames = ['Budi S.', 'Siti A.', 'Ahmad W.', 'Rina P.', 'Dian K.'];
-    final userIdx = r.id.hashCode.abs() % userNames.length;
-    final userName = userNames[userIdx];
-    final userAvatars = [
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=100&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600868620786-641e737119b4?q=80&w=100&auto=format&fit=crop',
-    ];
-    final avatarUrl = userAvatars[userIdx];
+    return FutureBuilder<DocumentSnapshot>(
+      future: r.userId.isNotEmpty
+          ? FirebaseFirestore.instance.collection('users').doc(r.userId).get()
+          : Future.value(null as DocumentSnapshot?),
+      builder: (context, snapshot) {
+        String userName = 'Pengguna Pion';
+        String avatarUrl = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop';
+        if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
+          final data = snapshot.data!.data() as Map<String, dynamic>?;
+          userName = data?['name'] ?? 'Pengguna Pion';
+          final av = data?['avatarUrl'] ?? '';
+          if (av.isNotEmpty) avatarUrl = av;
+        }
+        return _buildCardContent(r, userName, avatarUrl);
+      },
+    );
+  }
 
+  Widget _buildCardContent(TaskRequest r, String userName, String avatarUrl) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),

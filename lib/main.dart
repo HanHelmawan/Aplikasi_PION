@@ -69,6 +69,10 @@ class _MainNavigationState extends State<MainNavigation> {
   StreamSubscription? _chatSubscription;
   final DateTime _startTime = DateTime.now();
 
+  // Realtime unread badge
+  int _totalUnread = 0;
+  StreamSubscription? _unreadSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -83,6 +87,15 @@ class _MainNavigationState extends State<MainNavigation> {
       ProfileScreen(isWorkerMode: widget.isWorkerMode),
     ];
     _initChatNotificationListener();
+    _initUnreadBadge();
+  }
+
+  void _initUnreadBadge() {
+    Future.delayed(const Duration(milliseconds: 600), () {
+      _unreadSubscription = ChatService.listenTotalUnread().listen((unreadCount) {
+        if (mounted) setState(() => _totalUnread = unreadCount);
+      });
+    });
   }
 
   void _initChatNotificationListener() {
@@ -188,6 +201,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void dispose() {
     _chatSubscription?.cancel();
+    _unreadSubscription?.cancel();
     super.dispose();
   }
 
@@ -259,6 +273,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildNavItem(int index, ThemeData theme) {
     final item = _navItems[index];
     final isSelected = _currentIndex == index;
+    final bool showBadge = index == 2 && _totalUnread > 0;
 
     return InkWell(
       onTap: () => setState(() => _currentIndex = index),
@@ -272,17 +287,42 @@ class _MainNavigationState extends State<MainNavigation> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                isSelected ? item.icon : item.outlineIcon,
-                color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),
-                size: 22,
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    isSelected ? item.icon : item.outlineIcon,
+                    color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),
+                    size: 22,
+                  ),
+                  if (showBadge)
+                    Positioned(
+                      top: -5,
+                      right: -8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: Text(
+                          _totalUnread > 99 ? '99+' : '$_totalUnread',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 4),
               Text(
                 item.label,
                 style: TextStyle(
                   fontSize: 9.5,
-                  
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? theme.primaryColor : const Color(0xFF94A3B8),
                 ),

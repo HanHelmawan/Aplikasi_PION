@@ -7,12 +7,14 @@ class ChatMessage {
   final String senderId;
   final String text;
   final DateTime timestamp;
+  final bool isRead;
 
   ChatMessage({
     required this.id,
     required this.senderId,
     required this.text,
     required this.timestamp,
+    required this.isRead,
   });
 
   factory ChatMessage.fromMap(String id, Map<String, dynamic> map) {
@@ -30,6 +32,7 @@ class ChatMessage {
       senderId: map['senderId'] ?? '',
       text: map['text'] ?? '',
       timestamp: ts,
+      isRead: map['isRead'] ?? false,
     );
   }
 
@@ -38,6 +41,7 @@ class ChatMessage {
       'senderId': senderId,
       'text': text,
       'timestamp': FieldValue.serverTimestamp(),
+      'isRead': isRead,
     };
   }
 }
@@ -83,6 +87,7 @@ class ChatService {
           'senderId': myId,
           'text': text,
           'timestamp': FieldValue.serverTimestamp(),
+          'isRead': false,
         });
 
         // 2. Perbarui ringkasan ruang obrolan (lastMessage) dan unread count penerima
@@ -111,7 +116,7 @@ class ChatService {
     }
   }
 
-  /// Menandai semua pesan sudah dibaca oleh user saat ini (reset unread count)
+  /// Menandai semua pesan sudah dibaca oleh user saat ini (reset unread count dan set isRead = true pada dokumen messages)
   static Future<void> markMessagesRead(String recipientId) async {
     final myId = currentUserId;
     if (myId.isEmpty) return;
@@ -121,9 +126,25 @@ class ChatService {
       await _firestore.collection('chats').doc(chatRoomId).update({
         'unread_$myId': 0,
       });
+
+      // Tandai semua pesan dari penerima (lawan bicara) sebagai sudah dibaca (isRead = true)
+      final unreadQuery = await _firestore
+          .collection('chats')
+          .doc(chatRoomId)
+          .collection('messages')
+          .where('senderId', isEqualTo: recipientId)
+          .where('isRead', isEqualTo: false)
+          .get();
+
+      if (unreadQuery.docs.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (final doc in unreadQuery.docs) {
+          batch.update(doc.reference, {'isRead': true});
+        }
+        await batch.commit();
+      }
     } catch (e) {
-      // Dokumen mungkin belum ada, abaikan error ini
-      debugPrint('ChatService.markMessagesRead: $e');
+      debugPrint('ChatService.markMessagesRead error: $e');
     }
   }
 
@@ -183,7 +204,7 @@ class ChatService {
         });
   }
 
-  /// Mendengarkan seluruh ruang obrolan aktif milik pengguna secara realtime
+  /// Mendengarkan seluruh ruang obrolan aktif milik pengguna secara realtime (tanpa orderBy server-side untuk menghindari composite index error)
   static Stream<QuerySnapshot> listenToChatRooms() {
     final myId = currentUserId;
     if (myId.isEmpty) return const Stream.empty();
@@ -191,7 +212,6 @@ class ChatService {
     return _firestore
         .collection('chats')
         .where('participants', arrayContains: myId)
-        .orderBy('updatedAt', descending: true)
         .snapshots();
   }
 }

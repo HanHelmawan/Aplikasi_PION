@@ -26,6 +26,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
   String _searchQuery = '';
   String? _selectedCategory;
   final _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -179,17 +180,18 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
 
   List<Map<String, dynamic>> get _filteredWorkers {
     var workers = _firestoreWorkers.toList();
-    // Pencarian global mencakup nama, spesialisasi, kategori, dan daftar masalah
+    // Filter berdasarkan kategori terlebih dahulu jika terpilih
+    if (_selectedCategory != null) {
+      workers = workers.where((w) => (w['category'] as String).toLowerCase() == _selectedCategory!.toLowerCase()).toList();
+    }
+    // Kemudian filter berdasarkan query pencarian jika ada
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
-      return workers.where((w) =>
+      workers = workers.where((w) =>
           (w['name'] as String).toLowerCase().contains(q) ||
           (w['specialty'] as String).toLowerCase().contains(q) ||
           (w['category'] as String).toLowerCase().contains(q) ||
           ((w['problems'] as List<String>?) ?? []).any((p) => p.toLowerCase().contains(q))).toList();
-    }
-    if (_selectedCategory != null) {
-      workers = workers.where((w) => (w['category'] as String) == _selectedCategory).toList();
     }
     return workers;
   }
@@ -366,12 +368,10 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                     return GestureDetector(
                       onTap: () {
                         Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Kategori: ${cat['label']}', style: const TextStyle()),
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: const Color(0xFF2563EB),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ));
+                        setState(() {
+                          _selectedCategory = cat['label'] as String;
+                        });
+                        _scrollToTerdekatSection();
                       },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -399,7 +399,20 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToTerdekatSection() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          680,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -418,6 +431,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
           ),
         ),
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             // ── Top App Bar ──────────────────────────────────────────────────
             SliverAppBar(
@@ -573,7 +587,15 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                           final catLabel = cat['label'] as String;
                           final isActive = _selectedCategory == catLabel;
                           return GestureDetector(
-                            onTap: () => setState(() => _selectedCategory = isActive ? null : catLabel),
+                            onTap: () {
+                              final isActive = _selectedCategory == catLabel;
+                              setState(() {
+                                _selectedCategory = isActive ? null : catLabel;
+                              });
+                              if (!isActive) {
+                                _scrollToTerdekatSection();
+                              }
+                            },
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -602,7 +624,12 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                         children: [
                           const Text('Mitra Teratas ⭐ ', style: TextStyle( fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                           GestureDetector(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const SelectProviderScreen())),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (ctx) => SelectProviderScreen(initialCategory: _selectedCategory),
+                              ),
+                            ),
                             child: const Text('Semua', style: TextStyle( fontWeight: FontWeight.bold, color: Color(0xFF2563EB), fontSize: 14)),
                           ),
                         ],
@@ -674,6 +701,23 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
+
+                    // Filter Kategori Aktif
+                    if (_selectedCategory != null) ...[
+                      InputChip(
+                        label: Text('Kategori: $_selectedCategory'),
+                        onDeleted: () {
+                          setState(() {
+                            _selectedCategory = null;
+                          });
+                        },
+                        deleteIconColor: const Color(0xFF2563EB),
+                        backgroundColor: const Color(0xFFEFF6FF),
+                        labelStyle: const TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFFBFDBFE))),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
 
                     if (filteredWorkers.isEmpty)
                       _buildSearchEmpty()

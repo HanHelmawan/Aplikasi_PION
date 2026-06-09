@@ -491,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               children: [
                                                 Icon(Icons.pending_rounded, size: 13, color: Colors.white),
                                                 SizedBox(width: 5),
-                                                Text('KYC Belum Diverifikasi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                                                Text('KYC Tidak Terverifikasi', style: TextStyle( fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                                               ],
                                             ),
                                           ),
@@ -715,9 +715,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.info_outline_rounded,
                         label: 'Tentang Pion',
                         subtitle: 'Versi aplikasi & lisensi',
-                        trailingText: 'v1.1.0',
+                        trailingText: 'v1.1.1',
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pion Versi 1.1.0', style: TextStyle()), behavior: SnackBarBehavior.floating),
+                          const SnackBar(content: Text('Pion Versi 1.1.1', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
                     ]),

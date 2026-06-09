@@ -7,6 +7,7 @@ import 'active_task_screen.dart';
 import 'rating_screen.dart';
 import '../core/auth_service.dart';
 import '../core/chat_service.dart';
+import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
   final String? providerId;
@@ -35,6 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
   String _myName = 'Pengguna';
   String _myAvatar = '';
   String _providerPhone = '';
+  bool _isOnline = false;
+  StreamSubscription? _providerStatusSubscription;
 
   /// True jika providerId tidak ada — chat tidak bisa dilakukan via Firestore
   bool get _isReadOnly => widget.providerId == null;
@@ -42,9 +45,11 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    _isOnline = widget.isOnline;
     _loadSenderInfo();
     if (!_isReadOnly) {
       _loadProviderInfo();
+      _subscribeToProviderStatus();
       // Reset unread count saat membuka chatroom
       ChatService.markMessagesRead(widget.providerId!);
     } else {
@@ -52,6 +57,27 @@ class _ChatScreenState extends State<ChatScreen> {
       // coba ambil nomor dari assignedWorkerPhone
       _providerPhone = widget.request?.assignedWorkerPhone ?? '';
     }
+  }
+
+  void _subscribeToProviderStatus() {
+    if (widget.providerId == null) return;
+    _providerStatusSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.providerId)
+        .snapshots()
+        .listen((snap) {
+      if (snap.exists && mounted) {
+        final userData = snap.data() ?? {};
+        bool online = userData['isOnline'] as bool? ?? false;
+        if (!online && userData.containsKey('workerProfile')) {
+          final profile = userData['workerProfile'] as Map<String, dynamic>? ?? {};
+          online = profile['isOnline'] as bool? ?? false;
+        }
+        setState(() {
+          _isOnline = online;
+        });
+      }
+    });
   }
 
   Future<void> _loadSenderInfo() async {
@@ -280,6 +306,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    _providerStatusSubscription?.cancel();
     super.dispose();
   }
 
@@ -299,7 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Stack(
               children: [
                 PionAvatar(radius: 20, url: widget.providerAvatar),
-                if (widget.isOnline)
+                if (_isOnline)
                   Positioned(
                     right: 0, bottom: 0,
                     child: Container(
@@ -329,11 +356,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    widget.isOnline ? 'Online' : 'Terakhir aktif baru saja',
+                    _isOnline ? 'Online' : 'Terakhir aktif baru saja',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: widget.isOnline
+                      color: _isOnline
                           ? const Color(0xFF10B981)
                           : const Color(0xFF94A3B8),
                     ),
@@ -472,6 +499,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                       final list = snapshot.data ?? [];
 
+                      // Jika ada pesan masuk yang belum dibaca dari lawan bicara, tandai sebagai dibaca
+                      final hasUnreadFromOther = list.any((msg) =>
+                          msg.senderId == widget.providerId && !msg.isRead);
+                      if (hasUnreadFromOther) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ChatService.markMessagesRead(widget.providerId!);
+                        });
+                      }
+
                       // Scroll to bottom when new message arrives
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (_scrollController.hasClients &&
@@ -514,7 +550,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     ),
                                   ),
                                 ),
-                              _buildBubble(msg.text, isMe, timeStr, theme),
+                              _buildBubble(msg.text, isMe, timeStr, msg.isRead, theme),
                             ],
                           );
                         },
@@ -679,7 +715,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 
-  Widget _buildBubble(String text, bool isMe, String time, ThemeData theme) {
+  Widget _buildBubble(String text, bool isMe, String time, bool isRead, ThemeData theme) {
     Widget bubbleContent;
     bool isAttachment = text.startsWith('[') && text.endsWith(']');
     EdgeInsetsGeometry? customPadding;
@@ -891,13 +927,26 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: bubbleContent,
               ),
               const SizedBox(height: 6),
-              Text(
-                time,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF94A3B8),
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    time,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                  if (isMe) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      isRead ? Icons.done_all_rounded : Icons.done_rounded,
+                      size: 14,
+                      color: isRead ? Colors.blue : const Color(0xFF94A3B8),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

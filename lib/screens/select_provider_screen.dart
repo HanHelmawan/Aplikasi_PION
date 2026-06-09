@@ -4,7 +4,8 @@ import 'provider_detail_screen.dart';
 import 'chat_screen.dart';
 
 class SelectProviderScreen extends StatefulWidget {
-  const SelectProviderScreen({super.key});
+  final String? initialCategory;
+  const SelectProviderScreen({super.key, this.initialCategory});
 
   @override
   State<SelectProviderScreen> createState() => _SelectProviderScreenState();
@@ -13,11 +14,27 @@ class SelectProviderScreen extends StatefulWidget {
 class _SelectProviderScreenState extends State<SelectProviderScreen> {
   List<Map<String, dynamic>> _workers = [];
   bool _isLoading = true;
+  final ScrollController _scrollController = ScrollController();
+
+  static const List<String> _filterCategories = [
+    'Semua', 'Perbaikan', 'Kebersihan', 'Listrik', 'Ledeng', 'AC & Elektronik', 
+    'Taman', 'Keamanan', 'Angkut', 'Pertukangan', 'Kesehatan', 'Les Privat', 
+    'Fotografi', 'Cat Rumah', 'Perabot'
+  ];
+
+  late String _selectedCategory;
 
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.initialCategory ?? 'Semua';
     _loadWorkers();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadWorkers() async {
@@ -39,6 +56,14 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final filteredWorkers = _selectedCategory == 'Semua'
+        ? _workers
+        : _workers.where((w) {
+            final profile = w['workerProfile'] as Map<String, dynamic>? ?? {};
+            final cat = profile['category'] as String? ?? 'Umum';
+            return cat.toLowerCase() == _selectedCategory.toLowerCase();
+          }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -77,13 +102,14 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
                 : RefreshIndicator(
                     onRefresh: _loadWorkers,
                     child: SingleChildScrollView(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${_workers.length} profesional siap membantu',
+                            '${filteredWorkers.length} profesional siap membantu',
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
@@ -94,25 +120,78 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
                             'Pilih mitra terbaik yang sesuai dengan kebutuhan Anda.',
                             style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
                           ),
-                          const SizedBox(height: 28),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final isWide = constraints.maxWidth > 600;
-                              final cardWidth = isWide
-                                  ? (constraints.maxWidth - 24) / 2
-                                  : constraints.maxWidth;
-                              return Wrap(
-                                spacing: 24,
-                                runSpacing: 24,
-                                children: _workers
-                                    .map((w) => SizedBox(
-                                          width: cardWidth,
-                                          child: _buildCard(context, w),
-                                        ))
-                                    .toList(),
-                              );
-                            },
+                          const SizedBox(height: 24),
+                          
+                          // Category Filter Chips
+                          SizedBox(
+                            height: 38,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _filterCategories.length,
+                              separatorBuilder: (context, index) => const SizedBox(width: 8),
+                              itemBuilder: (context, index) {
+                                final cat = _filterCategories[index];
+                                final isSelected = _selectedCategory == cat;
+                                return ChoiceChip(
+                                  label: Text(cat),
+                                  selected: isSelected,
+                                  onSelected: (selected) {
+                                    if (selected) {
+                                      setState(() {
+                                        _selectedCategory = cat;
+                                      });
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        if (_scrollController.hasClients) {
+                                          _scrollController.animateTo(
+                                            140,
+                                            duration: const Duration(milliseconds: 300),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }
+                                      });
+                                    }
+                                  },
+                                  selectedColor: theme.colorScheme.primary,
+                                  backgroundColor: const Color(0xFFF1F5F9),
+                                  labelStyle: TextStyle(
+                                    color: isSelected ? Colors.white : const Color(0xFF475569),
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    fontSize: 13,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: isSelected ? theme.colorScheme.primary : const Color(0xFFE2E8F0),
+                                    ),
+                                  ),
+                                  showCheckmark: false,
+                                );
+                              },
+                            ),
                           ),
+                          const SizedBox(height: 28),
+                          
+                          if (filteredWorkers.isEmpty)
+                            _buildCategoryEmpty(context)
+                          else
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final isWide = constraints.maxWidth > 600;
+                                final cardWidth = isWide
+                                    ? (constraints.maxWidth - 24) / 2
+                                    : constraints.maxWidth;
+                                return Wrap(
+                                  spacing: 24,
+                                  runSpacing: 24,
+                                  children: filteredWorkers
+                                      .map((w) => SizedBox(
+                                            width: cardWidth,
+                                            child: _buildCard(context, w),
+                                          ))
+                                      .toList(),
+                                );
+                              },
+                            ),
                         ],
                       ),
                     ),
@@ -414,4 +493,39 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
       ),
     );
   }
+
+  Widget _buildCategoryEmpty(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.search_off_rounded,
+                    size: 38, color: Color(0xFF94A3B8)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Mitra Tidak Ditemukan',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A)),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Belum ada mitra di kategori "$_selectedCategory" saat ini.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              ),
+            ],
+          ),
+        ),
+      );
 }

@@ -15,6 +15,7 @@ import 'screens/splash_screen.dart';
 import 'screens/worker_home_screen.dart';
 import 'core/chat_service.dart';
 import 'screens/chat_screen.dart';
+import 'core/auth_service.dart';
 import 'dart:async';
 
 void main() async {
@@ -60,7 +61,7 @@ class MainNavigation extends StatefulWidget {
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
+class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
   // ✅ AUDIT FIX: _pages dipindah ke initState() agar tidak dibuat ulang setiap rebuild
@@ -76,6 +77,8 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    AuthService.updateUserOnlineStatus(true);
     _pages = [
       widget.isWorkerMode
           ? const WorkerHomeScreen()
@@ -199,7 +202,18 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      AuthService.updateUserOnlineStatus(true);
+    } else {
+      AuthService.updateUserOnlineStatus(false);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    AuthService.updateUserOnlineStatus(false);
     _chatSubscription?.cancel();
     _unreadSubscription?.cancel();
     super.dispose();

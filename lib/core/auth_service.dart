@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../models/task_request.dart'; // for TaskRequestStore.clear()
 
 class AuthService {
@@ -154,6 +155,12 @@ class AuthService {
   }
 
   static Future<void> logout() async {
+    try {
+      await updateUserOnlineStatus(false);
+    } catch (e) {
+      debugPrint('Error updating online status during logout: $e');
+    }
+
     // ✅ AUDIT FIX (Group E): Bersihkan data store sebelum logout
     //    agar data user sebelumnya tidak terlihat oleh user berikutnya di device yang sama
     try {
@@ -218,9 +225,17 @@ class AuthService {
         'email': firebaseUser.email ?? '',
         'isWorkerMode': doc.exists ? (doc['isWorkerMode'] ?? false) : false,
       };
+    } on PlatformException catch (e) {
+      debugPrint('AuthService.loginWithGoogle PlatformException: $e');
+      onError?.call('Gagal masuk dengan Google (${e.code}): ${e.message ?? "Terjadi kesalahan."}');
+      return null;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('AuthService.loginWithGoogle FirebaseAuthException: $e');
+      onError?.call('Firebase Auth Error (${e.code}): ${e.message ?? "Terjadi kesalahan."}');
+      return null;
     } catch (e) {
       debugPrint('AuthService.loginWithGoogle error: $e');
-      onError?.call('Gagal masuk dengan Google. Coba lagi.');
+      onError?.call('Gagal masuk dengan Google: $e');
       return null;
     }
   }
@@ -401,6 +416,32 @@ class AuthService {
     } catch (e) {
       debugPrint('AuthService.getAllWorkers error: $e');
       return [];
+    }
+  }
+
+  /// Updates the user's online status in Firestore.
+  static Future<void> updateUserOnlineStatus(bool isOnline) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return;
+
+    try {
+      final userDocRef = _firestore.collection('users').doc(firebaseUser.uid);
+      final doc = await userDocRef.get();
+      if (!doc.exists) return;
+
+      final data = doc.data();
+      final updates = <String, dynamic>{
+        'isOnline': isOnline,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (data != null && data.containsKey('workerProfile')) {
+        updates['workerProfile.isOnline'] = isOnline;
+      }
+
+      await userDocRef.update(updates);
+    } catch (e) {
+      debugPrint('AuthService.updateUserOnlineStatus error: $e');
     }
   }
 }

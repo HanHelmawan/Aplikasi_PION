@@ -23,6 +23,8 @@ class _ChatListScreenState extends State<ChatListScreen>
   bool _isSearching = false;
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
+  final Map<String, StreamSubscription<DocumentSnapshot>> _userSubscriptions = {};
+  final Map<String, bool> _onlineStatuses = {};
 
   @override
   void initState() {
@@ -47,20 +49,60 @@ class _ChatListScreenState extends State<ChatListScreen>
 
       _chatRoomsSubscription = ChatService.listenToChatRooms().listen((snapshot) {
         final List<Map<String, dynamic>> loaded = [];
-        for (var doc in snapshot.docs) {
+        
+        // Urutkan chatroom secara lokal berdasarkan updatedAt descending
+        final docs = snapshot.docs.toList();
+        docs.sort((a, b) {
+          final aData = a.data() as Map<String, dynamic>?;
+          final bData = b.data() as Map<String, dynamic>?;
+          final aTs = aData?['updatedAt'] as Timestamp?;
+          final bTs = bData?['updatedAt'] as Timestamp?;
+          if (aTs == null && bTs == null) return 0;
+          if (aTs == null) return 1;
+          if (bTs == null) return -1;
+          return bTs.compareTo(aTs);
+        });
+
+        final List<String> currentRecipients = [];
+        for (var doc in docs) {
           final data = doc.data() as Map<String, dynamic>?;
           if (data == null) continue;
 
           final participants = List<String>.from(data['participants'] ?? []);
           final recipientId = participants.firstWhere((id) => id != myId, orElse: () => '');
           if (recipientId.isEmpty) continue;
+          currentRecipients.add(recipientId);
+
+          if (!_userSubscriptions.containsKey(recipientId)) {
+            _userSubscriptions[recipientId] = FirebaseFirestore.instance
+                .collection('users')
+                .doc(recipientId)
+                .snapshots()
+                .listen((userSnap) {
+              if (userSnap.exists && mounted) {
+                final userData = userSnap.data() ?? {};
+                bool isOnline = userData['isOnline'] as bool? ?? false;
+                if (!isOnline && userData.containsKey('workerProfile')) {
+                  final profile = userData['workerProfile'] as Map<String, dynamic>? ?? {};
+                  isOnline = profile['isOnline'] as bool? ?? false;
+                }
+                setState(() {
+                  _onlineStatuses[recipientId] = isOnline;
+                });
+              }
+            });
+          }
 
           final recipientData = data['user_$recipientId'] as Map<String, dynamic>? ?? {};
           final recipientName = recipientData['name'] ?? 'Pengguna Pion';
           final recipientAvatar = recipientData['avatarUrl'] ?? '';
 
           final lastMsg = data['lastMessage'] as Map<String, dynamic>? ?? {};
-          final lastText = lastMsg['text'] ?? '';
+          var lastText = lastMsg['text'] ?? '';
+          final lastSenderId = lastMsg['senderId'] as String?;
+          if (lastSenderId == myId && lastText.isNotEmpty) {
+            lastText = 'Anda: $lastText';
+          }
           final ts = lastMsg['timestamp'];
 
           String timeStr = 'Baru saja';
@@ -88,7 +130,7 @@ class _ChatListScreenState extends State<ChatListScreen>
             'message': lastText,
             'time': timeStr,
             'unread': unread,
-            'isOnline': true,
+            'isOnline': _onlineStatuses[recipientId] ?? false,
             'isDone': false,
             'avatarUrl': recipientAvatar.isNotEmpty
                 ? recipientAvatar
@@ -96,6 +138,15 @@ class _ChatListScreenState extends State<ChatListScreen>
             'providerId': recipientId,
           });
         }
+
+        // Hapus subscription yang tidak aktif lagi
+        _userSubscriptions.keys.toList().forEach((id) {
+          if (!currentRecipients.contains(id)) {
+            _userSubscriptions[id]?.cancel();
+            _userSubscriptions.remove(id);
+            _onlineStatuses.remove(id);
+          }
+        });
 
         // Juga tambahkan chat dari TaskRequestStore (worker yang sudah ditetapkan)
         final requests = TaskRequestStore.instance.requests;
@@ -145,6 +196,10 @@ class _ChatListScreenState extends State<ChatListScreen>
     _pulseController.dispose();
     _chatRoomsSubscription?.cancel();
     _searchController.dispose();
+    for (var sub in _userSubscriptions.values) {
+      sub.cancel();
+    }
+    _userSubscriptions.clear();
     super.dispose();
   }
 
@@ -152,7 +207,10 @@ class _ChatListScreenState extends State<ChatListScreen>
     List<Map<String, dynamic>> statusFiltered;
     switch (_filterIndex) {
       case 1:
-        statusFiltered = _firestoreChats.where((c) => c['isOnline'] as bool).toList();
+        statusFiltered = _firestoreChats.where((c) {
+          final pid = c['providerId'] as String?;
+          return pid != null ? (_onlineStatuses[pid] ?? false) : (c['isOnline'] as bool? ?? false);
+        }).toList();
         break;
       case 2:
         statusFiltered = _firestoreChats.where((c) => c['isDone'] as bool).toList();
@@ -174,7 +232,10 @@ class _ChatListScreenState extends State<ChatListScreen>
     return statusFiltered;
   }
 
-  int get _onlineCount => _firestoreChats.where((c) => c['isOnline'] as bool).length;
+  int get _onlineCount => _firestoreChats.where((c) {
+        final pid = c['providerId'] as String?;
+        return pid != null ? (_onlineStatuses[pid] ?? false) : (c['isOnline'] as bool? ?? false);
+      }).length;
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +374,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                         width: 56,
                         child: Stack(
                           children: _firestoreChats
-                              .where((c) => c['isOnline'] as bool)
+                              .where((c) {
+                                final pid = c['providerId'] as String?;
+                                return pid != null ? (_onlineStatuses[pid] ?? false) : (c['isOnline'] as bool? ?? false);
+                              })
                               .toList()
                               .asMap()
                               .entries
@@ -416,7 +480,8 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   Widget _chatItem(Map<String, dynamic> chat) {
     final unread = chat['unread'] as int;
-    final isOnline = chat['isOnline'] as bool;
+    final pid = chat['providerId'] as String?;
+    final isOnline = pid != null ? (_onlineStatuses[pid] ?? false) : (chat['isOnline'] as bool? ?? false);
 
     return InkWell(
       onTap: () {
@@ -440,7 +505,7 @@ class _ChatListScreenState extends State<ChatListScreen>
               providerId: providerId,
               providerName: chat['name'] as String,
               providerAvatar: chat['avatarUrl'] as String,
-              isOnline: chat['isOnline'] as bool,
+              isOnline: isOnline,
               request: matchedReq,
             ),
           ),

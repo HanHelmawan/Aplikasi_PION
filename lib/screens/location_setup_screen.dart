@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/auth_service.dart';
 import '../core/theme.dart';
 import '../main.dart';
+import 'map_location_picker_screen.dart';
 
 class LocationSetupScreen extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -20,32 +21,11 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
   late final Animation<Offset> _slideAnim;
 
   String? _selectedCity;
+  String? _selectedAddress;
+  double? _selectedLat;
+  double? _selectedLng;
   bool _isLoading = false;
-  bool _gpsGranted = false;
-
-  // Daftar kota besar Indonesia untuk pilihan manual
-  static const List<String> _cities = [
-    'Jakarta Pusat',
-    'Jakarta Selatan',
-    'Jakarta Barat',
-    'Jakarta Timur',
-    'Jakarta Utara',
-    'Bogor',
-    'Depok',
-    'Tangerang',
-    'Tangerang Selatan',
-    'Bekasi',
-    'Bandung',
-    'Surabaya',
-    'Medan',
-    'Semarang',
-    'Makassar',
-    'Palembang',
-    'Denpasar',
-    'Yogyakarta',
-    'Malang',
-    'Solo',
-  ];
+  bool _locationSelected = false;
 
   @override
   void initState() {
@@ -69,86 +49,28 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
     super.dispose();
   }
 
-  // â”€â”€ Simulated GPS Permission Request â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  Future<void> _requestGpsPermission() async {
-    final granted = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Theme.of(ctx).primaryColor.withValues(alpha: 0.08), // ✅ AUDIT FIX (L-1)
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.location_on_rounded,
-                size: 34,
-                color: Theme.of(ctx).primaryColor,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Izinkan Akses Lokasi',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '"Pion" ingin mengakses lokasi Anda untuk menampilkan penyedia jasa terdekat dalam radius pencarian.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunitoSans(
-                fontSize: 14,
-                color: const Color(0xFF475569),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
+  // ── Open Map Picker ──────────────────────────────────────────────────────
+  Future<void> _openMapPicker() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MapLocationPickerScreen(
+          initialLatitude: _selectedLat,
+          initialLongitude: _selectedLng,
+          title: 'Pilih Lokasi Anda',
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFF94A3B8)),
-            child: Text('Jangan Izinkan', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(ctx).primaryColor,
-              foregroundColor: Colors.white,
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text('Izinkan', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
-          ),
-          const SizedBox(width: 4),
-        ],
       ),
     );
 
-    if (granted == true && mounted) {
-      setState(() => _gpsGranted = true);
-      // Simulate detecting location
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(milliseconds: 1500));
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _selectedCity = 'Jakarta Selatan'; // Simulated GPS result
-        });
-        _showSnack('Lokasi terdeteksi: Jakarta Selatan', isSuccess: true);
-      }
+    if (result != null && mounted) {
+      setState(() {
+        _selectedLat = result['latitude'] as double;
+        _selectedLng = result['longitude'] as double;
+        _selectedAddress = result['address'] as String;
+        _selectedCity = result['cityName'] as String;
+        _locationSelected = true;
+      });
+      _showSnack('Lokasi berhasil dipilih: $_selectedCity', isSuccess: true);
     }
   }
 
@@ -160,6 +82,12 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
 
     setState(() => _isLoading = true);
     await AuthService.saveLocation(_selectedCity!);
+    if (_selectedLat != null && _selectedLng != null) {
+      await AuthService.saveLocationCoordinates(_selectedLat!, _selectedLng!);
+    }
+    if (_selectedAddress != null) {
+      await AuthService.saveFullAddress(_selectedAddress!);
+    }
     await AuthService.markLocationSetupDone();
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -269,9 +197,9 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.my_location_rounded,
+                                  _locationSelected ? Icons.check_circle_rounded : Icons.my_location_rounded,
                                   size: 64,
-                                  color: Theme.of(context).primaryColor,
+                                  color: _locationSelected ? const Color(0xFF10B981) : Theme.of(context).primaryColor,
                                 ),
                               ),
                               // Small pin badge
@@ -282,11 +210,11 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
+                                    color: _locationSelected ? const Color(0xFF10B981) : Theme.of(context).primaryColor,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
-                                    Icons.location_pin,
+                                  child: Icon(
+                                    _locationSelected ? Icons.map_rounded : Icons.location_pin,
                                     size: 22,
                                     color: Colors.white,
                                   ),
@@ -297,7 +225,7 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                         ),
                         const SizedBox(height: 40),
 
-                        // â”€â”€ Heading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                        // ── Heading ──────────────────────────────────────────
                         Text(
                           'Di mana lokasi Anda?',
                           textAlign: TextAlign.center,
@@ -320,23 +248,23 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                         ),
                         const SizedBox(height: 40),
 
-                        // â”€â”€ GPS Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                        // ── Map Picker Button ──────────────────────────────────
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: _gpsGranted
+                            color: _locationSelected
                                 ? const Color(0xFFD1FAE5)
-                                : (Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08)), // ✅ AUDIT FIX (L-1)
+                                : (Theme.of(context).chipTheme.backgroundColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.08)),
                             border: Border.all(
-                              color: _gpsGranted
+                              color: _locationSelected
                                   ? const Color(0xFF10B981)
-                                  : Theme.of(context).primaryColor.withValues(alpha: 0.3), // ✅ AUDIT FIX (L-1)
+                                  : Theme.of(context).primaryColor.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
                           ),
                           child: ListTile(
-                            onTap: _gpsGranted ? null : _requestGpsPermission,
+                            onTap: _openMapPicker,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 20,
                               vertical: 8,
@@ -345,137 +273,90 @@ class _LocationSetupScreenState extends State<LocationSetupScreen>
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: _gpsGranted
+                                color: _locationSelected
                                     ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                    : Theme.of(context).primaryColor.withValues(alpha: 0.1), // ✅ AUDIT FIX (L-1)
+                                    : Theme.of(context).primaryColor.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                _gpsGranted
+                                _locationSelected
                                     ? Icons.check_circle_rounded
-                                    : Icons.gps_fixed_rounded,
-                                color: _gpsGranted
+                                    : Icons.map_rounded,
+                                color: _locationSelected
                                     ? const Color(0xFF10B981)
                                     : Theme.of(context).primaryColor,
                                 size: 24,
                               ),
                             ),
                             title: Text(
-                              _gpsGranted
-                                  ? 'Lokasi GPS aktif'
-                                  : 'Gunakan Lokasi GPS',
+                              _locationSelected
+                                  ? _selectedCity ?? 'Lokasi Dipilih'
+                                  : 'Pilih Lokasi di Peta',
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
-                                color: _gpsGranted
+                                color: _locationSelected
                                     ? const Color(0xFF059669)
                                     : Theme.of(context).primaryColor,
                               ),
                             ),
                             subtitle: Text(
-                              _gpsGranted
-                                  ? _selectedCity ?? 'Mendeteksi...'
-                                  : 'Deteksi otomatis via perangkat',
+                              _locationSelected
+                                  ? (_selectedAddress ?? 'Alamat terpilih')
+                                  : 'Gunakan peta interaktif & GPS',
                               style: GoogleFonts.nunitoSans(
                                 fontSize: 13,
-                                color: _gpsGranted
+                                color: _locationSelected
                                     ? const Color(0xFF10B981)
                                     : const Color(0xFF64748B),
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            trailing: _gpsGranted
-                                ? null
-                                : Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
+                            trailing: Icon(
+                              _locationSelected
+                                  ? Icons.edit_rounded
+                                  : Icons.chevron_right_rounded,
+                              color: _locationSelected
+                                  ? const Color(0xFF10B981)
+                                  : Theme.of(context).primaryColor,
+                              size: 22,
+                            ),
                           ),
                         ),
 
-                        const SizedBox(height: 16),
-
-                        // â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                        Row(
-                          children: [
-                            const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'atau pilih manual',
-                                style: GoogleFonts.nunitoSans(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade500,
-                                ),
-                              ),
+                        // ── Hint text ──────────────────────────────────────────
+                        if (!_locationSelected) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0F9FF),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFBAE6FD)),
                             ),
-                            const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // â”€â”€ City Dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: _selectedCity != null && !_gpsGranted
-                                  ? Theme.of(context).primaryColor
-                                  : const Color(0xFFE2E8F0),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: (!_gpsGranted) ? _selectedCity : null,
-                              hint: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                child: Text(
-                                  'Pilih kota / area',
-                                  style: GoogleFonts.nunitoSans(
-                                    color: const Color(0xFF94A3B8),
-                                    fontSize: 15,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFF0284C7)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Anda bisa memilih lokasi dengan mengetuk peta, drag pin, mencari alamat, atau menggunakan GPS otomatis.',
+                                    style: GoogleFonts.nunitoSans(
+                                      fontSize: 12,
+                                      color: const Color(0xFF0369A1),
+                                      height: 1.4,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              isExpanded: true,
-                              icon: const Padding(
-                                padding: EdgeInsets.only(right: 16),
-                                child: Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              items: _cities
-                                  .map((c) => DropdownMenuItem(
-                                        value: c,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                                          child: Text(
-                                            c,
-                                            style: GoogleFonts.nunitoSans(
-                                              fontSize: 15,
-                                              color: const Color(0xFF0F172A),
-                                            ),
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) {
-                                setState(() {
-                                  _selectedCity = val;
-                                  _gpsGranted = false; // Manual overrides GPS
-                                });
-                              },
+                              ],
                             ),
                           ),
-                        ),
+                        ],
 
                         const SizedBox(height: 32),
 
-                        // â”€â”€ Confirm Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                        // ── Confirm Button ──────────────────────────────────
                         SizedBox(
                           height: 56,
                           child: ElevatedButton(

@@ -4,6 +4,7 @@ import '../main.dart';
 import '../core/auth_service.dart';
 import '../screens/select_provider_screen.dart';
 import '../screens/provider_detail_screen.dart';
+import '../screens/map_location_picker_screen.dart';
 import '../widgets/worker_card.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/featured_provider_card.dart';
@@ -262,6 +263,34 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
     };
   }
 
+  Future<void> _openMapPicker() async {
+    final coords = await AuthService.getSavedCoordinates();
+    if (!mounted) return;
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MapLocationPickerScreen(
+          initialLatitude: coords?['lat'],
+          initialLongitude: coords?['lng'],
+          title: 'Pilih Lokasi Anda',
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      final cityName = result['cityName'] as String;
+      final address = result['address'] as String;
+      final lat = result['latitude'] as double;
+      final lng = result['longitude'] as double;
+
+      await AuthService.saveLocation(cityName);
+      await AuthService.saveLocationCoordinates(lat, lng);
+      await AuthService.saveFullAddress(address);
+
+      if (mounted) setState(() => _currentLocation = cityName);
+    }
+  }
+
   void _showLocationSheet() {
     String? tempCity = _currentLocation;
     showModalBottomSheet(
@@ -292,6 +321,69 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
                 child: Text('Pilih area pencarian jasa Anda', style: TextStyle( fontSize: 14, color: Color(0xFF64748B))),
               ),
               const SizedBox(height: 20),
+
+              // ── Pilih di Peta (Map Picker) ──────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _openMapPicker();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40, height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB).withValues(alpha: 0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.map_rounded, color: Color(0xFF2563EB), size: 20),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Pilih di Peta', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF1E40AF))),
+                              SizedBox(height: 2),
+                              Text('Gunakan GPS atau cari alamat', style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6))),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFF2563EB), size: 22),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── Divider ─────────────────────────────────────────────────
+              Row(
+                children: [
+                  const SizedBox(width: 24),
+                  const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text('atau pilih cepat', style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                  ),
+                  const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                  const SizedBox(width: 24),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── Dropdown Kota ───────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Container(

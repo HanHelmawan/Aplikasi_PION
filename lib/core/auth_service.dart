@@ -13,6 +13,9 @@ class AuthService {
 
   static const String _locationSetupDoneKey = 'pion_location_setup_done';
   static const String _savedLocationKey = 'pion_saved_location';
+  static const String _savedLatKey = 'pion_saved_lat';
+  static const String _savedLngKey = 'pion_saved_lng';
+  static const String _savedAddressKey = 'pion_saved_address';
 
   // ✅ AUDIT FIX: Cache SharedPreferences instance untuk menghindari multiple init
   static SharedPreferences? _prefs;
@@ -399,6 +402,34 @@ class AuthService {
   static Future<String?> getSavedLocation() async {
     final prefs = await _sharedPrefs;
     return prefs.getString(_savedLocationKey);
+  }
+
+  /// Saves the user's chosen location coordinates.
+  static Future<void> saveLocationCoordinates(double lat, double lng) async {
+    final prefs = await _sharedPrefs;
+    await prefs.setDouble(_savedLatKey, lat);
+    await prefs.setDouble(_savedLngKey, lng);
+  }
+
+  /// Returns the previously saved coordinates as {lat, lng}, or null if not set.
+  static Future<Map<String, double>?> getSavedCoordinates() async {
+    final prefs = await _sharedPrefs;
+    final lat = prefs.getDouble(_savedLatKey);
+    final lng = prefs.getDouble(_savedLngKey);
+    if (lat == null || lng == null) return null;
+    return {'lat': lat, 'lng': lng};
+  }
+
+  /// Saves the full address string from reverse geocoding.
+  static Future<void> saveFullAddress(String address) async {
+    final prefs = await _sharedPrefs;
+    await prefs.setString(_savedAddressKey, address);
+  }
+
+  /// Returns the previously saved full address, or null if not set.
+  static Future<String?> getSavedFullAddress() async {
+    final prefs = await _sharedPrefs;
+    return prefs.getString(_savedAddressKey);
   }
 
   /// Retrieves all users who are registered as workers (have isWorkerMode = true)

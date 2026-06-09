@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/task_request.dart';
 import '../core/theme.dart';
+import 'map_location_picker_screen.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
@@ -79,7 +80,18 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   }
 
   Future<void> _pickWhere() async {
-    setState(() => _whereLabel = 'Jl. Sudirman No. 12, Jakarta');
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapLocationPickerScreen(
+          title: 'Pilih Lokasi Pekerjaan',
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() => _whereLabel = result['address'] as String);
+    }
   }
 
   void _addPhoto() {

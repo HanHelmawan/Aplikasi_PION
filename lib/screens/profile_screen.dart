@@ -715,9 +715,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.info_outline_rounded,
                         label: 'Tentang Pion',
                         subtitle: 'Versi aplikasi & lisensi',
-                        trailingText: 'v1.1.1',
+                        trailingText: 'v1.1.2',
                         onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pion Versi 1.1.1', style: TextStyle()), behavior: SnackBarBehavior.floating),
+                          const SnackBar(content: Text('Pion Versi 1.1.2', style: TextStyle()), behavior: SnackBarBehavior.floating),
                         ),
                       ),
                     ]),

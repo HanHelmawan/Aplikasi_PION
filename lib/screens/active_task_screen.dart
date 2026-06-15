@@ -170,7 +170,7 @@ class ActiveTaskScreen extends StatelessWidget {
                               providerId: 'mock_${(request?.assignedWorkerName ?? "Budi Santoso").replaceAll(" ", "_")}',
                               providerName: request?.assignedWorkerName ?? 'Budi Santoso',
                               providerAvatar: request?.assignedWorkerAvatar ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-                              isOnline: true,
+                              isOnline: false,
                               request: request,
                             ),
                           ),

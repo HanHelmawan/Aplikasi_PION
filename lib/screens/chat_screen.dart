@@ -21,7 +21,7 @@ class ChatScreen extends StatefulWidget {
     this.providerId,
     this.providerName = 'Mitra Pion',
     this.providerAvatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
-    this.isOnline = true,
+    this.isOnline = false,
     this.request,
   });
 
@@ -68,11 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .listen((snap) {
       if (snap.exists && mounted) {
         final userData = snap.data() ?? {};
-        bool online = userData['isOnline'] as bool? ?? false;
-        if (!online && userData.containsKey('workerProfile')) {
-          final profile = userData['workerProfile'] as Map<String, dynamic>? ?? {};
-          online = profile['isOnline'] as bool? ?? false;
-        }
+        final online = userData['isOnline'] as bool? ?? false;
         setState(() {
           _isOnline = online;
         });

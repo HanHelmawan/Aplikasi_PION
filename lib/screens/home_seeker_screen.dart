@@ -209,6 +209,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       skills: List<String>.from(w['skills'] as List? ?? []),
       category: w['category'] as String,
       reviews: List<ProviderReview>.from(w['reviews'] as List? ?? []),
+      isOnline: w['isOnline'] as bool? ?? false,
     );
   }
 
@@ -250,7 +251,7 @@ class _HomeSeekerScreenState extends State<HomeSeekerScreen> {
       'rating': (profile['rating'] ?? 5.0).toString(),
       'jobs': (profile['jobsCompleted'] ?? 0).toString(),
       'distance': '0.5 km',
-      'isOnline': profile['isOnline'] ?? true,
+      'isOnline': userData['isOnline'] as bool? ?? false,
       'imageUrl': userData['avatarUrl'] != null && userData['avatarUrl'].toString().isNotEmpty
           ? userData['avatarUrl']
           : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',

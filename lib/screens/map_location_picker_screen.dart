@@ -202,7 +202,8 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen>
     _reverseGeocodeTimer?.cancel();
     setState(() => _isLoadingAddress = true);
 
-    _reverseGeocodeTimer = Timer(const Duration(milliseconds: 600), () async {
+    // Debounce 800ms — beri waktu cukup untuk Nominatim API
+    _reverseGeocodeTimer = Timer(const Duration(milliseconds: 800), () async {
       final address = await _locationService.reverseGeocode(
         location.latitude,
         location.longitude,
@@ -210,10 +211,11 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen>
       if (!mounted) return;
       setState(() {
         _isLoadingAddress = false;
-        if (address != null) {
+        if (address != null && address.fullAddress.isNotEmpty) {
           _selectedAddress = address.fullAddress;
           _selectedCity = address.cityName;
         } else {
+          // Fallback: koordinat sebagai info terakhir jika semua geocoder gagal
           _selectedAddress =
               '${location.latitude.toStringAsFixed(6)}, ${location.longitude.toStringAsFixed(6)}';
           _selectedCity = 'Lokasi Dipilih';
@@ -221,6 +223,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen>
       });
     });
   }
+
 
   // ── GPS Button (recenter) ─────────────────────────────────────────────────
 
@@ -510,7 +513,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen>
               ),
             ),
 
-            // ── Bottom Card: Alamat + Koordinat + Tombol Konfirmasi ────────
+            // ── Bottom Card: Alamat + Status GPS + Tombol Konfirmasi ────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -519,8 +522,6 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen>
                 title: widget.title ?? 'Pilih Lokasi',
                 address: _selectedAddress,
                 city: _selectedCity,
-                latitude: _selectedLocation.latitude,
-                longitude: _selectedLocation.longitude,
                 gpsStatus: _gpsStatus,
                 gpsStatusLabel: _gpsStatusLabel,
                 gpsStatusColor: _gpsStatusColor,
@@ -836,13 +837,11 @@ class _GpsErrorBanner extends StatelessWidget {
   }
 }
 
-/// Bottom card: alamat, koordinat, status GPS, dan tombol konfirmasi.
+/// Bottom card: alamat, status GPS, dan tombol konfirmasi.
 class _BottomCard extends StatelessWidget {
   final String title;
   final String address;
   final String city;
-  final double latitude;
-  final double longitude;
   final LocationStatus gpsStatus;
   final String gpsStatusLabel;
   final Color gpsStatusColor;
@@ -855,8 +854,6 @@ class _BottomCard extends StatelessWidget {
     required this.title,
     required this.address,
     required this.city,
-    required this.latitude,
-    required this.longitude,
     required this.gpsStatus,
     required this.gpsStatusLabel,
     required this.gpsStatusColor,
@@ -1022,38 +1019,31 @@ class _BottomCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-          // Koordinat realtime
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F9FF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFBAE6FD)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.gps_fixed_rounded,
-                    size: 15, color: Color(0xFF0284C7)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Row(
-                    children: [
-                      _CoordChip(
-                        label: 'Lat',
-                        value: latitude.toStringAsFixed(6),
-                      ),
-                      const SizedBox(width: 12),
-                      _CoordChip(
-                        label: 'Lng',
-                        value: longitude.toStringAsFixed(6),
-                      ),
-                    ],
+          // Akurasi GPS
+          if (gpsStatus == LocationStatus.active)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFBBF7D0)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.gps_fixed_rounded,
+                      size: 14, color: Color(0xFF16A34A)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Lokasi GPS terdeteksi dengan akurasi tinggi',
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF15803D),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 14),
 
           // Tombol Konfirmasi
@@ -1089,39 +1079,6 @@ class _BottomCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Chip koordinat kecil.
-class _CoordChip extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _CoordChip({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '$label: ',
-          style: GoogleFonts.poppins(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF0369A1),
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.nunitoSans(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF0F172A),
-          ),
-        ),
-      ],
     );
   }
 }

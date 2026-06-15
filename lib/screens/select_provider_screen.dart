@@ -256,7 +256,7 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
     final bio = profile['bio'] as String? ??
         'Profesional berpengalaman di bidangnya. Siap membantu kebutuhan Anda.';
     final skills = List<String>.from(profile['skills'] as List? ?? []);
-    final isOnline = profile['isOnline'] as bool? ?? false;
+    final isOnline = worker['isOnline'] as bool? ?? false;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -470,6 +470,7 @@ class _SelectProviderScreenState extends State<SelectProviderScreen> {
                             skills: skills,
                             reviews: const [],
                             category: category,
+                            isOnline: isOnline,
                           ),
                         ),
                       ),

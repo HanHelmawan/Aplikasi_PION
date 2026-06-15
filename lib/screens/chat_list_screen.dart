@@ -81,11 +81,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                 .listen((userSnap) {
               if (userSnap.exists && mounted) {
                 final userData = userSnap.data() ?? {};
-                bool isOnline = userData['isOnline'] as bool? ?? false;
-                if (!isOnline && userData.containsKey('workerProfile')) {
-                  final profile = userData['workerProfile'] as Map<String, dynamic>? ?? {};
-                  isOnline = profile['isOnline'] as bool? ?? false;
-                }
+                final isOnline = userData['isOnline'] as bool? ?? false;
                 setState(() {
                   _onlineStatuses[recipientId] = isOnline;
                 });

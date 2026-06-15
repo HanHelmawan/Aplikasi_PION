@@ -34,6 +34,7 @@ class ProviderData {
   final List<ProviderReview> reviews;
   final String category;
   final String? price;
+  final bool isOnline;
 
   const ProviderData({
     this.uid,
@@ -48,6 +49,7 @@ class ProviderData {
     required this.reviews,
     required this.category,
     this.price,
+    this.isOnline = false,
   });
 }
 
@@ -291,7 +293,7 @@ class ProviderDetailScreen extends StatelessWidget {
                                   providerId: provider.uid,
                                   providerName: provider.name,
                                   providerAvatar: provider.avatarUrl,
-                                  isOnline: true,
+                                  isOnline: provider.isOnline,
                                 ),
                               ),
                             )

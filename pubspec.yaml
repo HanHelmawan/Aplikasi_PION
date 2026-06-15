@@ -46,11 +46,13 @@ dependencies:
   firebase_core: ^3.13.1
   firebase_auth: ^5.5.3
   cloud_firestore: ^5.6.8
+  firebase_storage: ^12.4.5
   google_sign_in: ^6.2.2
   cached_network_image: ^3.4.1  # ✅ AUDIT FIX: proper network image caching
   google_fonts: ^6.2.1
   geolocator: ^13.0.2
   geocoding: ^3.0.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
